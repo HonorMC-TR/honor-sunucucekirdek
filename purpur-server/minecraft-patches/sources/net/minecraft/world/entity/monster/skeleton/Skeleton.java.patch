@@ -1,7 +1,7 @@
 --- a/net/minecraft/world/entity/monster/skeleton/Skeleton.java
 +++ b/net/minecraft/world/entity/monster/skeleton/Skeleton.java
-@@ -130,4 +_,64 @@
-     SoundEvent getStepSound() {
+@@ -131,4 +_,64 @@
+     protected SoundEvent getStepSound() {
          return SoundEvents.SKELETON_STEP;
      }
 +

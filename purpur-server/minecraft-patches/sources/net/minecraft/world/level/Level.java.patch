@@ -55,7 +55,7 @@
      public CraftWorld getWorld() {
          return this.world;
      }
-@@ -852,6 +_,8 @@
+@@ -220,6 +_,8 @@
          final org.bukkit.NamespacedKey worldKey = CraftNamespacedKey.fromMinecraft(dimension.identifier()); // Paper
          this.spigotConfig = new org.spigotmc.SpigotWorldConfig(bukkitName, worldKey); // Spigot
          this.paperConfig = paperWorldConfigCreator.apply(this.spigotConfig); // Paper - create paper world config
@@ -64,8 +64,8 @@
          this.generator = generator;
          this.world = new CraftWorld((ServerLevel) this, worldKey, biomeProvider, environment);
  
-@@ -2197,4 +_,14 @@
-         return this.moonrise$getEntityLookup().getEntityCount(); // Paper - rewrite chunk system
+@@ -1504,4 +_,14 @@
+         return ret;
      }
      // Paper end - allow patching this logic
 +

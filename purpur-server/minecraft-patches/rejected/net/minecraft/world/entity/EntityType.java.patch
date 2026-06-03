@@ -1,0 +1,52 @@
+From d44c75e006d2ffe1b3217d503036c0a070fc63ba Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 06:37:42 -0700
+Subject: [PATCH] purpur File Patches
+
+
+diff --git a/net/minecraft/world/entity/EntityType.java b/net/minecraft/world/entity/EntityType.java
+index 0840d69c9e80a2df01737a2980f0b5d6a6ca7691..c2d4f6a164a18c8809d143793921567907363a17 100644
+--- a/net/minecraft/world/entity/EntityType.java
++++ b/net/minecraft/world/entity/EntityType.java
+@@ -1238,6 +1238,16 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>,
+         return register(vanillaEntityId(vanillaId), builder);
+     }
+ 
++    // Purpur start - PlayerSetSpawnerTypeWithEggEvent
++    public static EntityType<?> getFromBukkitType(org.bukkit.entity.EntityType bukkitType) {
++        return getFromKey(Identifier.parse(bukkitType.getKey().toString()));
++    }
++
++    public static EntityType<?> getFromKey(Identifier location) {
++        return BuiltInRegistries.ENTITY_TYPE.getValue(location);
++    }
++    // Purpur end - PlayerSetSpawnerTypeWithEggEvent
++
+     public static Identifier getKey(final EntityType<?> type) {
+         return BuiltInRegistries.ENTITY_TYPE.getKey(type);
+     }
+@@ -1495,6 +1505,16 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>,
+         return this.category;
+     }
+ 
++    // Purpur start - PlayerSetSpawnerTypeWithEggEvent
++    public String getName() {
++        return BuiltInRegistries.ENTITY_TYPE.getKey(this).getPath();
++    }
++
++    public String getTranslatedName() {
++        return getDescription().getString();
++    }
++    // Purpur end - PlayerSetSpawnerTypeWithEggEvent
++
+     public String getDescriptionId() {
+         return this.descriptionId;
+     }
+@@ -1556,6 +1576,7 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T>,
+             // Paper start - Add logging for debugging entity tags with invalid ids
+             () -> {
+                 LOGGER.warn("Skipping Entity with id {}", input.getStringOr("id", "[invalid]"));
++                LOGGER.warn("Location: {} {}", level.getWorld().getName(), input.read("Pos", net.minecraft.world.phys.Vec3.CODEC).orElse(net.minecraft.world.phys.Vec3.ZERO)); // Purpur - log skipped entity's position
+                 if ((DEBUG_ENTITIES_WITH_INVALID_IDS || level.getCraftServer().getServer().isDebugging()) && input instanceof TagValueInput tagInput) {
+                     LOGGER.warn("Skipped entity tag: {}", tagInput.input);
+                 }

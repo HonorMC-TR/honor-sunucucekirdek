@@ -1,0 +1,144 @@
+From d44c75e006d2ffe1b3217d503036c0a070fc63ba Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 06:37:42 -0700
+Subject: [PATCH] purpur File Patches
+
+
+diff --git a/net/minecraft/server/gui/MinecraftServerGui.java b/net/minecraft/server/gui/MinecraftServerGui.java
+index b810cb0a9dd8713aed70cc9fdeea1bc249c8e0dc..f5c52f0aa85d8ae66215fbbe94773b16e06a72a5 100644
+--- a/net/minecraft/server/gui/MinecraftServerGui.java
++++ b/net/minecraft/server/gui/MinecraftServerGui.java
+@@ -39,6 +39,11 @@ public class MinecraftServerGui extends JComponent {
+     private Thread logAppenderThread;
+     private final Collection<Runnable> finalizers = Lists.newArrayList();
+     private final AtomicBoolean isClosing = new AtomicBoolean();
++    // Purpur start - GUI Improvements
++    private final CommandHistory history = new CommandHistory();
++    private String currentCommand = "";
++    private int historyIndex = 0;
++    // Purpur end - GUI Improvements
+ 
+     public static MinecraftServerGui showFrameFor(final DedicatedServer server) {
+         try {
+@@ -46,7 +51,7 @@ public class MinecraftServerGui extends JComponent {
+         } catch (Exception var3) {
+         }
+ 
+-        final JFrame frame = new JFrame("Minecraft server");
++        final JFrame frame = new JFrame("Purpur Minecraft server"); // Purpur - Improve GUI
+         final MinecraftServerGui gui = new MinecraftServerGui(server);
+         frame.setDefaultCloseOperation(2);
+         frame.add(gui);
+@@ -54,7 +59,7 @@ public class MinecraftServerGui extends JComponent {
+         frame.setLocationRelativeTo(null);
+         frame.setVisible(true);
+         // Paper start - Improve ServerGUI
+-        frame.setName("Minecraft server");
++        frame.setName("Purpur Minecraft server"); // Purpur - Improve GUI
+         try {
+             frame.setIconImage(javax.imageio.ImageIO.read(java.util.Objects.requireNonNull(MinecraftServerGui.class.getClassLoader().getResourceAsStream("logo.png"))));
+         } catch (java.io.IOException ignore) {
+@@ -64,7 +69,7 @@ public class MinecraftServerGui extends JComponent {
+             @Override
+             public void windowClosing(final WindowEvent event) {
+                 if (!gui.isClosing.getAndSet(true)) {
+-                    frame.setTitle("Minecraft server - shutting down!");
++                    frame.setTitle("Purpur Minecraft server - shutting down!"); // Purpur - Improve GUI
+                     server.halt(true);
+                     gui.runFinalizers();
+                 }
+@@ -112,7 +117,7 @@ public class MinecraftServerGui extends JComponent {
+ 
+     private JComponent buildChatPanel() {
+         JPanel panel = new JPanel(new BorderLayout());
+-        JTextArea chatArea = new JTextArea();
++        org.purpurmc.purpur.gui.JColorTextPane chatArea = new org.purpurmc.purpur.gui.JColorTextPane(); // Purpur - GUI Improvements
+         JScrollPane scrollPane = new JScrollPane(chatArea, 22, 30);
+         chatArea.setEditable(false);
+         chatArea.setFont(MONOSPACED);
+@@ -121,10 +126,43 @@ public class MinecraftServerGui extends JComponent {
+             String text = chatField.getText().trim();
+             if (!text.isEmpty()) {
+                 this.server.handleConsoleInput(text, this.server.createCommandSourceStack());
++                // Purpur start - GUI Improvements
++                history.add(text);
++                historyIndex = -1;
++                // Purpur end - GUI Improvements
+             }
+ 
+             chatField.setText("");
+         });
++        // Purpur start - GUI Improvements
++        chatField.getInputMap().put(javax.swing.KeyStroke.getKeyStroke("UP"), "up");
++        chatField.getInputMap().put(javax.swing.KeyStroke.getKeyStroke("DOWN"), "down");
++        chatField.getActionMap().put("up", new javax.swing.AbstractAction() {
++            @Override
++            public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
++                if (historyIndex < 0) {
++                    currentCommand = chatField.getText();
++                }
++                if (historyIndex < history.size() - 1) {
++                    chatField.setText(history.get(++historyIndex));
++                }
++            }
++        });
++        chatField.getActionMap().put("down", new javax.swing.AbstractAction() {
++            @Override
++            public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
++                if (historyIndex >= 0) {
++                    if (historyIndex == 0) {
++                        --historyIndex;
++                        chatField.setText(currentCommand);
++                    } else {
++                        --historyIndex;
++                        chatField.setText(history.get(historyIndex));
++                    }
++                }
++            }
++        });
++        // Purpur end - GUI Improvements
+         chatArea.addFocusListener(new FocusAdapter() {
+             @Override
+             public void focusGained(final FocusEvent arg0) {
+@@ -159,7 +197,7 @@ public class MinecraftServerGui extends JComponent {
+     }
+ 
+     private static final java.util.regex.Pattern ANSI = java.util.regex.Pattern.compile("\\e\\[[\\d;]*[^\\d;]"); // CraftBukkit // Paper
+-    public void print(final JTextArea console, final JScrollPane scrollPane, final String line) {
++    public void print(final org.purpurmc.purpur.gui.JColorTextPane console, final JScrollPane scrollPane, final String line) {
+         if (!SwingUtilities.isEventDispatchThread()) {
+             SwingUtilities.invokeLater(() -> this.print(console, scrollPane, line));
+         } else {
+@@ -170,10 +208,11 @@ public class MinecraftServerGui extends JComponent {
+                 shouldScroll = scrollBar.getValue() + scrollBar.getSize().getHeight() + MONOSPACED.getSize() * 4 > scrollBar.getMaximum();
+             }
+ 
+-            try {
++            /*try { // Purpur - GUI Improvements
+                 document.insertString(document.getLength(), MinecraftServerGui.ANSI.matcher(line).replaceAll(""), null); // CraftBukkit
+             } catch (BadLocationException var8) {
+-            }
++            }*/ // Purpur - GUI Improvements
++            console.append(line); // Purpur - GUI Improvements
+ 
+             if (shouldScroll) {
+                 scrollBar.setValue(Integer.MAX_VALUE);
+@@ -181,6 +220,18 @@ public class MinecraftServerGui extends JComponent {
+         }
+     }
+ 
++    // Purpur start - GUI Improvements
++    public static class CommandHistory extends java.util.LinkedList<String> {
++        @Override
++        public boolean add(String command) {
++            if (size() > 1000) {
++                remove();
++            }
++            return super.offerFirst(command);
++        }
++    }
++    // Purpur end - GUI Improvements
++
+     // Paper start - Add onboarding message for initial server start
+     private JComponent buildOnboardingPanel() {
+         String onboardingLink = "https://docs.papermc.io/paper/next-steps";

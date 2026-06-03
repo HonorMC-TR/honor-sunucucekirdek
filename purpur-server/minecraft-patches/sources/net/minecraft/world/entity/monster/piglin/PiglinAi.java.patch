@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/monster/piglin/PiglinAi.java
 +++ b/net/minecraft/world/entity/monster/piglin/PiglinAi.java
-@@ -666,14 +_,24 @@
+@@ -664,14 +_,24 @@
      }
  
      public static boolean isWearingSafeArmor(final LivingEntity livingEntity) {

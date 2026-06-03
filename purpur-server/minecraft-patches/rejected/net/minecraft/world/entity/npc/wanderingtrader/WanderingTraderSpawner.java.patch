@@ -1,0 +1,29 @@
+From d44c75e006d2ffe1b3217d503036c0a070fc63ba Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 06:37:42 -0700
+Subject: [PATCH] purpur File Patches
+
+
+diff --git a/net/minecraft/world/entity/npc/wanderingtrader/WanderingTraderSpawner.java b/net/minecraft/world/entity/npc/wanderingtrader/WanderingTraderSpawner.java
+index 4dea05ff63055803e7f41b729fdeca35879bc0d8..d53c8c684615421b982272bbb84a40cdcb0387f5 100644
+--- a/net/minecraft/world/entity/npc/wanderingtrader/WanderingTraderSpawner.java
++++ b/net/minecraft/world/entity/npc/wanderingtrader/WanderingTraderSpawner.java
+@@ -135,7 +135,17 @@ public class WanderingTraderSpawner implements CustomSpawner {
+             int xPosition = referencePosition.getX() + this.random.nextInt(radius * 2) - radius;
+             int zPosition = referencePosition.getZ() + this.random.nextInt(radius * 2) - radius;
+             int yPosition = level.getHeight(SpawnPlacements.getHeightmapType(EntityType.WANDERING_TRADER), xPosition, zPosition);
+-            BlockPos spawnPos = new BlockPos(xPosition, yPosition, zPosition);
++            // Purpur start - Allow toggling special MobSpawners per world - allow traders to spawn below nether roof
++            BlockPos.MutableBlockPos spawnPos = new BlockPos.MutableBlockPos(xPosition, yPosition, zPosition);
++            if (level.dimensionType().hasCeiling()) {
++                do {
++                    spawnPos.relative(net.minecraft.core.Direction.DOWN);
++                } while (!level.getBlockState(spawnPos).isAir());
++                do {
++                    spawnPos.relative(net.minecraft.core.Direction.DOWN);
++                } while (level.getBlockState(spawnPos).isAir() && spawnPos.getY() > 0);
++            }
++            // Purpur end - Allow toggling special MobSpawners per world
+             if (wanderingTraderSpawnType.isSpawnPositionOk(level, spawnPos, EntityType.WANDERING_TRADER)) {
+                 spawnPosition = spawnPos;
+                 break;

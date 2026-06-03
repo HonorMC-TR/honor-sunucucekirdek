@@ -1,0 +1,31 @@
+From d44c75e006d2ffe1b3217d503036c0a070fc63ba Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 06:37:42 -0700
+Subject: [PATCH] purpur File Patches
+
+
+diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
+index cd0191ab65e7d829cfa055fe8978ea14c14a3bfe..5967bfd4e738b82480f158de0c144e4b416de9b8 100644
+--- a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
++++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
+@@ -113,9 +113,10 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
+                             return;
+                         }
+                         // CraftBukkit end
+-                        if (this.random.nextFloat() < 0.05F && level.isSpawningMonsters()) {
++                        if (this.random.nextFloat() < level.purpurConfig.enderPearlEndermiteChance && level.isSpawningMonsters()) { // Purpur - Configurable Ender Pearl RNG
+                             Endermite endermite = EntityType.ENDERMITE.create(level, EntitySpawnReason.TRIGGERED);
+                             if (endermite != null) {
++                                endermite.setPlayerSpawned(true); // Purpur - Add back player spawned endermite API
+                                 endermite.snapTo(preTeleportX, preTeleportY, preTeleportZ, preTeleportYRot, preTeleportXRot); // Paper - spawn endermite at pre teleport position as teleport has been moved up
+                                 level.addFreshEntity(endermite, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.ENDER_PEARL); // Paper - add reason
+                             }
+@@ -135,7 +136,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
+                         if (newOwner != null) {
+                             newOwner.resetFallDistance();
+                             newOwner.resetCurrentImpulseContext();
+-                            newOwner.hurtServer(player.level(), this.damageSources().enderPearl().eventEntityDamager(this), 5.0F); // CraftBukkit // Paper - fix DamageSource API
++                            newOwner.hurtServer(player.level(), this.damageSources().enderPearl().eventEntityDamager(this), this.level().purpurConfig.enderPearlDamage); // CraftBukkit // Paper - fix DamageSource API // Purpur - Configurable Ender Pearl damage
+                         }
+ 
+                         this.playSound(level, teleportPos);
