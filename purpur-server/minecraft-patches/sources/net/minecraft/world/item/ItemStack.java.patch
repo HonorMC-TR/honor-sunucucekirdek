@@ -3,7 +3,7 @@
 @@ -452,6 +_,7 @@
                  // revert back all captured blocks
                  for (org.bukkit.block.BlockState blockstate : blocks) {
-                     ((org.bukkit.craftbukkit.block.CraftBlockState) blockstate).revertPlace();
+                     ((org.bukkit.craftbukkit.block.CraftBlockState) blockstate).revertPlace(true); // poi updates needs to be skipped since the poi were never registered as part of the capture
 +                    ((org.bukkit.craftbukkit.block.CraftBlock) blockstate.getBlock()).getBlockState().getBlock().forgetPlacer(); // Purpur - Store placer on Block when placed
                  }
  
@@ -16,7 +16,7 @@
  
                      level.notifyAndUpdatePhysics(newPos, null, oldBlock, block, level.getBlockState(newPos), updateFlags, net.minecraft.world.level.block.Block.UPDATE_LIMIT); // send null chunk as chunk.k() returns false by this point
                  }
-@@ -590,6 +_,26 @@
+@@ -579,6 +_,26 @@
          return this.isDamageableItem() && this.getDamageValue() > 0;
      }
  
@@ -43,7 +43,7 @@
      public int getDamageValue() {
          return Mth.clamp(this.getOrDefault(DataComponents.DAMAGE, 0), 0, this.getMaxDamage());
      }
-@@ -1254,6 +_,12 @@
+@@ -1237,6 +_,12 @@
      public boolean isEnchanted() {
          return !this.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY).isEmpty();
      }

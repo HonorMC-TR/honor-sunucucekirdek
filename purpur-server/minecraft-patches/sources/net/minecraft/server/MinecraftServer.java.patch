@@ -86,7 +86,7 @@
                      // adjust ticksBehind so that it is not greater-than catchup
                      if (ticksBehind - catchup > 0L) {
                          final long difference = ticksBehind - catchup;
-@@ -1853,7 +_,7 @@
+@@ -1852,7 +_,7 @@
      }
  
      public String getServerModName() {

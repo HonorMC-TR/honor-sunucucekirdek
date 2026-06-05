@@ -64,7 +64,7 @@
          this.generator = generator;
          this.world = new CraftWorld((ServerLevel) this, worldKey, biomeProvider, environment);
  
-@@ -1504,4 +_,14 @@
+@@ -1505,4 +_,14 @@
          return ret;
      }
      // Paper end - allow patching this logic
