@@ -5,10 +5,10 @@ Subject: [PATCH] Phantoms attracted to crystals and crystals shoot phantoms
 
 
 diff --git a/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java b/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
-index aa5426c1c407a3534c587d558d56364ebd99dca3..7a85db931978b39f82947ed619edd3c83ae04dce 100644
+index f083705efb92a57dc770a1bdb7c3e8dd6d51c1d5..6704a3b50d23db92ed2fb9811712f19688d00ba7 100644
 --- a/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
 +++ b/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
-@@ -27,6 +27,12 @@ public class EndCrystal extends Entity {
+@@ -28,6 +28,12 @@ public class EndCrystal extends Entity {
      private static final boolean DEFAULT_SHOW_BOTTOM = true;
      public int time;
      public boolean generatedByDragonFight = false; // Paper - Fix invulnerable end crystals
@@ -21,7 +21,7 @@ index aa5426c1c407a3534c587d558d56364ebd99dca3..7a85db931978b39f82947ed619edd3c8
  
      public EndCrystal(final EntityType<? extends EndCrystal> type, final Level level) {
          super(type, level);
-@@ -95,6 +101,49 @@ public class EndCrystal extends Entity {
+@@ -96,6 +102,49 @@ public class EndCrystal extends Entity {
          // Paper end - Fix invulnerable end crystals
          if (this.level().purpurConfig.endCrystalCramming > 0 && this.level().getEntitiesOfClass(EndCrystal.class, getBoundingBox()).size() > this.level().purpurConfig.endCrystalCramming) this.hurt(this.damageSources().cramming(), 6.0F); // Purpur - End Crystal Cramming
  
@@ -72,7 +72,7 @@ index aa5426c1c407a3534c587d558d56364ebd99dca3..7a85db931978b39f82947ed619edd3c8
  
      @Override
 diff --git a/net/minecraft/world/entity/monster/Phantom.java b/net/minecraft/world/entity/monster/Phantom.java
-index 194b398a85550edc752b54636079e16a4de27ba7..1474d005d8333f592856ba4cdfc396cb4b93159a 100644
+index b42f67dff1ae0fd9b549f584e789285a15cb690c..d3c9948ee52c0f209481e273bc94b551519a7d71 100644
 --- a/net/minecraft/world/entity/monster/Phantom.java
 +++ b/net/minecraft/world/entity/monster/Phantom.java
 @@ -49,6 +49,7 @@ public class Phantom extends Mob implements Enemy {
@@ -118,8 +118,8 @@ index 194b398a85550edc752b54636079e16a4de27ba7..1474d005d8333f592856ba4cdfc396cb
 -        this.goalSelector.addGoal(3, new Phantom.PhantomCircleAroundAnchorGoal());
 +        // Purpur start - Phantoms attracted to crystals and crystals shoot phantoms
 +        if (level().purpurConfig.phantomOrbitCrystalRadius > 0) {
-+            this.goalSelector.addGoal(1, new PhantomFindCrystalGoal(this));
-+            this.goalSelector.addGoal(2, new PhantomOrbitCrystalGoal(this));
++            this.goalSelector.addGoal(1, new Phantom.PhantomFindCrystalGoal(this));
++            this.goalSelector.addGoal(2, new Phantom.PhantomOrbitCrystalGoal(this));
 +        }
 +        this.goalSelector.addGoal(3, new Phantom.PhantomAttackStrategyGoal());
 +        this.goalSelector.addGoal(4, new Phantom.PhantomSweepAttackGoal());
@@ -133,7 +133,7 @@ index 194b398a85550edc752b54636079e16a4de27ba7..1474d005d8333f592856ba4cdfc396cb
      }
  
 +    // Purpur start - Phantoms attracted to crystals and crystals shoot phantoms
-+    class PhantomFindCrystalGoal extends Goal {
++    private class PhantomFindCrystalGoal extends Goal {
 +        private final Phantom phantom;
 +        private net.minecraft.world.entity.boss.enderdragon.EndCrystal crystal;
 +        private Comparator<net.minecraft.world.entity.boss.enderdragon.EndCrystal> comparator;
@@ -186,7 +186,7 @@ index 194b398a85550edc752b54636079e16a4de27ba7..1474d005d8333f592856ba4cdfc396cb
 +        }
 +    }
 +
-+    class PhantomOrbitCrystalGoal extends Goal {
++    private class PhantomOrbitCrystalGoal extends Goal {
 +        private final Phantom phantom;
 +        private float offset;
 +        private float radius;
@@ -250,6 +250,6 @@ index 194b398a85550edc752b54636079e16a4de27ba7..1474d005d8333f592856ba4cdfc396cb
 +    }
 +    // Purpur end - Phantoms attracted to crystals and crystals shoot phantoms
 +
-     private class PhantomMoveControl extends org.purpurmc.purpur.controller.FlyingMoveControllerWASD { // Purpur - Ridables
+     private class PhantomMoveControl<T extends Mob> extends org.purpurmc.purpur.controller.FlyingMoveControllerWASD<T> { // Purpur - Ridables
          private float speed = 0.1F;
  

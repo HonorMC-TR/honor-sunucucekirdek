@@ -3217,6 +3217,19 @@ public class PurpurWorldConfig {
         striderAlwaysDropExp = getBoolean("mobs.strider.always-drop-exp", striderAlwaysDropExp);
     }
 
+    public boolean sulfurCubeRidable = false;
+    public boolean sulfurCubeRidableInWater = true;
+    public boolean sulfurCubeControllable = true;
+    public boolean sulfurCubeTakeDamageFromWater = false;
+    public boolean sulfurCubeAlwaysDropExp = false;
+    private void sulfurCubeSettings() {
+        sulfurCubeRidable = getBoolean("mobs.sulfur_cube.ridable", sulfurCubeRidable);
+        sulfurCubeRidableInWater = getBoolean("mobs.sulfur_cube.ridable-in-water", sulfurCubeRidableInWater);
+        sulfurCubeControllable = getBoolean("mobs.sulfur_cube.controllable", sulfurCubeControllable);
+        sulfurCubeTakeDamageFromWater = getBoolean("mobs.sulfur_cube.takes-damage-from-water", sulfurCubeTakeDamageFromWater);
+        sulfurCubeAlwaysDropExp = getBoolean("mobs.sulfur_cube.always-drop-exp", sulfurCubeAlwaysDropExp);
+    }
+
     public boolean tadpoleRidable = false;
     public boolean tadpoleRidableInWater = true;
     public boolean tadpoleControllable = true;

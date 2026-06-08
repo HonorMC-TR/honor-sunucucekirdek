@@ -5,10 +5,10 @@ Subject: [PATCH] Implement elytra settings
 
 
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index 3bc8a8d26569a3c26e518cd48c52b9b6c9e38294..34d122f58ff32cb47b79ab1348fee3224315d2dd 100644
+index 55f7761ad757cc4eebbf1271e0d284bc31db753e..991ded4e26c00ffb25a933a8cc175849e1e579b2 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -3943,7 +3943,16 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -4011,7 +4011,16 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
                  if (freeFallInterval % 2 == 0) {
                      List<EquipmentSlot> slotsWithGliders = EquipmentSlot.VALUES.stream().filter(slot -> canGlideUsing(this.getItemBySlot(slot), slot)).toList();
                      EquipmentSlot slotToDamage = Util.getRandom(slotsWithGliders, this.random);
@@ -49,10 +49,10 @@ index b3443ff2d06af328493046e723efc11d299a2824..3c001b3810097d5cb60ad64e0727d8d9
                          itemStack.shrink(1); // Moved up from below
                      } else {
 diff --git a/net/minecraft/world/item/ItemStack.java b/net/minecraft/world/item/ItemStack.java
-index d71fe8e6699e2e3298240e091832d33215837a4a..f9d2aa76bd273c40d39c30e1c9fddb2749b18865 100644
+index b415581057f20e3aba5b249ec35b9069aa873038..a528429259f5981ac4e1c89953c217bfd165517f 100644
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
-@@ -694,6 +694,14 @@ public final class ItemStack implements DataComponentHolder, ItemInstance {
+@@ -682,6 +682,14 @@ public final class ItemStack implements DataComponentHolder, ItemInstance {
                  org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerItemBreakEvent(serverPlayer, this); // Paper - Add EntityDamageItemEvent
              }
              // CraftBukkit end

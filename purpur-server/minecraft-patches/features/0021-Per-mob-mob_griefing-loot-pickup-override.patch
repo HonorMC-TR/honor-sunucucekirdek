@@ -5,10 +5,10 @@ Subject: [PATCH] Per mob mob_griefing loot pickup override
 
 
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index 65473722cf31dd7f298ec60cf0d870d8e8fbe142..d0187dea97d0a1247d2d03b089cf138035bf6d24 100644
+index b5c2b64c581c30cdf6f379ccd76a863b81513f8b..7aaabbde2aaa58d2ae412bc6910cb95dee3b9fe5 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -572,7 +572,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -577,7 +577,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
              && this.canPickUpLoot()
              && this.isAlive()
              && !this.dead
@@ -17,7 +17,7 @@ index 65473722cf31dd7f298ec60cf0d870d8e8fbe142..d0187dea97d0a1247d2d03b089cf1380
              Vec3i pickupReach = this.getPickupReach();
  
              for (ItemEntity entity : this.level()
-@@ -591,6 +591,12 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -596,6 +596,12 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
          profiler.pop();
      }
  
@@ -31,10 +31,10 @@ index 65473722cf31dd7f298ec60cf0d870d8e8fbe142..d0187dea97d0a1247d2d03b089cf1380
          return EquipmentSlot.HEAD;
      }
 diff --git a/net/minecraft/world/entity/animal/allay/Allay.java b/net/minecraft/world/entity/animal/allay/Allay.java
-index f5bf06a36f4ffd0370a95ef6d18e99d4daedcd65..9e31aaff00f76cfbba9539d7e2bb3283afdaae65 100644
+index 9206c45b9789ff2834f14efb65dc85113c7bd7d7..d3074e1ce8d7d13bcb5b23e7602e94d6b7558f03 100644
 --- a/net/minecraft/world/entity/animal/allay/Allay.java
 +++ b/net/minecraft/world/entity/animal/allay/Allay.java
-@@ -162,6 +162,13 @@ public class Allay extends PathfinderMob implements InventoryCarrier, VibrationS
+@@ -163,6 +163,13 @@ public class Allay extends PathfinderMob implements InventoryCarrier, VibrationS
      }
      // Purpur end - Configurable entity base attributes
  
@@ -49,10 +49,10 @@ index f5bf06a36f4ffd0370a95ef6d18e99d4daedcd65..9e31aaff00f76cfbba9539d7e2bb3283
      protected Brain<Allay> makeBrain(final Brain.Packed packedBrain) {
          return BRAIN_PROVIDER.makeBrain(this, packedBrain);
 diff --git a/net/minecraft/world/entity/animal/fox/Fox.java b/net/minecraft/world/entity/animal/fox/Fox.java
-index ea23a64654ebaaf97fe9e5c0eab0f31f54d94d22..f286089eca3b6e9c72f1b954b872c8673a717b7a 100644
+index ca5b0b8081c4943bfbfba4f0f9284f0fdda3cf9f..91a001af54b9ba53c9c2a7cfd797d9ff2f53c0db 100644
 --- a/net/minecraft/world/entity/animal/fox/Fox.java
 +++ b/net/minecraft/world/entity/animal/fox/Fox.java
-@@ -814,6 +814,13 @@ public class Fox extends Animal {
+@@ -821,6 +821,13 @@ public class Fox extends Animal {
      }
      // Purpur end - Tulips change fox type
  
@@ -67,7 +67,7 @@ index ea23a64654ebaaf97fe9e5c0eab0f31f54d94d22..f286089eca3b6e9c72f1b954b872c867
      // Paper start - Cancellable death event
      protected org.bukkit.event.entity.EntityDeathEvent dropAllDeathLoot(final ServerLevel level, final DamageSource source) {
 diff --git a/net/minecraft/world/entity/monster/illager/Pillager.java b/net/minecraft/world/entity/monster/illager/Pillager.java
-index e69514bf39e2acfc909cb55b1704ca3f56f704e2..20c0b12b56416bc532de4de827c88850bfd1f0f3 100644
+index 9d6629c29dc471ef1db672cce4260a983d452cbd..55b7fc1c375edaf8c86294884da55d5d97e09e93 100644
 --- a/net/minecraft/world/entity/monster/illager/Pillager.java
 +++ b/net/minecraft/world/entity/monster/illager/Pillager.java
 @@ -104,6 +104,13 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob, Inve
@@ -85,7 +85,7 @@ index e69514bf39e2acfc909cb55b1704ca3f56f704e2..20c0b12b56416bc532de4de827c88850
      protected void registerGoals() {
          super.registerGoals();
 diff --git a/net/minecraft/world/entity/monster/illager/Vindicator.java b/net/minecraft/world/entity/monster/illager/Vindicator.java
-index c29a1aea5c09ade40e36f4cb00a677b31ad91069..d4e298ecf79ff7ebdea71b710e6df7ba72f9a0f5 100644
+index d42afe275f7a917d5784da2838972dff73f1476a..68b252bfd6bacc3952ffc610032cd8a0ec1169e3 100644
 --- a/net/minecraft/world/entity/monster/illager/Vindicator.java
 +++ b/net/minecraft/world/entity/monster/illager/Vindicator.java
 @@ -96,6 +96,13 @@ public class Vindicator extends AbstractIllager {
@@ -103,10 +103,10 @@ index c29a1aea5c09ade40e36f4cb00a677b31ad91069..d4e298ecf79ff7ebdea71b710e6df7ba
      protected void registerGoals() {
          super.registerGoals();
 diff --git a/net/minecraft/world/entity/monster/piglin/Piglin.java b/net/minecraft/world/entity/monster/piglin/Piglin.java
-index bbdf01c5ab0b0eee4773d4ca690dc3c4fa3ec202..b14fd101ba647ca99211a42b142d2d80975a9e38 100644
+index 9246caa06976c258c15c95b52a156aebf63d89d7..ac96afede920fcc19a3a136ed75b1c66c0cfdea5 100644
 --- a/net/minecraft/world/entity/monster/piglin/Piglin.java
 +++ b/net/minecraft/world/entity/monster/piglin/Piglin.java
-@@ -147,6 +147,13 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
+@@ -148,6 +148,13 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
      }
      // Purpur end - Mobs always drop experience
  
@@ -130,7 +130,7 @@ index bbdf01c5ab0b0eee4773d4ca690dc3c4fa3ec202..b14fd101ba647ca99211a42b142d2d80
  
      protected boolean canReplaceCurrentItem(final ItemStack newItemStack) {
 diff --git a/net/minecraft/world/entity/monster/piglin/PiglinBrute.java b/net/minecraft/world/entity/monster/piglin/PiglinBrute.java
-index 0755e3ed3b940609f0211d123c0c664905af56b5..3a33976a667d9d9b446b6b27b5938aff8f5d9ab6 100644
+index ee1a87f7811d22b5b33b3ae6b22fc5332b57322b..34cd7f5b209e466a4bef506a9d796e04fcfe425d 100644
 --- a/net/minecraft/world/entity/monster/piglin/PiglinBrute.java
 +++ b/net/minecraft/world/entity/monster/piglin/PiglinBrute.java
 @@ -89,6 +89,13 @@ public class PiglinBrute extends AbstractPiglin {
@@ -148,7 +148,7 @@ index 0755e3ed3b940609f0211d123c0c664905af56b5..3a33976a667d9d9b446b6b27b5938aff
          return Monster.createMonsterAttributes()
              .add(Attributes.MAX_HEALTH, 50.0)
 diff --git a/net/minecraft/world/entity/monster/skeleton/Bogged.java b/net/minecraft/world/entity/monster/skeleton/Bogged.java
-index 50dd01a2092f87fd9015c982f728f14965be5b81..410c5f8e1571970e8043eb5d976cd6d8b95689eb 100644
+index 617f61f4f7559a42e27d935ab9837ed99a8e9c1e..4022813e5cb9188f310fa5b633567cf854f4d627 100644
 --- a/net/minecraft/world/entity/monster/skeleton/Bogged.java
 +++ b/net/minecraft/world/entity/monster/skeleton/Bogged.java
 @@ -66,6 +66,13 @@ public class Bogged extends AbstractSkeleton implements Shearable {
@@ -166,10 +166,10 @@ index 50dd01a2092f87fd9015c982f728f14965be5b81..410c5f8e1571970e8043eb5d976cd6d8
      protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
          super.defineSynchedData(entityData);
 diff --git a/net/minecraft/world/entity/monster/skeleton/Skeleton.java b/net/minecraft/world/entity/monster/skeleton/Skeleton.java
-index 7d0c6fe7290e8ad44c451b431778e1b7fe37c6e5..c5b261f36f6042a395b8e1a7d54b20339e81b4b8 100644
+index 675faf3f02447fd73f48acc08c4b224114a0dc2e..8610e59cdebe6ae6fc4ba0fb654e990b1e3f34ee 100644
 --- a/net/minecraft/world/entity/monster/skeleton/Skeleton.java
 +++ b/net/minecraft/world/entity/monster/skeleton/Skeleton.java
-@@ -64,6 +64,13 @@ public class Skeleton extends AbstractSkeleton {
+@@ -65,6 +65,13 @@ public class Skeleton extends AbstractSkeleton {
      }
      // Purpur end - Mobs always drop experience
  
@@ -184,7 +184,7 @@ index 7d0c6fe7290e8ad44c451b431778e1b7fe37c6e5..c5b261f36f6042a395b8e1a7d54b2033
      protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
          super.defineSynchedData(entityData);
 diff --git a/net/minecraft/world/entity/monster/skeleton/Stray.java b/net/minecraft/world/entity/monster/skeleton/Stray.java
-index 76f28568aecf019ce7432ff89593b2ed4eaff8a2..e761c97212e380b6978e5fbd1d808f4ddbb89bb5 100644
+index 19ed23a4fc07f3a47f64ceefe1081b3641dfdccb..8188c9e34e0df679e3799bd184790d57f38635be 100644
 --- a/net/minecraft/world/entity/monster/skeleton/Stray.java
 +++ b/net/minecraft/world/entity/monster/skeleton/Stray.java
 @@ -61,6 +61,13 @@ public class Stray extends AbstractSkeleton {
@@ -202,7 +202,7 @@ index 76f28568aecf019ce7432ff89593b2ed4eaff8a2..e761c97212e380b6978e5fbd1d808f4d
          final EntityType<Stray> type, final ServerLevelAccessor level, final EntitySpawnReason spawnReason, final BlockPos pos, final RandomSource random
      ) {
 diff --git a/net/minecraft/world/entity/monster/skeleton/WitherSkeleton.java b/net/minecraft/world/entity/monster/skeleton/WitherSkeleton.java
-index c3f09863893933580caa07b8b9cdfd08ad5a0978..ddb189a3fb144bf84097aee9c3e45dafc88c593d 100644
+index 5b057a367198f1b39e3e5ade7d48eb04a2a4b324..d8eb5f2b681dab360a9a425e4cfef026799ffae4 100644
 --- a/net/minecraft/world/entity/monster/skeleton/WitherSkeleton.java
 +++ b/net/minecraft/world/entity/monster/skeleton/WitherSkeleton.java
 @@ -73,6 +73,13 @@ public class WitherSkeleton extends AbstractSkeleton {
@@ -220,10 +220,10 @@ index c3f09863893933580caa07b8b9cdfd08ad5a0978..ddb189a3fb144bf84097aee9c3e45daf
      protected void registerGoals() {
          this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractPiglin.class, true));
 diff --git a/net/minecraft/world/entity/monster/zombie/Drowned.java b/net/minecraft/world/entity/monster/zombie/Drowned.java
-index d7652cc26a9e3db010a7d05f0931d78b9a53b20c..4801c6987740f846a3049bfa0fcac547183e3f13 100644
+index a823cca07465fa5804eb01759174cbef9becbcca..936369cc110899ac074221be0972bbf6dc7c5847 100644
 --- a/net/minecraft/world/entity/monster/zombie/Drowned.java
 +++ b/net/minecraft/world/entity/monster/zombie/Drowned.java
-@@ -147,6 +147,13 @@ public class Drowned extends Zombie implements RangedAttackMob {
+@@ -148,6 +148,13 @@ public class Drowned extends Zombie implements RangedAttackMob {
      }
      // Purpur end - Mobs always drop experience
  
@@ -238,10 +238,10 @@ index d7652cc26a9e3db010a7d05f0931d78b9a53b20c..4801c6987740f846a3049bfa0fcac547
      protected void addBehaviourGoals() {
          this.goalSelector.addGoal(1, new Drowned.DrownedGoToWaterGoal(this, 1.0));
 diff --git a/net/minecraft/world/entity/monster/zombie/Husk.java b/net/minecraft/world/entity/monster/zombie/Husk.java
-index 5d60b230eeaec9d37e286019b8d4276cfa85a9ea..55b2bd676f2e9633fc8250bcd984424e8c37e2ee 100644
+index 75b57de8caf55d795ce10e115d657998fb86b401..de736df453541a2c4a71de97765581575caba0b7 100644
 --- a/net/minecraft/world/entity/monster/zombie/Husk.java
 +++ b/net/minecraft/world/entity/monster/zombie/Husk.java
-@@ -98,6 +98,13 @@ public class Husk extends Zombie {
+@@ -99,6 +99,13 @@ public class Husk extends Zombie {
      }
      // Purpur end - Mobs always drop experience
  
@@ -256,10 +256,10 @@ index 5d60b230eeaec9d37e286019b8d4276cfa85a9ea..55b2bd676f2e9633fc8250bcd984424e
      public boolean isSunSensitive() {
          return this.shouldBurnInDay; // Purpur - moved to LivingEntity; keep methods for ABI compatibility - API for any mob to burn daylight
 diff --git a/net/minecraft/world/entity/monster/zombie/Zombie.java b/net/minecraft/world/entity/monster/zombie/Zombie.java
-index 09fda2f96f2c4024e35ef23c482097b7c055b936..04ba29b8864804899e19b08b1952df781c96a23e 100644
+index 0671b7c2a77d1173d58812abcfcad2461a42d240..7ec2345a45dc62cab2fa363ed24bae4bca02db72 100644
 --- a/net/minecraft/world/entity/monster/zombie/Zombie.java
 +++ b/net/minecraft/world/entity/monster/zombie/Zombie.java
-@@ -166,6 +166,13 @@ public class Zombie extends Monster {
+@@ -167,6 +167,13 @@ public class Zombie extends Monster {
      }
      // Purpur end - Mobs always drop experience
  
@@ -274,10 +274,10 @@ index 09fda2f96f2c4024e35ef23c482097b7c055b936..04ba29b8864804899e19b08b1952df78
      protected void registerGoals() {
          this.goalSelector.addGoal(0, new org.purpurmc.purpur.entity.ai.HasRider(this)); // Purpur - Ridables
 diff --git a/net/minecraft/world/entity/monster/zombie/ZombieVillager.java b/net/minecraft/world/entity/monster/zombie/ZombieVillager.java
-index 3e96d18ed2fb67c08e77b17ec7f6418fbb5caf8f..e5eb30d3620937af3cd294bdd6b985fbb61df534 100644
+index e4be264d71c7980047194a86c5681020e822a67a..23a5cee36253c222d383cc8e9d5e492231da131e 100644
 --- a/net/minecraft/world/entity/monster/zombie/ZombieVillager.java
 +++ b/net/minecraft/world/entity/monster/zombie/ZombieVillager.java
-@@ -145,6 +145,13 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
+@@ -147,6 +147,13 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
      }
      // Purpur end - Mobs always drop experience
  
@@ -292,7 +292,7 @@ index 3e96d18ed2fb67c08e77b17ec7f6418fbb5caf8f..e5eb30d3620937af3cd294bdd6b985fb
      protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
          super.defineSynchedData(entityData);
 diff --git a/net/minecraft/world/entity/monster/zombie/ZombifiedPiglin.java b/net/minecraft/world/entity/monster/zombie/ZombifiedPiglin.java
-index 9e893c0c033dcc2273275b92048d9b1a941d93f2..54ba4d2e8305e2d9ba0c9e71bae67bfd7b7d34b9 100644
+index 2c0f08308430356a44a61d9b7a94609f340b454d..8245dcf59c17d98a01ee509350bd79efca2b1bb3 100644
 --- a/net/minecraft/world/entity/monster/zombie/ZombifiedPiglin.java
 +++ b/net/minecraft/world/entity/monster/zombie/ZombifiedPiglin.java
 @@ -124,6 +124,13 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
@@ -310,10 +310,10 @@ index 9e893c0c033dcc2273275b92048d9b1a941d93f2..54ba4d2e8305e2d9ba0c9e71bae67bfd
      protected void addBehaviourGoals() {
          this.goalSelector.addGoal(1, new SpearUseGoal<>(this, 1.0, 1.0, 10.0F, 2.0F));
 diff --git a/net/minecraft/world/entity/npc/villager/Villager.java b/net/minecraft/world/entity/npc/villager/Villager.java
-index c841d627254da95b786469108adb2b7f89355954..0503f9aa01099ebb807c3b6ccfe88f9610cc36b5 100644
+index 64a6f4517f581f64a71382bdb302b71c68dc5396..a1ff5e589516bb46236ef1408f0f4f2f1387e72a 100644
 --- a/net/minecraft/world/entity/npc/villager/Villager.java
 +++ b/net/minecraft/world/entity/npc/villager/Villager.java
-@@ -298,6 +298,13 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
+@@ -289,6 +289,13 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
      }
      // Purpur end - Mobs always drop experience
  
@@ -326,12 +326,12 @@ index c841d627254da95b786469108adb2b7f89355954..0503f9aa01099ebb807c3b6ccfe88f96
 +
      @Override
      public Brain<Villager> getBrain() {
-         return (Brain<Villager>) super.getBrain();
+         return (Brain<Villager>)super.getBrain();
 diff --git a/net/minecraft/world/entity/raid/Raider.java b/net/minecraft/world/entity/raid/Raider.java
-index 869af8dffe56a52ea1406a6598df733f724ee654..7eeb25f068d77095dbd35e5f9c079a78f24538fe 100644
+index f37710c48aafb11d65b99e4d37ef1382a8a36417..23a541f8d740d19df59b9e024156f497326a41cb 100644
 --- a/net/minecraft/world/entity/raid/Raider.java
 +++ b/net/minecraft/world/entity/raid/Raider.java
-@@ -397,7 +397,7 @@ public abstract class Raider extends PatrollingMonster {
+@@ -398,7 +398,7 @@ public abstract class Raider extends PatrollingMonster {
          }
  
          private boolean cannotPickUpBanner() {

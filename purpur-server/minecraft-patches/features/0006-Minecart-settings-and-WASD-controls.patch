@@ -5,10 +5,10 @@ Subject: [PATCH] Minecart settings and WASD controls
 
 
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 228c81791dcc1ea0971e70bcb0cb289106466c67..88aad415396d1e74da8b7544b566844e30761219 100644
+index 119530367e7bd7f99160d8a8b8b6c1f757c3bd01..2ff355757f3637186ed9f9c81323b799a98f3128 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -1309,6 +1309,11 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -1288,6 +1288,11 @@ public class ServerPlayer extends Player {
  
          // Purpur start - Add boat fall damage config
          if (source.is(net.minecraft.tags.DamageTypeTags.IS_FALL)) {
@@ -21,12 +21,12 @@ index 228c81791dcc1ea0971e70bcb0cb289106466c67..88aad415396d1e74da8b7544b566844e
                  return false;
              }
 diff --git a/net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.java b/net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.java
-index 1c043c1136fc42e888125047ed73b1dc32276183..41d82befd5d30a0bc1db083df9012e0b477239b4 100644
+index 5ad77636d0681d1f0341cff4482ba6ad52f3583b..c635999ec8d5e0508cd66e0c4982692450963235 100644
 --- a/net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.java
 +++ b/net/minecraft/world/entity/vehicle/minecart/AbstractMinecart.java
 @@ -105,6 +105,10 @@ public abstract class AbstractMinecart extends VehicleEntity {
-     private double flyingY = 0.95;
-     private double flyingZ = 0.95;
+     private double flyingY = this.getAirDrag();
+     private double flyingZ = this.getAirDrag();
      public @Nullable Double maxSpeed;
 +    // Purpur start - Minecart settings and WASD controls
 +    public double storedMaxSpeed;

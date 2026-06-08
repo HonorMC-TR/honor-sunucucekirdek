@@ -5,7 +5,7 @@ Subject: [PATCH] Phantoms burn in light
 
 
 diff --git a/net/minecraft/world/entity/monster/Phantom.java b/net/minecraft/world/entity/monster/Phantom.java
-index 1474d005d8333f592856ba4cdfc396cb4b93159a..03db90080675c879688c37e568dc25603b4972b1 100644
+index d3c9948ee52c0f209481e273bc94b551519a7d71..f2665ff68020cddf921675f4eaa4c0e99c9d9563 100644
 --- a/net/minecraft/world/entity/monster/Phantom.java
 +++ b/net/minecraft/world/entity/monster/Phantom.java
 @@ -54,6 +54,7 @@ public class Phantom extends Mob implements Enemy {
