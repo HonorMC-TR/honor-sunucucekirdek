@@ -2730,10 +2730,10 @@ index 5d1e0d44163b9f29dc824b46b7b983456a273419..f54a14a1e434cbfedf709d3b1495f2ae
          this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
          this.targetSelector.addGoal(3, new HurtByTargetGoal(this).setAlertOthers());
 diff --git a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
-index cabadc98e43f7d45a15512010670ad57d276584b..55a24b960f1372c0fa7edf7c5d439d452f5f3839 100644
+index f960bb265bc5a4b350d24c9d1caafb3a06068df0..c0ffda7c18461494aee68aac2d99a660e3b21dcf 100644
 --- a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
 +++ b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
-@@ -91,6 +91,7 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -92,6 +92,7 @@ public class EnderDragon extends Mob implements Enemy {
      private final net.minecraft.world.level.Explosion explosionSource; // Paper - reusable source for CraftTNTPrimed.getSource()
      private @Nullable BlockPos podium;
      // Paper end
@@ -2741,7 +2741,7 @@ index cabadc98e43f7d45a15512010670ad57d276584b..55a24b960f1372c0fa7edf7c5d439d45
  
      public EnderDragon(final EntityType<? extends EnderDragon> type, final Level level) {
          super(EntityTypes.ENDER_DRAGON, level);
-@@ -107,6 +108,37 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -108,6 +109,37 @@ public class EnderDragon extends Mob implements Enemy {
          this.noPhysics = true;
          this.phaseManager = new EnderDragonPhaseManager(this);
          this.explosionSource = new net.minecraft.world.level.ServerExplosion(level.getMinecraftWorld(), this, null, null, new Vec3(Double.NaN, Double.NaN, Double.NaN), Float.NaN, true, net.minecraft.world.level.Explosion.BlockInteraction.DESTROY); // Paper
@@ -2779,7 +2779,7 @@ index cabadc98e43f7d45a15512010670ad57d276584b..55a24b960f1372c0fa7edf7c5d439d45
      }
  
      public void setDragonFight(final EnderDragonFight fight) {
-@@ -121,6 +153,17 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -122,6 +154,17 @@ public class EnderDragon extends Mob implements Enemy {
          return this.fightOrigin;
      }
  
@@ -2797,7 +2797,7 @@ index cabadc98e43f7d45a15512010670ad57d276584b..55a24b960f1372c0fa7edf7c5d439d45
      public static AttributeSupplier.Builder createAttributes() {
          return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 200.0).add(Attributes.CAMERA_DISTANCE, 16.0);
      }
-@@ -170,6 +213,37 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -171,6 +214,37 @@ public class EnderDragon extends Mob implements Enemy {
  
      @Override
      public void aiStep() {
@@ -2835,7 +2835,7 @@ index cabadc98e43f7d45a15512010670ad57d276584b..55a24b960f1372c0fa7edf7c5d439d45
          this.processFlappingMovement();
          if (this.level().isClientSide()) {
              this.setHealth(this.getHealth());
-@@ -198,6 +272,7 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -199,6 +273,7 @@ public class EnderDragon extends Mob implements Enemy {
  
          this.oFlapTime = this.flapTime;
          if (this.isDeadOrDying()) {
@@ -2843,7 +2843,7 @@ index cabadc98e43f7d45a15512010670ad57d276584b..55a24b960f1372c0fa7edf7c5d439d45
              float xo = (this.random.nextFloat() - 0.5F) * 8.0F;
              float yo = (this.random.nextFloat() - 0.5F) * 4.0F;
              float zo = (this.random.nextFloat() - 0.5F) * 8.0F;
-@@ -207,9 +282,9 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -208,9 +283,9 @@ public class EnderDragon extends Mob implements Enemy {
              Vec3 movement = this.getDeltaMovement();
              float flapSpeed = 0.2F / ((float)movement.horizontalDistance() * 10.0F + 1.0F);
              flapSpeed *= (float)Math.pow(2.0, movement.y);
@@ -2855,7 +2855,7 @@ index cabadc98e43f7d45a15512010670ad57d276584b..55a24b960f1372c0fa7edf7c5d439d45
                  this.flapTime += flapSpeed * 0.5F;
              } else {
                  this.flapTime += flapSpeed;
-@@ -220,7 +295,7 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -221,7 +296,7 @@ public class EnderDragon extends Mob implements Enemy {
                  this.flapTime = 0.5F;
              } else {
                  this.flightHistory.record(this.getY(), this.getYRot());
@@ -2864,7 +2864,7 @@ index cabadc98e43f7d45a15512010670ad57d276584b..55a24b960f1372c0fa7edf7c5d439d45
                      DragonPhaseInstance currentPhase = this.phaseManager.getCurrentPhase();
                      currentPhase.doServerTick(level);
                      if (this.phaseManager.getCurrentPhase() != currentPhase) {
-@@ -291,7 +366,7 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -292,7 +367,7 @@ public class EnderDragon extends Mob implements Enemy {
                  this.tickPart(this.body, ss1 * 0.5F, 0.0, -cc1 * 0.5F);
                  this.tickPart(this.wing1, cc1 * 4.5F, 2.0, ss1 * 4.5F);
                  this.tickPart(this.wing2, cc1 * -4.5F, 2.0, ss1 * -4.5F);
@@ -2873,7 +2873,7 @@ index cabadc98e43f7d45a15512010670ad57d276584b..55a24b960f1372c0fa7edf7c5d439d45
                      this.knockBack(
                          serverLevel,
                          serverLevel.getEntities(
-@@ -339,9 +414,9 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -340,9 +415,9 @@ public class EnderDragon extends Mob implements Enemy {
                  }
  
                  if (this.level() instanceof ServerLevel level) {
@@ -4356,7 +4356,7 @@ index 96776d23370736da3408e6a86ed89b7f3d686732..0ac7a442a0ea79f190aceb60b771d616
      public SoundEvent getHurtSound(final DamageSource source) {
          return this.isTiny() ? SoundEvents.SLIME_HURT_SMALL : SoundEvents.SLIME_HURT;
 diff --git a/net/minecraft/world/entity/monster/cubemob/SulfurCube.java b/net/minecraft/world/entity/monster/cubemob/SulfurCube.java
-index 6b89d25aa130c9b7fe7f6d27f1d5f393c2954778..601a54820df95a566cec6079715af166f912df70 100644
+index 7f79c8e4e5874d2ce3a1a58b96df698c3f774011..7b3ab0515bae1963cdd2319f097bfffb4d12f4e5 100644
 --- a/net/minecraft/world/entity/monster/cubemob/SulfurCube.java
 +++ b/net/minecraft/world/entity/monster/cubemob/SulfurCube.java
 @@ -129,6 +129,28 @@ public class SulfurCube extends AbstractCubeMob implements Bucketable, Shearable

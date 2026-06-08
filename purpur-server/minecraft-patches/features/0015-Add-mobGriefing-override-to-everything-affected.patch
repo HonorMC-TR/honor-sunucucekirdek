@@ -131,10 +131,10 @@ index f0c4ad3715322bf1a5a60edd870b34a15949a77f..80a65dba81ab82cdb9bd43d1878e7455
                  }
  
 diff --git a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
-index 6883bd42f9d124c6421d1eb332f04514aa7bc3f8..1294dc666be270b4c7b335b7f2786b9b68bededc 100644
+index ffd612896a30ebff55906baba94150eb25fd8e98..2597ee3ca93653af04b5e620f3909c3791369bf0 100644
 --- a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
 +++ b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
-@@ -536,7 +536,7 @@ public class EnderDragon extends Mob implements Enemy {
+@@ -537,7 +537,7 @@ public class EnderDragon extends Mob implements Enemy {
                      BlockPos blockPos = new BlockPos(x, y, z);
                      BlockState state = level.getBlockState(blockPos);
                      if (!state.isAir() && !state.is(BlockTags.DRAGON_TRANSPARENT)) {
