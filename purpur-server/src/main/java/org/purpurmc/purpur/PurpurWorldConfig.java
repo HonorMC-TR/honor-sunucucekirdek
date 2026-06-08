@@ -3475,11 +3475,13 @@ public class PurpurWorldConfig {
     public boolean wardenRidableInWater = true;
     public boolean wardenControllable = true;
     public boolean wardenCanUseSonicBoom = true;
+    public boolean wardenCanRideVehicles = false;
     private void wardenSettings() {
         wardenRidable = getBoolean("mobs.warden.ridable", wardenRidable);
         wardenRidableInWater = getBoolean("mobs.warden.ridable-in-water", wardenRidableInWater);
         wardenControllable = getBoolean("mobs.warden.controllable", wardenControllable);
         wardenCanUseSonicBoom = getBoolean("mobs.warden.can-use-sonic-boom", wardenCanUseSonicBoom);
+        wardenCanRideVehicles = getBoolean("mobs.warden.can-ride-vehicles", enderDragonCanRideVehicles);
     }
 
     public boolean witchRidable = false;
