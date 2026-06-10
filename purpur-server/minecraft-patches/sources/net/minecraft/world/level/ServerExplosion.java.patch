@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/ServerExplosion.java
 +++ b/net/minecraft/world/level/ServerExplosion.java
-@@ -342,6 +_,23 @@
+@@ -341,6 +_,23 @@
      }
  
      public int explode() {

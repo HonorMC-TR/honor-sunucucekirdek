@@ -24,10 +24,10 @@ index 612e3457d537d6129437443753cad3e48590d542..a188eb750d6371f7e550a8971135a81d
          Preconditions.checkArgument(entity != null, "Unknown entity");
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-index 86ea370201a3c92f70289ca197adcb69130b53cb..b7b82bf44c164123dd62a690421001b110b68af8 100644
+index 77fc83bfe613d0e795d8623584bc79ee51d46b59..489aa599f979433ec2ae8c9a77aa9c2b0c6f0662 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
-@@ -1141,4 +1141,16 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+@@ -1137,4 +1137,16 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
          manager.untrackWaypoint(getHandle());
          manager.trackWaypoint(getHandle());
      }
