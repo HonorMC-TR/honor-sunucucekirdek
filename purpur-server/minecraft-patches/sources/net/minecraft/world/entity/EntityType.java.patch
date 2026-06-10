@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/EntityType.java
 +++ b/net/minecraft/world/entity/EntityType.java
-@@ -74,6 +_,16 @@
+@@ -74,10 +_,26 @@
      private final FeatureFlagSet requiredFeatures;
      private final boolean allowedInPeaceful;
  
@@ -17,6 +17,16 @@
      public static Identifier getKey(final EntityType<?> type) {
          return BuiltInRegistries.ENTITY_TYPE.getKey(type);
      }
+ 
++    // Purpur start
++    public static Optional<EntityType<?>> byString(String key) {
++        return BuiltInRegistries.ENTITY_TYPE.getOptional(Identifier.tryParse(key));
++    }
++    // Purpur end
++
+     public EntityType(
+         final EntityType.EntityFactory<T> factory,
+         final MobCategory category,
 @@ -329,6 +_,16 @@
          return this.category;
      }

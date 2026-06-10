@@ -14,7 +14,7 @@
              player.setItemInHand(hand, bucketOrMilkBucket);
              return InteractionResult.SUCCESS;
 +        // Purpur start - Cows eat mushrooms - feed mushroom to change to mooshroom
-+        } else if (level().purpurConfig.cowFeedMushrooms > 0 && this.getType() != EntityType.MOOSHROOM && isMushroom(itemStack)) {
++        } else if (level().purpurConfig.cowFeedMushrooms > 0 && this.getType() != EntityTypes.MOOSHROOM && isMushroom(itemStack)) {
 +            return this.feedMushroom(player, itemStack);
 +        // Purpur end - Cows eat mushrooms
          } else {
@@ -50,7 +50,7 @@
 +            }
 +            return InteractionResult.CONSUME; // require 5 mushrooms to transform (prevents mushroom duping)
 +        }
-+        MushroomCow mooshroom = EntityType.MOOSHROOM.create(level(), net.minecraft.world.entity.EntitySpawnReason.CONVERSION);
++        MushroomCow mooshroom = EntityTypes.MOOSHROOM.create(level(), net.minecraft.world.entity.EntitySpawnReason.CONVERSION);
 +        if (mooshroom == null) {
 +            return InteractionResult.PASS;
 +        }
