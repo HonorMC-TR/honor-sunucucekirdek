@@ -5,10 +5,10 @@ Subject: [PATCH] Per mob mob_griefing loot pickup override
 
 
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index b5c2b64c581c30cdf6f379ccd76a863b81513f8b..7aaabbde2aaa58d2ae412bc6910cb95dee3b9fe5 100644
+index 00353f1668e4fb3d97c57175a5f141d6a39d70f7..524e37ac277eee9430a86b3a2dd69066f0d1b74f 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -577,7 +577,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -571,7 +571,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
              && this.canPickUpLoot()
              && this.isAlive()
              && !this.dead
@@ -17,7 +17,7 @@ index b5c2b64c581c30cdf6f379ccd76a863b81513f8b..7aaabbde2aaa58d2ae412bc6910cb95d
              Vec3i pickupReach = this.getPickupReach();
  
              for (ItemEntity entity : this.level()
-@@ -596,6 +596,12 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -590,6 +590,12 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
          profiler.pop();
      }
  
@@ -31,7 +31,7 @@ index b5c2b64c581c30cdf6f379ccd76a863b81513f8b..7aaabbde2aaa58d2ae412bc6910cb95d
          return EquipmentSlot.HEAD;
      }
 diff --git a/net/minecraft/world/entity/animal/allay/Allay.java b/net/minecraft/world/entity/animal/allay/Allay.java
-index 9206c45b9789ff2834f14efb65dc85113c7bd7d7..d3074e1ce8d7d13bcb5b23e7602e94d6b7558f03 100644
+index 80c86131486c7392481def252fa74d18ce76beb0..fe909b5d6689e0978a9efaad330f28e121865fc6 100644
 --- a/net/minecraft/world/entity/animal/allay/Allay.java
 +++ b/net/minecraft/world/entity/animal/allay/Allay.java
 @@ -163,6 +163,13 @@ public class Allay extends PathfinderMob implements InventoryCarrier, VibrationS
@@ -49,10 +49,10 @@ index 9206c45b9789ff2834f14efb65dc85113c7bd7d7..d3074e1ce8d7d13bcb5b23e7602e94d6
      protected Brain<Allay> makeBrain(final Brain.Packed packedBrain) {
          return BRAIN_PROVIDER.makeBrain(this, packedBrain);
 diff --git a/net/minecraft/world/entity/animal/fox/Fox.java b/net/minecraft/world/entity/animal/fox/Fox.java
-index ca5b0b8081c4943bfbfba4f0f9284f0fdda3cf9f..91a001af54b9ba53c9c2a7cfd797d9ff2f53c0db 100644
+index a5c8c4cd7fb80ee0fb87eba85b6a3095223b849c..db20e27227430809704b2d6148d0ffa13c7094fe 100644
 --- a/net/minecraft/world/entity/animal/fox/Fox.java
 +++ b/net/minecraft/world/entity/animal/fox/Fox.java
-@@ -821,6 +821,13 @@ public class Fox extends Animal {
+@@ -814,6 +814,13 @@ public class Fox extends Animal {
      }
      // Purpur end - Tulips change fox type
  
@@ -64,8 +64,8 @@ index ca5b0b8081c4943bfbfba4f0f9284f0fdda3cf9f..91a001af54b9ba53c9c2a7cfd797d9ff
 +    // Purpur end - Check mobGriefing Overrides
 +
      @Override
-     // Paper start - Cancellable death event
-     protected org.bukkit.event.entity.EntityDeathEvent dropAllDeathLoot(final ServerLevel level, final DamageSource source) {
+     // Paper start - Fix MC-153010 (dropCustomDeathLoot is only called when shouldDropLoot = true)
+     protected boolean guaranteedToDropUndamaged(final net.minecraft.world.entity.EquipmentSlot slot) {
 diff --git a/net/minecraft/world/entity/monster/illager/Pillager.java b/net/minecraft/world/entity/monster/illager/Pillager.java
 index 9d6629c29dc471ef1db672cce4260a983d452cbd..55b7fc1c375edaf8c86294884da55d5d97e09e93 100644
 --- a/net/minecraft/world/entity/monster/illager/Pillager.java
@@ -103,7 +103,7 @@ index d42afe275f7a917d5784da2838972dff73f1476a..68b252bfd6bacc3952ffc610032cd8a0
      protected void registerGoals() {
          super.registerGoals();
 diff --git a/net/minecraft/world/entity/monster/piglin/Piglin.java b/net/minecraft/world/entity/monster/piglin/Piglin.java
-index 9246caa06976c258c15c95b52a156aebf63d89d7..ac96afede920fcc19a3a136ed75b1c66c0cfdea5 100644
+index 8d952bf8a063f5f5ebb8054295c7ff12f03d1572..432f6edccbfeffdec2a4b468137c8e035be9f74a 100644
 --- a/net/minecraft/world/entity/monster/piglin/Piglin.java
 +++ b/net/minecraft/world/entity/monster/piglin/Piglin.java
 @@ -148,6 +148,13 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
@@ -120,7 +120,7 @@ index 9246caa06976c258c15c95b52a156aebf63d89d7..ac96afede920fcc19a3a136ed75b1c66
      @Override
      protected void addAdditionalSaveData(final ValueOutput output) {
          super.addAdditionalSaveData(output);
-@@ -430,7 +437,7 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
+@@ -429,7 +436,7 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
  
      @Override
      public boolean wantsToPickUp(final ServerLevel level, final ItemStack itemStack) {
@@ -148,7 +148,7 @@ index ee1a87f7811d22b5b33b3ae6b22fc5332b57322b..34cd7f5b209e466a4bef506a9d796e04
          return Monster.createMonsterAttributes()
              .add(Attributes.MAX_HEALTH, 50.0)
 diff --git a/net/minecraft/world/entity/monster/skeleton/Bogged.java b/net/minecraft/world/entity/monster/skeleton/Bogged.java
-index 617f61f4f7559a42e27d935ab9837ed99a8e9c1e..4022813e5cb9188f310fa5b633567cf854f4d627 100644
+index dd55f35c828beb57ae1f995ecbbacb95ef982603..cece76ba9a5c58cc811af1fec415f8e7cd81b3b3 100644
 --- a/net/minecraft/world/entity/monster/skeleton/Bogged.java
 +++ b/net/minecraft/world/entity/monster/skeleton/Bogged.java
 @@ -66,6 +66,13 @@ public class Bogged extends AbstractSkeleton implements Shearable {
@@ -166,7 +166,7 @@ index 617f61f4f7559a42e27d935ab9837ed99a8e9c1e..4022813e5cb9188f310fa5b633567cf8
      protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
          super.defineSynchedData(entityData);
 diff --git a/net/minecraft/world/entity/monster/skeleton/Skeleton.java b/net/minecraft/world/entity/monster/skeleton/Skeleton.java
-index 675faf3f02447fd73f48acc08c4b224114a0dc2e..8610e59cdebe6ae6fc4ba0fb654e990b1e3f34ee 100644
+index 661ca577e899287c895d8d5b2c7919d7340af9e7..0d9a1bbe3255f94bf9ef35591a01b596c6fa6a52 100644
 --- a/net/minecraft/world/entity/monster/skeleton/Skeleton.java
 +++ b/net/minecraft/world/entity/monster/skeleton/Skeleton.java
 @@ -65,6 +65,13 @@ public class Skeleton extends AbstractSkeleton {
@@ -328,10 +328,10 @@ index 64a6f4517f581f64a71382bdb302b71c68dc5396..a1ff5e589516bb46236ef1408f0f4f2f
      public Brain<Villager> getBrain() {
          return (Brain<Villager>)super.getBrain();
 diff --git a/net/minecraft/world/entity/raid/Raider.java b/net/minecraft/world/entity/raid/Raider.java
-index f37710c48aafb11d65b99e4d37ef1382a8a36417..23a541f8d740d19df59b9e024156f497326a41cb 100644
+index 457acdb4f5893303a4eea3d5e97404f1dcec8195..d4f15192c8fb7cc66c9e15ace3b72d7fc4ea575d 100644
 --- a/net/minecraft/world/entity/raid/Raider.java
 +++ b/net/minecraft/world/entity/raid/Raider.java
-@@ -398,7 +398,7 @@ public abstract class Raider extends PatrollingMonster {
+@@ -396,7 +396,7 @@ public abstract class Raider extends PatrollingMonster {
          }
  
          private boolean cannotPickUpBanner() {

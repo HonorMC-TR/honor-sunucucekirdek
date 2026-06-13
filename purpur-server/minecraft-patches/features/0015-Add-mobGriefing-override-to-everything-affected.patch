@@ -5,10 +5,10 @@ Subject: [PATCH] Add mobGriefing override to everything affected
 
 
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index 991ded4e26c00ffb25a933a8cc175849e1e579b2..a9e93d55de28964169988e2b276fdfc8acd29fdb 100644
+index 7ec097b3be4fa2ad99de2891fa5507af92ebbeab..166c8d92937d534646d7a7521529d30afaa6f618 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -1982,7 +1982,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -1961,7 +1961,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
          if (this.level() instanceof ServerLevel serverLevel) {
              boolean var6 = false;
              if (this.dead && killer instanceof WitherBoss) { // Paper
@@ -18,10 +18,10 @@ index 991ded4e26c00ffb25a933a8cc175849e1e579b2..a9e93d55de28964169988e2b276fdfc8
                      BlockState state = Blocks.WITHER_ROSE.defaultBlockState();
                      if (this.level().getBlockState(pos).isAir() && state.canSurvive(this.level(), pos)) {
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index c707a18175920b12b4d554d8041c7afe10a0efd1..6e6ba45c93209bd9e7a8565bf166b4cc9843b80a 100644
+index a5885bc19fe469a0c810e241d570d9ab62295492..460ba9d3a192c5f17a1b5c4682bbbba3d2f8ebe2 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -577,7 +577,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -571,7 +571,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
              && this.canPickUpLoot()
              && this.isAlive()
              && !this.dead
@@ -92,10 +92,10 @@ index ff0f99d4b560a1c0721885b0eba5bd5ab2087bd7..51c72524c14c078d1bb0539f0b54fc4a
          } else if (this.nextStartTick > 0) {
              this.nextStartTick--;
 diff --git a/net/minecraft/world/entity/animal/fox/Fox.java b/net/minecraft/world/entity/animal/fox/Fox.java
-index f63f304ec9375ffca0a7b22c9598a38452a3b739..bf9ff90916733110a249912d7aeabc2e45f63b01 100644
+index 5a69911edb5cf6144bf1f5f49e9bb2a497d5a8c2..9e113deaf6aa50380e20271b66daad566d40b08e 100644
 --- a/net/minecraft/world/entity/animal/fox/Fox.java
 +++ b/net/minecraft/world/entity/animal/fox/Fox.java
-@@ -1075,7 +1075,7 @@ public class Fox extends Animal {
+@@ -1063,7 +1063,7 @@ public class Fox extends Animal {
          }
  
          protected void onReachedTarget() {
@@ -105,7 +105,7 @@ index f63f304ec9375ffca0a7b22c9598a38452a3b739..bf9ff90916733110a249912d7aeabc2e
                  if (state.is(Blocks.SWEET_BERRY_BUSH)) {
                      this.pickSweetBerries(state);
 diff --git a/net/minecraft/world/entity/animal/golem/SnowGolem.java b/net/minecraft/world/entity/animal/golem/SnowGolem.java
-index 3fe90a55e0b681c3c689db081abe28e6931e711f..ad300631146959f158cbabddac12fda4deb33360 100644
+index c614c61424199cb2105e84b85fe67f66dd6aa248..da0e4f830b708a5f1046aff48de525c7ecd4f05b 100644
 --- a/net/minecraft/world/entity/animal/golem/SnowGolem.java
 +++ b/net/minecraft/world/entity/animal/golem/SnowGolem.java
 @@ -135,7 +135,7 @@ public class SnowGolem extends AbstractGolem implements RangedAttackMob, Shearab
@@ -131,7 +131,7 @@ index f0c4ad3715322bf1a5a60edd870b34a15949a77f..80a65dba81ab82cdb9bd43d1878e7455
                  }
  
 diff --git a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
-index ffd612896a30ebff55906baba94150eb25fd8e98..2597ee3ca93653af04b5e620f3909c3791369bf0 100644
+index 163afb24f856b75528a362e899548a1515a47aca..56f3c0b9d1f34f9dff5db46d441d1d4f86f4668e 100644
 --- a/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
 +++ b/net/minecraft/world/entity/boss/enderdragon/EnderDragon.java
 @@ -537,7 +537,7 @@ public class EnderDragon extends Mob implements Enemy {
@@ -227,10 +227,10 @@ index 73ebf1ac5d814399887e4e8e717ee8fb41404969..4b077693e8749b6d2440b12f0aa1d7d6
              }
  
 diff --git a/net/minecraft/world/entity/monster/piglin/Piglin.java b/net/minecraft/world/entity/monster/piglin/Piglin.java
-index 95751fd884c70ff6a3ff95fb2d442627a7867996..013550c72a194977b1874f30aeda60d27b682853 100644
+index 702f9d6512357a79834f6e8a882e5fbb680bad4e..96fd5f5139a12c59277cf0a86d571551b1113f35 100644
 --- a/net/minecraft/world/entity/monster/piglin/Piglin.java
 +++ b/net/minecraft/world/entity/monster/piglin/Piglin.java
-@@ -416,7 +416,7 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
+@@ -415,7 +415,7 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
  
      @Override
      public boolean wantsToPickUp(final ServerLevel level, final ItemStack itemStack) {
@@ -294,10 +294,10 @@ index a2aab8db9826e0b4607f54914af43918a7e35512..e5cf3ec08e134e24fbcc31d903219130
          // CraftBukkit end
      }
 diff --git a/net/minecraft/world/entity/raid/Raider.java b/net/minecraft/world/entity/raid/Raider.java
-index ac5808a7019e7131b2e7f6710537d63ad5340703..f37710c48aafb11d65b99e4d37ef1382a8a36417 100644
+index 7eb20e1ea16136116e1979eb3a17b31f4cc3cc75..457acdb4f5893303a4eea3d5e97404f1dcec8195 100644
 --- a/net/minecraft/world/entity/raid/Raider.java
 +++ b/net/minecraft/world/entity/raid/Raider.java
-@@ -398,7 +398,7 @@ public abstract class Raider extends PatrollingMonster {
+@@ -396,7 +396,7 @@ public abstract class Raider extends PatrollingMonster {
          }
  
          private boolean cannotPickUpBanner() {

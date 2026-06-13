@@ -5,10 +5,10 @@ Subject: [PATCH] Setting to reintroduce end void rings
 
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index fcade65785db82fc64eeb9b337900a405f05d196..09d05ed938d0dd4cd5d7adb68f4229519cf4f61b 100644
+index 8a5c7ac71613316951f0c9b32f8beab9300e63f6..3c110bcbbb13fc127c0a4dfbba1e82456bbb35da 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -1239,6 +1239,15 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1350,6 +1350,15 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                  }
              }
              // Purpur end - config for startup commands
@@ -25,7 +25,7 @@ index fcade65785db82fc64eeb9b337900a405f05d196..09d05ed938d0dd4cd5d7adb68f422951
              while (this.running) {
                  final long tickStart = System.nanoTime(); // Paper - improve tick loop
 diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
-index 97f4c88aedefa02ae01471a75a16647b5e23e198..8df237acbbd52c88d618e2365f064be08ea5c200 100644
+index 7ea092a405c686999cbda8a20ea2e0ca39dde65d..cb55c56017269747f82bf78d48f8f602a0d63c4d 100644
 --- a/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -235,6 +235,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface

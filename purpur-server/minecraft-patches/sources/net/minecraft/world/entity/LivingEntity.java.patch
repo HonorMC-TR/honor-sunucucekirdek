@@ -105,7 +105,7 @@
          if (damage < 0.0F) {
              damage = 0.0F;
          }
-@@ -1724,10 +_,10 @@
+@@ -1722,10 +_,10 @@
      protected @Nullable Player resolvePlayerResponsibleForDamage(final DamageSource source) {
          Entity sourceEntity = source.getEntity();
          if (sourceEntity instanceof Player playerSource) {
@@ -118,7 +118,7 @@
              } else {
                  this.lastHurtByPlayer = null;
                  this.lastHurtByPlayerMemoryTime = 0;
-@@ -1779,6 +_,17 @@
+@@ -1777,6 +_,17 @@
              }
          }
  
@@ -136,23 +136,18 @@
          final org.bukkit.inventory.EquipmentSlot handSlot = (usedHand != null) ? org.bukkit.craftbukkit.CraftEquipmentSlot.getHand(usedHand) : null;
          final EntityResurrectEvent event = new EntityResurrectEvent((org.bukkit.entity.LivingEntity) this.getBukkitEntity(), handSlot);
          event.setCancelled(protectionItem == null);
-@@ -1956,6 +_,7 @@
+@@ -1930,8 +_,10 @@
+     protected void dropAllDeathLoot(final ServerLevel level, final DamageSource source) {
          boolean playerKilled = this.lastHurtByPlayerMemoryTime > 0;
-         this.dropEquipment(level); // CraftBukkit - from below
          if (this.shouldDropLoot(level)) {
 +            if (!(source.is(net.minecraft.world.damagesource.DamageTypes.CRAMMING) && level().purpurConfig.disableDropsOnCrammingDeath)) { // Purpur - Disable loot drops on death by cramming
              this.dropFromLootTable(level, source, playerKilled);
-             // Paper start
-             final boolean prev = this.clearEquipmentSlots;
-@@ -1964,6 +_,7 @@
-             // Paper end
              this.dropCustomDeathLoot(level, source, playerKilled);
-             this.clearEquipmentSlots = prev; // Paper
-+            } // Purpur - Disable loot drops on death by cramming
++            }
          }
  
-         // CraftBukkit start - Call death event // Paper start - call advancement triggers with correct entity equipment
-@@ -3323,6 +_,7 @@
+         this.dropEquipment(level);
+@@ -3280,6 +_,7 @@
              float dmg = (float)(diff * 10.0 - 3.0);
              if (dmg > 0.0F) {
                  this.playSound(this.getFallDamageSound((int)dmg), 1.0F, 1.0F);
@@ -160,7 +155,7 @@
                  this.hurt(this.damageSources().flyIntoWall(), dmg);
              }
          }
-@@ -4816,6 +_,12 @@
+@@ -4773,6 +_,12 @@
              ? slot == EquipmentSlot.MAINHAND && this.canUseSlot(EquipmentSlot.MAINHAND)
              : slot == equippable.slot() && this.canUseSlot(equippable.slot()) && equippable.canBeEquippedBy(this.typeHolder());
      }

@@ -6,7 +6,7 @@ Subject: [PATCH] Apply display names from item forms of entities to entities
 
 
 diff --git a/net/minecraft/world/entity/decoration/ArmorStand.java b/net/minecraft/world/entity/decoration/ArmorStand.java
-index 385d6bdf435320b4779a27512447e7cc64e05ddf..ec65ca3fd54c8da3768851ee53195735d24d4895 100644
+index c1c9387a54ed219f8da58a9a417c85a15eea7bec..235c2acd9781979d4cf621cdfae2d6f745595fbd 100644
 --- a/net/minecraft/world/entity/decoration/ArmorStand.java
 +++ b/net/minecraft/world/entity/decoration/ArmorStand.java
 @@ -476,6 +476,7 @@ public class ArmorStand extends LivingEntity {
@@ -15,8 +15,8 @@ index 385d6bdf435320b4779a27512447e7cc64e05ddf..ec65ca3fd54c8da3768851ee53195735
          ItemStack result = new ItemStack(Items.ARMOR_STAND);
 +        if (level.purpurConfig.persistentDroppableEntityDisplayNames) // Purpur - Apply display names from item forms of entities to entities and vice versa
          result.set(DataComponents.CUSTOM_NAME, this.getCustomName());
-         this.drops.add(new DefaultDrop(result, stack -> Block.popResource(this.level(), this.blockPosition(), stack))); // CraftBukkit - add to drops // Paper - Restore vanilla drops behavior
-         return this.brokenByAnything(level, source); // Paper
+         this.deathDropItems = new java.util.ArrayList<>(); // Paper
+         this.deathDropItems.add(new DefaultDrop(result, stack -> Block.popResource(this.level(), this.blockPosition(), stack))); // CraftBukkit - add to drops // Paper - Restore vanilla drops behavior
 diff --git a/net/minecraft/world/entity/decoration/ItemFrame.java b/net/minecraft/world/entity/decoration/ItemFrame.java
 index 7fa894e6052dd35a87b19f6bac6031bfd0243deb..19bd80e860a520f6a07baa3e66cc40c8a419c79f 100644
 --- a/net/minecraft/world/entity/decoration/ItemFrame.java

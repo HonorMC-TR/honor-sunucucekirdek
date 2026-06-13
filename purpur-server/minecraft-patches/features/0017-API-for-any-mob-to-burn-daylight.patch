@@ -6,10 +6,10 @@ Subject: [PATCH] API for any mob to burn daylight
 Co-authored by: Encode42 <me@encode42.dev>
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 6b51feb4e41f10dae9e5fcd303d260d5f511ae91..2f2b5794cc37aedb5dc09925dd77b6e700934a95 100644
+index 8ca29762d465ba8ebeaa450bd6e1c4f77db5464c..0f5961a9fb49dbd77b682cf922cc14be48fe3397 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -453,6 +453,21 @@ public abstract class Entity
+@@ -558,6 +558,21 @@ public abstract class Entity
      }
      // Purpur end - Add canSaveToDisk to Entity
  
@@ -32,11 +32,11 @@ index 6b51feb4e41f10dae9e5fcd303d260d5f511ae91..2f2b5794cc37aedb5dc09925dd77b6e7
          this.type = type;
          this.level = level;
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index a9e93d55de28964169988e2b276fdfc8acd29fdb..77a5742fe3aab5acde6dff9664fea66f66262f3c 100644
+index 166c8d92937d534646d7a7521529d30afaa6f618..82705d97a520ffd6b4b4a1e5c7bf5439d93bf269 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
 @@ -305,6 +305,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
-     public boolean silentDeath = false; // Paper - mark entity as dying silently for cancellable death event
+     public boolean silentDeath = true; // Paper - mark entity as dying silently for cancellable death event
      public net.kyori.adventure.util.TriState frictionState = net.kyori.adventure.util.TriState.NOT_SET; // Paper - Friction API
      public int invulnerableDuration = LivingEntity.INVULNERABLE_DURATION; // Paper - configurable invulnerable duration
 +    protected boolean shouldBurnInDay = false; public boolean shouldBurnInDay() { return this.shouldBurnInDay; } public void setShouldBurnInDay(boolean shouldBurnInDay) { this.shouldBurnInDay = shouldBurnInDay; } // Purpur - API for any mob to burn daylight
@@ -59,7 +59,7 @@ index a9e93d55de28964169988e2b276fdfc8acd29fdb..77a5742fe3aab5acde6dff9664fea66f
          this.lastHurtByPlayer = EntityReference.read(input, "last_hurt_by_player");
          this.lastHurtByPlayerMemoryTime = input.getIntOr("last_hurt_by_player_memory_time", 0);
          this.lastHurtByMob = EntityReference.read(input, "last_hurt_by_mob");
-@@ -3981,6 +3984,37 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3938,6 +3941,37 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
          if (this.level() instanceof ServerLevel serverLevel && this.isSensitiveToWater() && this.isInWaterOrRain()) {
              this.hurtServer(serverLevel, this.damageSources().drown(), 1.0F);
          }
@@ -98,10 +98,10 @@ index a9e93d55de28964169988e2b276fdfc8acd29fdb..77a5742fe3aab5acde6dff9664fea66f
  
      protected void applyInput() {
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index 6e6ba45c93209bd9e7a8565bf166b4cc9843b80a..b5c2b64c581c30cdf6f379ccd76a863b81513f8b 100644
+index 460ba9d3a192c5f17a1b5c4682bbbba3d2f8ebe2..00353f1668e4fb3d97c57175a5f141d6a39d70f7 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -567,9 +567,9 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -561,9 +561,9 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
      @Override
      public void aiStep() {
          super.aiStep();
@@ -113,7 +113,7 @@ index 6e6ba45c93209bd9e7a8565bf166b4cc9843b80a..b5c2b64c581c30cdf6f379ccd76a863b
  
          ProfilerFiller profiler = Profiler.get();
          profiler.push("looting");
-@@ -621,16 +621,8 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -615,16 +615,8 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
      }
  
      public boolean isSunBurnTick() {
