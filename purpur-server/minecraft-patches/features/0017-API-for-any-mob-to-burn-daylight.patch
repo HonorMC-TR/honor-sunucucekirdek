@@ -6,7 +6,7 @@ Subject: [PATCH] API for any mob to burn daylight
 Co-authored by: Encode42 <me@encode42.dev>
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 8ca29762d465ba8ebeaa450bd6e1c4f77db5464c..0f5961a9fb49dbd77b682cf922cc14be48fe3397 100644
+index a4b74837096b4653b8504dbf446ad42277975e7e..ccb470d85b3f78939a27d8ed87a3745bf338db6d 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -558,6 +558,21 @@ public abstract class Entity
@@ -32,7 +32,7 @@ index 8ca29762d465ba8ebeaa450bd6e1c4f77db5464c..0f5961a9fb49dbd77b682cf922cc14be
          this.type = type;
          this.level = level;
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index 166c8d92937d534646d7a7521529d30afaa6f618..82705d97a520ffd6b4b4a1e5c7bf5439d93bf269 100644
+index afad3bdd336280ab7d90f6447b486a059a4966e9..17c7619409249024bf436ac0b9d6fb569e6a76da 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
 @@ -305,6 +305,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
@@ -59,7 +59,7 @@ index 166c8d92937d534646d7a7521529d30afaa6f618..82705d97a520ffd6b4b4a1e5c7bf5439
          this.lastHurtByPlayer = EntityReference.read(input, "last_hurt_by_player");
          this.lastHurtByPlayerMemoryTime = input.getIntOr("last_hurt_by_player_memory_time", 0);
          this.lastHurtByMob = EntityReference.read(input, "last_hurt_by_mob");
-@@ -3938,6 +3941,37 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3920,6 +3923,37 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
          if (this.level() instanceof ServerLevel serverLevel && this.isSensitiveToWater() && this.isInWaterOrRain()) {
              this.hurtServer(serverLevel, this.damageSources().drown(), 1.0F);
          }
@@ -98,7 +98,7 @@ index 166c8d92937d534646d7a7521529d30afaa6f618..82705d97a520ffd6b4b4a1e5c7bf5439
  
      protected void applyInput() {
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index 460ba9d3a192c5f17a1b5c4682bbbba3d2f8ebe2..00353f1668e4fb3d97c57175a5f141d6a39d70f7 100644
+index 3902dddb25c8d96390caf7bcda19db85f07f67ba..3402444417535121cc9da4924ef9c4dbfb134b0e 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
 @@ -561,9 +561,9 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
@@ -265,7 +265,7 @@ index 83c2d21587fc490eb7eb60c43a21da73f144140c..afca08cfa58a25a7fa257eebf66dd888
  
      @Override
 diff --git a/net/minecraft/world/entity/monster/zombie/Zombie.java b/net/minecraft/world/entity/monster/zombie/Zombie.java
-index 26f0ac03eaa3d33fa593ce65bc944872864a66a9..f104394d49989fe80462602cb06b2f58c4282fbb 100644
+index 9dac1e1bc0250122ac8d3a5c7fd0933660f2783c..947cfa465063246dfea805b0bdee1bed582b38aa 100644
 --- a/net/minecraft/world/entity/monster/zombie/Zombie.java
 +++ b/net/minecraft/world/entity/monster/zombie/Zombie.java
 @@ -102,11 +102,12 @@ public class Zombie extends Monster {

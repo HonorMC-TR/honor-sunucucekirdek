@@ -14,14 +14,14 @@
      public double zOld;
 +    public float maxUpStep; // Purpur - Add option to set armorstand step height
      public boolean noPhysics;
--    public final RandomSource random = SHARED_RANDOM; // Paper - Share random for entities to make them more random
+-    protected final RandomSource random = SHARED_RANDOM; // Paper - Share random for entities to make them more random
 +    public final RandomSource random; // Paper - Share random for entities to make them more random // Purpur - Add toggle for RNG manipulation
      public int tickCount;
      private int remainingFireTicks;
      private final EntityFluidInteraction fluidInteraction = new EntityFluidInteraction(Set.of(FluidTags.WATER, FluidTags.LAVA));
 @@ -331,8 +_,8 @@
      public @Nullable PortalProcessor portalProcess;
-     public int portalCooldown;
+     private int portalCooldown;
      private boolean invulnerable;
 -    protected UUID uuid = Mth.createInsecureUUID(this.random);
 -    protected String stringUUID = this.uuid.toString();
@@ -66,7 +66,7 @@
              && this.level.paperConfig().environment.netherCeilingVoidDamageHeight.test(v -> this.getY() >= v)
              && (!(this instanceof Player player) || !player.getAbilities().invulnerable))) {
              // Paper end - Configurable nether ceiling damage
-+            if (this.level.purpurConfig.teleportOnNetherCeilingDamage && this.level.getWorld().getEnvironment() == org.bukkit.World.Environment.NETHER && this instanceof ServerPlayer player) player.teleport(org.bukkit.craftbukkit.util.CraftLocation.toBukkit(this.level.levelData.getRespawnData().pos(), this.level)); else // Purpur - Add option to teleport to spawn on nether ceiling damage
++            if (this.level.purpurConfig.teleportOnNetherCeilingDamage && this.level.getWorld().getEnvironment() == org.bukkit.World.Environment.NETHER && this instanceof ServerPlayer player) player.teleport(org.bukkit.craftbukkit.util.CraftLocation.toBukkit(this.level.getLevelData().getRespawnData().pos(), this.level)); else // Purpur - Add option to teleport to spawn on nether ceiling damage
              this.onBelowWorld();
          }
      }

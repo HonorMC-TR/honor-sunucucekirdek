@@ -6,7 +6,7 @@
                      if (damagePerBlock > 0.0) {
 +                        // Purpur start - Add option to teleport to spawn if outside world border
 +                        if (this.level().purpurConfig.teleportIfOutsideBorder && this instanceof ServerPlayer serverPlayer) {
-+                            serverPlayer.teleport(org.bukkit.craftbukkit.util.CraftLocation.toBukkit(this.level().levelData.getRespawnData().pos(), this.level()));
++                            serverPlayer.teleport(org.bukkit.craftbukkit.util.CraftLocation.toBukkit(this.level().getLevelData().getRespawnData().pos(), this.level()));
 +                            return;
 +                        }
 +                        // Purpur end - Add option to teleport to spawn if outside world border
@@ -31,7 +31,7 @@
      }
  
      @Override
-@@ -1070,14 +_,32 @@
+@@ -1046,14 +_,32 @@
  
          if (targetingEntity != null) {
              ItemStack itemStack = this.getItemBySlot(EquipmentSlot.HEAD);
@@ -72,7 +72,7 @@
  
          return visibilityPercent;
      }
-@@ -1127,6 +_,7 @@
+@@ -1103,6 +_,7 @@
          Iterator<MobEffectInstance> iterator = this.activeEffects.values().iterator();
          while (iterator.hasNext()) {
              MobEffectInstance effect = iterator.next();
@@ -80,7 +80,7 @@
              EntityPotionEffectEvent event = CraftEventFactory.callEntityPotionEffectChangeEvent(this, effect, null, cause, EntityPotionEffectEvent.Action.CLEARED);
              if (event.isCancelled()) {
                  continue;
-@@ -1459,7 +_,23 @@
+@@ -1441,7 +_,23 @@
              this.stopSleeping();
          }
  
@@ -105,7 +105,7 @@
          if (damage < 0.0F) {
              damage = 0.0F;
          }
-@@ -1722,10 +_,10 @@
+@@ -1704,10 +_,10 @@
      protected @Nullable Player resolvePlayerResponsibleForDamage(final DamageSource source) {
          Entity sourceEntity = source.getEntity();
          if (sourceEntity instanceof Player playerSource) {
@@ -118,7 +118,7 @@
              } else {
                  this.lastHurtByPlayer = null;
                  this.lastHurtByPlayerMemoryTime = 0;
-@@ -1777,6 +_,17 @@
+@@ -1759,6 +_,17 @@
              }
          }
  
@@ -136,7 +136,7 @@
          final org.bukkit.inventory.EquipmentSlot handSlot = (usedHand != null) ? org.bukkit.craftbukkit.CraftEquipmentSlot.getHand(usedHand) : null;
          final EntityResurrectEvent event = new EntityResurrectEvent((org.bukkit.entity.LivingEntity) this.getBukkitEntity(), handSlot);
          event.setCancelled(protectionItem == null);
-@@ -1930,8 +_,10 @@
+@@ -1912,8 +_,10 @@
      protected void dropAllDeathLoot(final ServerLevel level, final DamageSource source) {
          boolean playerKilled = this.lastHurtByPlayerMemoryTime > 0;
          if (this.shouldDropLoot(level)) {
@@ -147,7 +147,7 @@
          }
  
          this.dropEquipment(level);
-@@ -3280,6 +_,7 @@
+@@ -3262,6 +_,7 @@
              float dmg = (float)(diff * 10.0 - 3.0);
              if (dmg > 0.0F) {
                  this.playSound(this.getFallDamageSound((int)dmg), 1.0F, 1.0F);
@@ -155,7 +155,7 @@
                  this.hurt(this.damageSources().flyIntoWall(), dmg);
              }
          }
-@@ -4773,6 +_,12 @@
+@@ -4755,6 +_,12 @@
              ? slot == EquipmentSlot.MAINHAND && this.canUseSlot(EquipmentSlot.MAINHAND)
              : slot == equippable.slot() && this.canUseSlot(equippable.slot()) && equippable.canBeEquippedBy(this.typeHolder());
      }

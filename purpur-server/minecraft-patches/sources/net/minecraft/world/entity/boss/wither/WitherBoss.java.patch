@@ -63,7 +63,7 @@
              }
  
              this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
-@@ -579,6 +_,7 @@
+@@ -584,6 +_,7 @@
  
      @Override
      protected boolean canRide(final Entity vehicle) {

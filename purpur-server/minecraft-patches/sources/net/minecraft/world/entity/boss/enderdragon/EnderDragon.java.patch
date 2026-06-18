@@ -9,7 +9,7 @@
              xpCount = 12000;
          }
          xpCount = this.expToDrop; // CraftBukkit - SPIGOT-2420: Moved up to #getExpReward method
-@@ -960,6 +_,7 @@
+@@ -965,6 +_,7 @@
  
      @Override
      protected boolean canRide(final Entity vehicle) {

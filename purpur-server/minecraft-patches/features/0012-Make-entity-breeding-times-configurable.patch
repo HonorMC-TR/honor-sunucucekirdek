@@ -22,11 +22,11 @@ index 979b537bb459898a501af86280fa313ac58510b2..9aefa11fcc336c5c98c63301b7f9a51b
          // CraftBukkit end - call EntityBreedEvent
          level.broadcastEntityEvent(child, EntityEvent.LOVE_HEARTS);
 diff --git a/net/minecraft/world/entity/animal/Animal.java b/net/minecraft/world/entity/animal/Animal.java
-index 44f34214b53a8ea754e3c62f5db652ea944a95f6..79de24884cb5862a4af6dd9a9067434d72a91fa8 100644
+index e18462f9e3353957eb3079112fe7e81986b36491..066bec0f5ed154dea08287ff6d4653a4623f956a 100644
 --- a/net/minecraft/world/entity/animal/Animal.java
 +++ b/net/minecraft/world/entity/animal/Animal.java
 @@ -46,6 +46,7 @@ public abstract class Animal extends AgeableMob {
-     public int inLove = 0;
+     private int inLove = 0;
      public @Nullable EntityReference<ServerPlayer> loveCause;
      public @Nullable ItemStack breedItem; // CraftBukkit - Add breedItem variable
 +    public abstract int getPurpurBreedTime(); // Purpur - Make entity breeding times configurable
@@ -83,7 +83,7 @@ index 2752e906f2a98540d6fd33cd5f080f376e6e3f86..11b3d0706a89b21251b5a045fbb34b1c
      public float getWalkTargetValue(final BlockPos pos, final LevelReader level) {
          return 0.0F;
 diff --git a/net/minecraft/world/entity/animal/bee/Bee.java b/net/minecraft/world/entity/animal/bee/Bee.java
-index 6022df0a91e46b0a7a0102b959a1eb2b18c1de63..c871d6e0140fae4e15bf07ba86ed7c67615e9ce6 100644
+index d49a95e4fa51d3bae3c4949936eb358d7bb2346b..fb47fcd4aef388821f6189d65ccdc7a62dd936aa 100644
 --- a/net/minecraft/world/entity/animal/bee/Bee.java
 +++ b/net/minecraft/world/entity/animal/bee/Bee.java
 @@ -485,6 +485,13 @@ public class Bee extends Animal implements NeutralMob {
@@ -528,7 +528,7 @@ index 85c6b17bbf490315b76612c4a8ab50b03e9d14a3..8041beeb5bb039f0aec0b59ba45806cf
      public @Nullable AgeableMob getBreedOffspring(final ServerLevel level, final AgeableMob partner) {
          return EntityTypes.POLAR_BEAR.create(level, EntitySpawnReason.BREEDING);
 diff --git a/net/minecraft/world/entity/animal/rabbit/Rabbit.java b/net/minecraft/world/entity/animal/rabbit/Rabbit.java
-index 38fa1c0b79e3dc11e830af95be4bed1e74910108..f0c4ad3715322bf1a5a60edd870b34a15949a77f 100644
+index b313fb9383b927a2c0254d784d3124ae64ada0dd..54b53fea95f9ce98e8e204b36de2c3a8318697b7 100644
 --- a/net/minecraft/world/entity/animal/rabbit/Rabbit.java
 +++ b/net/minecraft/world/entity/animal/rabbit/Rabbit.java
 @@ -171,6 +171,13 @@ public class Rabbit extends Animal {
@@ -543,7 +543,7 @@ index 38fa1c0b79e3dc11e830af95be4bed1e74910108..f0c4ad3715322bf1a5a60edd870b34a1
 +    // Purpur end - Make entity breeding times configurable
 +
      @Override
-     public void registerGoals() {
+     protected void registerGoals() {
          this.goalSelector.addGoal(1, new FloatGoal(this));
 diff --git a/net/minecraft/world/entity/animal/sheep/Sheep.java b/net/minecraft/world/entity/animal/sheep/Sheep.java
 index d3d5168fdafa7afe5813e1c0ea99ab17c8eddcc3..01220c13a3f5cd920bcbbd23f66d73e597fee97f 100644
@@ -582,7 +582,7 @@ index 9246c76131c02832d96eeb6d3899e0050abce938..33eb3e6b312ef32c6ae94a7ef5333ab6
      protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
          super.defineSynchedData(entityData);
 diff --git a/net/minecraft/world/entity/animal/turtle/Turtle.java b/net/minecraft/world/entity/animal/turtle/Turtle.java
-index aea12003ef838f8f4d1e1c6b83a527e6c812a3c8..4104787b7cc9e746f88969cad3a5b6d86b9f184b 100644
+index 99f665f44ccd23563b0824e4c149443081767a16..dd04eab7357c35f8a240994e42b2dc2330d40c77 100644
 --- a/net/minecraft/world/entity/animal/turtle/Turtle.java
 +++ b/net/minecraft/world/entity/animal/turtle/Turtle.java
 @@ -113,6 +113,13 @@ public class Turtle extends Animal {

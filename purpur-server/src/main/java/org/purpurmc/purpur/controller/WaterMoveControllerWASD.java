@@ -36,7 +36,7 @@ public class WaterMoveControllerWASD<T extends Mob> extends MoveControllerWASD<T
             vertical = 0.0F;
         }
 
-        if (rider.jumping && spacebarEvent(entity)) {
+        if (rider.isJumping() && spacebarEvent(entity)) {
             entity.onSpacebar();
         }
 
