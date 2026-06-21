@@ -69,7 +69,7 @@
          this.setServerLevel(newLevel);
          this.connection.internalTeleport(PositionMoveRotation.of(transition), transition.relatives()); // CraftBukkit - use internal teleport without event
          this.connection.resetPosition();
-@@ -1670,7 +_,7 @@
+@@ -1671,7 +_,7 @@
                          new AABB(bedCenter.x() - 8.0, bedCenter.y() - 5.0, bedCenter.z() - 8.0, bedCenter.x() + 8.0, bedCenter.y() + 5.0, bedCenter.z() + 8.0),
                          monster -> monster.isPreventingPlayerRest(this.level(), this)
                      );
@@ -78,7 +78,7 @@
                      return Either.left(Player.BedSleepingProblem.NOT_SAFE);
                  }
              }
-@@ -1706,7 +_,17 @@
+@@ -1707,7 +_,17 @@
                  CriteriaTriggers.SLEPT_IN_BED.trigger(this);
              });
              if (!this.level().canSleepThroughNights()) {
@@ -97,7 +97,7 @@
              }
  
              this.level().updateSleepingPlayerList();
-@@ -1801,6 +_,7 @@
+@@ -1802,6 +_,7 @@
  
      @Override
      public void openTextEdit(final SignBlockEntity sign, final boolean isFrontText) {
@@ -105,7 +105,7 @@
          this.connection.send(new ClientboundBlockUpdatePacket(this.level(), sign.getBlockPos()));
          this.connection.send(new ClientboundOpenSignEditorPacket(sign.getBlockPos(), isFrontText));
      }
-@@ -2145,6 +_,26 @@
+@@ -2146,6 +_,26 @@
          this.lastSentExp = -1; // CraftBukkit - Added to reset
      }
  
@@ -132,7 +132,7 @@
      @Override
      public void completeUsingItem() {
          if (!this.useItem.isEmpty() && this.isUsingItem()) {
-@@ -2382,6 +_,20 @@
+@@ -2383,6 +_,20 @@
          );
      }
  
@@ -153,7 +153,7 @@
      @Override
      public void sendSystemMessage(final Component message) {
          this.sendSystemMessage(message, false);
-@@ -2533,7 +_,67 @@
+@@ -2534,7 +_,67 @@
  
      public void resetLastActionTime() {
          this.lastActionTime = Util.getMillis();
@@ -222,7 +222,7 @@
  
      public ServerStatsCounter getStats() {
          return this.stats;
-@@ -3158,4 +_,65 @@
+@@ -3159,4 +_,65 @@
          return (org.bukkit.craftbukkit.entity.CraftPlayer) super.getBukkitEntity();
      }
      // CraftBukkit end

@@ -15,8 +15,8 @@
 +    public boolean lagging = false; // Purpur - Lagging threshold
 +    protected boolean upnp = false; // Purpur - UPnP Port Forwarding
      // Paper start - improve tick loop
-     public final ca.spottedleaf.moonrise.common.time.TickData tickTimes1s  = new ca.spottedleaf.moonrise.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
-     public final ca.spottedleaf.moonrise.common.time.TickData tickTimes5s  = new ca.spottedleaf.moonrise.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
+     public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
+     public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
 @@ -418,6 +_,7 @@
      public double[] computeTPS() {
          final long interval = this.tickRateManager().nanosecondsPerTick();
