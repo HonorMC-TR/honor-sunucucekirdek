@@ -30,10 +30,10 @@ index 80e694615ff8f81c8cbda9684ef96cce65f5abd7..f9cf876c5031e20b209c5de991982dbe
              net.minecraft.world.level.block.entity.HopperBlockEntity.skipHopperEvents = level.paperConfig().hopper.disableMoveEvent || org.bukkit.event.inventory.InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0; // Paper - Perf: Optimize Hoppers
              profiler.push(() -> level + " " + level.dimension().identifier());
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 72ce2b03561af86db2059dfa05f381278af56f64..ca39cddc5d7bccbea4ce8ed95354c7529dd93072 100644
+index 9a5be73c618c4c8572aad4ca2673def65658eeee..50a1fe6bd9f7e6cf79e48e1420fbe153c902bddb 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -239,6 +239,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -237,6 +237,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
      private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
      public final org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer persistentDataContainer = new org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer(DATA_TYPE_REGISTRY);
      private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)
