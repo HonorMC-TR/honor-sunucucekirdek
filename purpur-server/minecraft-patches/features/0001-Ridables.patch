@@ -18,10 +18,10 @@ index ec6dd9de7b82841b1403b1bb851392132be5275b..146c404ac0471ed7df6d3740859663aa
              public boolean isClientAuthoritative() {
                  return false;
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 03930510d489fe0af20750ba20b639df845266be..b2b69fbf79f67ea75bad54178f59dd5dfa9d61d5 100644
+index e82e5af2bcbd1f09f65e6e0a43c0974bbed3aebc..c2a1c299b9082f2602ee90b03363789683f488c1 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -1865,6 +1865,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1840,6 +1840,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          for (ServerLevel level : this.getAllLevels()) {
              level.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
              level.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
@@ -153,7 +153,7 @@ index 4ae58d6d8b6bd9510b6caf1e6618da4e9bed28bf..a4b74837096b4653b8504dbf446ad422
 +    // Purpur end - Ridables
  }
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index 8ec2032ed8e7586b14c3184ba03f9dfea9afc765..e9d53d0708cd1c49d1ed1257d10d22f7201873a0 100644
+index ff1de9caa41efd1370df2a3b5382033fcbd93e45..142f099e912a65b6ac8659096c8ecd5e55bc0c39 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
 @@ -258,9 +258,9 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
@@ -186,7 +186,7 @@ index 8ec2032ed8e7586b14c3184ba03f9dfea9afc765..e9d53d0708cd1c49d1ed1257d10d22f7
  
      @Override
      protected void checkFallDamage(final double ya, final boolean onGround, final BlockState onState, final BlockPos pos) {
-@@ -3141,6 +3142,20 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3140,6 +3141,20 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
              this.move(MoverType.SELF, this.getDeltaMovement());
              this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
          } else {
@@ -207,7 +207,7 @@ index 8ec2032ed8e7586b14c3184ba03f9dfea9afc765..e9d53d0708cd1c49d1ed1257d10d22f7
              this.moveRelative(airSpeed, input);
              this.move(MoverType.SELF, this.getDeltaMovement());
              this.setDeltaMovement(this.getDeltaMovement().scale(0.91F));
-@@ -3869,8 +3884,10 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3868,8 +3883,10 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
          this.pushEntities();
          profiler.pop();
          // Paper start - Add EntityMoveEvent
@@ -220,7 +220,7 @@ index 8ec2032ed8e7586b14c3184ba03f9dfea9afc765..e9d53d0708cd1c49d1ed1257d10d22f7
                  Location from = new Location(this.level().getWorld(), this.xo, this.yo, this.zo, this.yRotO, this.xRotO);
                  Location to = new Location(this.level().getWorld(), this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
                  io.papermc.paper.event.entity.EntityMoveEvent event = new io.papermc.paper.event.entity.EntityMoveEvent(this.getBukkitLivingEntity(), from, to.clone());
-@@ -3880,6 +3897,21 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3879,6 +3896,21 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
                      this.absSnapTo(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ(), event.getTo().getYaw(), event.getTo().getPitch());
                  }
              }
@@ -4425,7 +4425,7 @@ index 96776d23370736da3408e6a86ed89b7f3d686732..0ac7a442a0ea79f190aceb60b771d616
      public SoundEvent getHurtSound(final DamageSource source) {
          return this.isTiny() ? SoundEvents.SLIME_HURT_SMALL : SoundEvents.SLIME_HURT;
 diff --git a/net/minecraft/world/entity/monster/cubemob/SulfurCube.java b/net/minecraft/world/entity/monster/cubemob/SulfurCube.java
-index 1856b055cfeafb88303957b570812974b33a03ae..e5fd7eefb749394ee8613339bf5802315c0bb4bf 100644
+index cb81597a61fb9a64cd0e0da694e27b9676f7312f..0a502a331f7f1c4f9559a4444d0cb76acb93b0d3 100644
 --- a/net/minecraft/world/entity/monster/cubemob/SulfurCube.java
 +++ b/net/minecraft/world/entity/monster/cubemob/SulfurCube.java
 @@ -129,6 +129,28 @@ public class SulfurCube extends AbstractCubeMob implements Bucketable, Shearable

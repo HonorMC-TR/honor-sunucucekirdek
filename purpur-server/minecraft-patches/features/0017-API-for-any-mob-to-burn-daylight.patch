@@ -32,7 +32,7 @@ index a4b74837096b4653b8504dbf446ad42277975e7e..ccb470d85b3f78939a27d8ed87a3745b
          this.type = type;
          this.level = level;
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index afad3bdd336280ab7d90f6447b486a059a4966e9..17c7619409249024bf436ac0b9d6fb569e6a76da 100644
+index 676c5079d4927f551ceabb6178aabf6e548aaa1a..769acea46e91e07b711fbc6a92cfcad0564f5463 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
 @@ -305,6 +305,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
@@ -59,7 +59,7 @@ index afad3bdd336280ab7d90f6447b486a059a4966e9..17c7619409249024bf436ac0b9d6fb56
          this.lastHurtByPlayer = EntityReference.read(input, "last_hurt_by_player");
          this.lastHurtByPlayerMemoryTime = input.getIntOr("last_hurt_by_player_memory_time", 0);
          this.lastHurtByMob = EntityReference.read(input, "last_hurt_by_mob");
-@@ -3920,6 +3923,37 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3919,6 +3922,37 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
          if (this.level() instanceof ServerLevel serverLevel && this.isSensitiveToWater() && this.isInWaterOrRain()) {
              this.hurtServer(serverLevel, this.damageSources().drown(), 1.0F);
          }
