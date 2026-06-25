@@ -64,7 +64,6 @@ subprojects {
     repositories {
         mavenCentral()
         maven(paperMavenPublicUrl)
-        maven("https://jitpack.io")
     }
 
     extensions.configure<PublishingExtension> {
