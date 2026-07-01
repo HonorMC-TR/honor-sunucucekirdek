@@ -5,7 +5,7 @@ Subject: [PATCH] HonorMC console runtime polish
 
 
 diff --git a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java
-index 7c7c8aa3a0426466dd0278928745d323addd5179..90ea8926306d206e426e9163d78fc5948d85ef39 100644
+index e1be5416b0b8d924dccb14b9c54d8b5e190eeca4..9ad43fc60b25b5484054d0c57a657e105e582ec3 100644
 --- a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java
 +++ b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java
 @@ -23,7 +23,7 @@ final class HonorMCConsoleStyles {
@@ -59,7 +59,7 @@ index 7c7c8aa3a0426466dd0278928745d323addd5179..90ea8926306d206e426e9163d78fc594
 +    }
  }
 diff --git a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java
-index 2e7a3d9c2b4d4c2e23cd516540b2c76df7f35bfa..bc299a0c2d3d6a979d3e1cc6168f106d5a3ed486 100644
+index 082d7f1109125b36308e4831b782388f1ce157a1..9150237f6cc269444a096af5a21a15ca754df0c0 100644
 --- a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java
 +++ b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java
 @@ -28,7 +28,7 @@ public final class HonorMCMessageConverter extends LogEventPatternConverter {
@@ -140,7 +140,7 @@ index 2e7a3d9c2b4d4c2e23cd516540b2c76df7f35bfa..bc299a0c2d3d6a979d3e1cc6168f106d
 +    }
  }
 diff --git a/src/main/java/io/papermc/paper/SparksFly.java b/src/main/java/io/papermc/paper/SparksFly.java
-index 62e2d5704c348955bc8284dc2d54c933b7bcdd06..e5ff8cf584216f31a1c1b9c744f55afe105c9696 100644
+index 62e2d5704c348955bc8284dc2d54c933b7bcdd06..9172dfa037bc67057b151e4decfa6054bf421722 100644
 --- a/src/main/java/io/papermc/paper/SparksFly.java
 +++ b/src/main/java/io/papermc/paper/SparksFly.java
 @@ -41,7 +41,9 @@ public final class SparksFly {
@@ -154,7 +154,7 @@ index 62e2d5704c348955bc8284dc2d54c933b7bcdd06..e5ff8cf584216f31a1c1b9c744f55afe
          this.spark = PaperSparkModule.create(Compatibility.VERSION_1_0, server, this.logger, new PaperScheduler() {
              @Override
              public void executeAsync(final Runnable runnable) {
-@@ -58,7 +58,7 @@ public final class SparksFly {
+@@ -58,7 +60,7 @@ public final class SparksFly {
                      try {
                          runnable.run();
                      } catch (final Throwable t) {
@@ -163,7 +163,7 @@ index 62e2d5704c348955bc8284dc2d54c933b7bcdd06..e5ff8cf584216f31a1c1b9c744f55afe
                      }
                  };
              }
-@@ -111,7 +111,7 @@ public final class SparksFly {
+@@ -111,7 +113,7 @@ public final class SparksFly {
          final boolean isPluginEnabled = isPluginEnabled(server);
          if (!isPluginPreferred || !isPluginEnabled) {
              if (isPluginPreferred && !this.enabled) {
@@ -172,7 +172,7 @@ index 62e2d5704c348955bc8284dc2d54c933b7bcdd06..e5ff8cf584216f31a1c1b9c744f55afe
              }
              this.enable();
          }
-@@ -124,7 +124,7 @@ public final class SparksFly {
+@@ -124,7 +126,7 @@ public final class SparksFly {
                  this.spark.enable();
              } else {
                  if (!this.disabledInConfigurationWarningLogged) {
@@ -181,7 +181,7 @@ index 62e2d5704c348955bc8284dc2d54c933b7bcdd06..e5ff8cf584216f31a1c1b9c744f55afe
                      this.disabledInConfigurationWarningLogged = true;
                  }
              }
-@@ -194,7 +194,7 @@ public final class SparksFly {
+@@ -194,7 +196,7 @@ public final class SparksFly {
              if (spark.enabled) {
                  spark.executeCommand(sender, args);
              } else {
@@ -250,7 +250,7 @@ index e6511bddcdf1dc455d17d91d733aad055d2301dc..a69f7abc339f6f4c3925789426d5e398
              }
              nagged = true;
 diff --git a/src/main/java/io/papermc/paper/plugin/provider/source/FileProviderSource.java b/src/main/java/io/papermc/paper/plugin/provider/source/FileProviderSource.java
-index 9661f033bbb2c00073f1c891e1411c2a9943a37a..eb4183d9d7d941356909a658d8a8b1b90700bb13 100644
+index 9661f033bbb2c00073f1c891e1411c2a9943a37a..65af2435b223d984b46a199da9a5e5a128d89e32 100644
 --- a/src/main/java/io/papermc/paper/plugin/provider/source/FileProviderSource.java
 +++ b/src/main/java/io/papermc/paper/plugin/provider/source/FileProviderSource.java
 @@ -77,7 +77,7 @@ public class FileProviderSource implements ProviderSource<Path, Path> {
@@ -263,10 +263,10 @@ index 9661f033bbb2c00073f1c891e1411c2a9943a37a..eb4183d9d7d941356909a658d8a8b1b9
          }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 495da134739f278e0bcd4d2f377fa8b353513d0b..f7bc2d8300dfe1681a4f92fb97e8eab51eac59ce 100644
+index d6be9668cbad17f32c89c1871602b7c17a329476..16eafc21b5ac2fca3dd52c1eba9552a725be94ae 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1148,10 +1148,10 @@ public final class CraftServer implements Server {
+@@ -1149,10 +1149,10 @@ public final class CraftServer implements Server {
          try {
              perms = this.yaml.load(stream);
          } catch (MarkedYAMLException ex) {
@@ -279,7 +279,7 @@ index 495da134739f278e0bcd4d2f377fa8b353513d0b..f7bc2d8300dfe1681a4f92fb97e8eab5
              return;
          } finally {
              try {
-@@ -1160,7 +1160,7 @@ public final class CraftServer implements Server {
+@@ -1161,7 +1161,7 @@ public final class CraftServer implements Server {
          }
  
          if (perms == null) {
@@ -289,10 +289,10 @@ index 495da134739f278e0bcd4d2f377fa8b353513d0b..f7bc2d8300dfe1681a4f92fb97e8eab5
          }
  
 diff --git a/src/main/java/org/spigotmc/SpigotConfig.java b/src/main/java/org/spigotmc/SpigotConfig.java
-index 025ec3f3e84a3367b4d709c8c3ecd98f6dfecab4..8c3890a5ac94955d7aa6423888f92167e882b074 100644
+index 5d5755d7567f2b6b4c0c5133048ca93620613ff9..3e9395cb3ac4f9fca0648900610869bde693f99f 100644
 --- a/src/main/java/org/spigotmc/SpigotConfig.java
 +++ b/src/main/java/org/spigotmc/SpigotConfig.java
-@@ -198,7 +198,7 @@ public class SpigotConfig {
+@@ -197,7 +197,7 @@ public class SpigotConfig {
      private static void nettyThreads() {
          int count = SpigotConfig.getInt("settings.netty-threads", 4);
          System.setProperty("io.netty.eventLoopThreads", Integer.toString(count));
@@ -301,7 +301,7 @@ index 025ec3f3e84a3367b4d709c8c3ecd98f6dfecab4..8c3890a5ac94955d7aa6423888f92167
      }
  
      public static boolean disableStatSaving;
-@@ -235,7 +235,7 @@ public class SpigotConfig {
+@@ -234,7 +234,7 @@ public class SpigotConfig {
      public static int playerSample;
      private static void playerSample() {
          SpigotConfig.playerSample = Math.max(SpigotConfig.getInt("settings.sample-count", 12), 0); // Paper - Avoid negative counts

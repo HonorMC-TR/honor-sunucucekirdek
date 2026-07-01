@@ -5,11 +5,17 @@ Bu paket HonorMC'nin sade Turkce dagitim duzenidir. Sunucuyu `BASLAT.ps1` veya `
 ## Klasorler
 
 - `cekirdek/`: `Honor-<surum>.jar` burada durur.
+- `altyapi/`: HonorMC'nin zorunlu altyapi kutuphaneleri burada tutulur.
 - `eklentiler/`: Plugin jar dosyalarini buraya koy.
 - `dunyalar/`: Dunya dosyalari burada tutulur.
 - `ayarlar/`: HonorMC, Bukkit/Paper/Purpur uyumluluk ve sunucu ayarlari burada tutulur.
+- `ayarlar/oyuncular/`: OP, beyaz liste, ban listeleri ve oyuncu onbellegi burada tutulur.
 - `kayitlar/`: Konsol ve HTML kayitlari burada tutulur. HonorMC Baslatici canli kaydi `kayitlar/canli-konsol.html` dosyasina yazar.
 - `yedekler/`: Elle veya ileride baslatici ile alinacak yedekler icin.
+
+## EULA
+
+EULA onayi `ayarlar/eula.txt` dosyasindadir. Ana dizinde yalniz HonorMC'nin okunur baslatma dosyalari ve klasorleri kalacak sekilde duzenlenmistir.
 
 ## Neden bazi ayar anahtarlari Ingilizce?
 

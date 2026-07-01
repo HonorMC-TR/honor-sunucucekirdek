@@ -6,9 +6,11 @@ dil: tr-TR
 
 klasorler:
   cekirdek: cekirdek
+  altyapi: altyapi
   eklentiler: eklentiler
   dunyalar: dunyalar
   ayarlar: ayarlar
+  oyuncular: ayarlar/oyuncular
   kayitlar: kayitlar
   yedekler: yedekler
 

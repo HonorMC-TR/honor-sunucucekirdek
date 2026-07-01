@@ -89,9 +89,7 @@ public class PurpurConfig {
     }
 
     public static void registerCommands() {
-        for (Map.Entry<String, Command> entry : commands.entrySet()) {
-            MinecraftServer.getServer().server.getCommandMap().register(entry.getKey(), "honor", entry.getValue());
-        }
+        // HonorMC owns the public command surface; Purpur commands stay internal.
         tr.honormc.command.HonorCommands.registerCommands(MinecraftServer.getServer());
     }
 

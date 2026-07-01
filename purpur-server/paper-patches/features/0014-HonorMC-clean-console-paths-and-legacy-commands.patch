@@ -1,0 +1,70 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Thu, 2 Jul 2026 01:07:59 +0300
+Subject: [PATCH] HonorMC clean console paths and legacy commands
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+index 1ac0e2c155885357a5136e64b76b62542dcc3bc2..a3e827f32a5edcbb76c9a5dcf92c8d4ca5da70ac 100644
+--- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
++++ b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+@@ -21,7 +21,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
+     protected LineReader buildReader(LineReaderBuilder builder) {
+         builder
+                 .appName("HonorMC") // HonorMC - Rebrand
+-                .variable(LineReader.HISTORY_FILE, java.nio.file.Paths.get(".console_history"))
++                .variable(LineReader.HISTORY_FILE, java.nio.file.Paths.get("kayitlar", "komut-gecmisi.txt"))
+                 .completer(new ConsoleCommandCompleter(this.server))
+                 .option(LineReader.Option.COMPLETE_IN_WORD, true);
+         if (io.papermc.paper.configuration.GlobalConfiguration.get().console.enableBrigadierHighlighting) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 16eafc21b5ac2fca3dd52c1eba9552a725be94ae..5b639c11a66a38b2cfc834ddfc82fafc39487a96 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1030,10 +1030,7 @@ public final class CraftServer implements Server {
+         }
+         // Paper end
+         this.reloadData();
+-        org.spigotmc.SpigotConfig.registerCommands(); // Spigot
+-        io.papermc.paper.command.PaperCommands.registerCommands(this.console); // Paper
+-        this.spark.registerCommandBeforePlugins(this); // Paper - spark
+-        org.purpurmc.purpur.PurpurConfig.registerCommands(); // Purpur - Purpur config files
++        // HonorMC - legacy fork commands are not registered on reload.
+         tr.honormc.command.HonorCommands.registerCommands(this.console); // HonorMC - own command surface
+         this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
+         this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
+@@ -1063,7 +1060,7 @@ public final class CraftServer implements Server {
+         this.loadPlugins();
+         this.enablePlugins(PluginLoadOrder.STARTUP);
+         this.enablePlugins(PluginLoadOrder.POSTWORLD);
+-        this.spark.registerCommandAfterPlugins(this); // Paper - spark
++        // HonorMC - spark command is not registered as a legacy Paper command.
+         // Paper start - brigadier command API
+         io.papermc.paper.command.brigadier.PaperCommands.INSTANCE.setValid(); // to clear invalid state for event fire below
+         io.papermc.paper.plugin.lifecycle.event.LifecycleEventRunner.INSTANCE.callReloadableRegistrarEvent(io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents.COMMANDS, io.papermc.paper.command.brigadier.PaperCommands.INSTANCE, org.bukkit.plugin.Plugin.class, io.papermc.paper.plugin.lifecycle.event.registrar.ReloadableRegistrarEvent.Cause.RELOAD); // call commands event for regular plugins
+diff --git a/src/main/resources/log4j2.xml b/src/main/resources/log4j2.xml
+index d67bebf15240de136b067e407231324c1bf31d38..8d98681443f16e8046098bed69f8761bfff1e4cb 100644
+--- a/src/main/resources/log4j2.xml
++++ b/src/main/resources/log4j2.xml
+@@ -23,7 +23,7 @@
+                 </LoggerNamePatternSelector>
+             </PatternLayout>
+         </TerminalConsole>
+-        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
++        <RollingRandomAccessFile name="File" fileName="kayitlar/latest.log" filePattern="kayitlar/%d{yyyy-MM-dd}-%i.log.gz">
+             <PatternLayout>
+                 <LoggerNamePatternSelector defaultPattern="[%d{HH:mm:ss}] [%t/%level]: [%logger] %stripAnsi{%msg}%n%xEx{full}">
+                     <!-- Log root, Minecraft, Mojang and Bukkit loggers without prefix -->
+@@ -38,8 +38,12 @@
+             </Policies>
+             <DefaultRolloverStrategy max="1000"/>
+         </RollingRandomAccessFile>
++        <File name="HtmlFile" fileName="kayitlar/canli-konsol.html" append="false">
++            <HtmlLayout charset="UTF-8" title="HonorMC Konsol Kaydi" locationInfo="false"/>
++        </File>
+         <Async name="Async">
+             <AppenderRef ref="File"/>
++            <AppenderRef ref="HtmlFile"/>
+             <AppenderRef ref="TerminalConsole" level="info"/>
+             <AppenderRef ref="ServerGuiConsole" level="info"/>
+         </Async>

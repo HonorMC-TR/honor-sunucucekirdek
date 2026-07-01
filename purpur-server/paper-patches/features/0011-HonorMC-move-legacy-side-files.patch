@@ -5,6 +5,7 @@ Subject: [PATCH] HonorMC move legacy side files
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java b/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java
+index efdf6e0f5664f1a849af90ee1e58d7da4dc5739a..0e59bd8936d810d1e9ebd73543e826a6f3f07ef2 100644
 --- a/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java
 +++ b/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java
 @@ -29,7 +29,7 @@ public enum VersionHistoryManager {
@@ -16,7 +17,7 @@ diff --git a/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java b/
  
          if (Files.exists(path)) {
              // Basic file sanity checks
-@@ -70,14 +70,19 @@ public enum VersionHistoryManager {
+@@ -83,14 +83,19 @@ public enum VersionHistoryManager {
      }
  
      private void writeFile(@Nonnull final Path path) {
@@ -45,6 +46,7 @@ diff --git a/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java b/
              logger.log(Level.SEVERE, "Failed to write to version history file", e);
          }
 diff --git a/src/main/java/org/bukkit/craftbukkit/help/HelpYamlReader.java b/src/main/java/org/bukkit/craftbukkit/help/HelpYamlReader.java
+index a659e06c4cff1c17333703881c36fed78f61efce..281a74404dabc8219506c9b8f87a67f3c3906da9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/help/HelpYamlReader.java
 +++ b/src/main/java/org/bukkit/craftbukkit/help/HelpYamlReader.java
 @@ -25,7 +25,11 @@ public class HelpYamlReader {

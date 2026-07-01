@@ -233,6 +233,15 @@ abstract class GenerateHonorMCBaslatBat : DefaultTask() {
             chcp 65001 >nul
             setlocal
 
+            cd /d "%~dp0"
+
+            if exist "%~dp0baslatici\HonorMC-Baslatici.jar" (
+              java -jar "%~dp0baslatici\HonorMC-Baslatici.jar" --ayar "%~dp0ayarlar\baslatici.properties" %*
+              set "HONOR_EXIT=%ERRORLEVEL%"
+              pause
+              exit /b %HONOR_EXIT%
+            )
+
             set "HONOR_JAR=%~dp0Honor-$version.jar"
             if not exist "%HONOR_JAR%" (
               echo HonorMC cekirdek jar dosyasi bulunamadi: %HONOR_JAR%
@@ -245,11 +254,19 @@ abstract class GenerateHonorMCBaslatBat : DefaultTask() {
             if "%HONORMC_MAX_RAM%"=="" set "HONORMC_MAX_RAM=16G"
 
             if not exist "ayarlar" mkdir "ayarlar"
+            if not exist "ayarlar\oyuncular" mkdir "ayarlar\oyuncular"
             if not exist "ayarlar\paper" mkdir "ayarlar\paper"
             if not exist "eklentiler" mkdir "eklentiler"
             if not exist "dunyalar" mkdir "dunyalar"
             if not exist "kayitlar" mkdir "kayitlar"
+            if not exist "kayitlar\html" mkdir "kayitlar\html"
             if not exist "yedekler" mkdir "yedekler"
+            if not exist "altyapi" mkdir "altyapi"
+            if not exist "altyapi\bundler" mkdir "altyapi\bundler"
+            if not exist "ayarlar\eula.txt" (
+              echo # Mojang EULA kabul dosyasi.> "ayarlar\eula.txt"
+              echo eula=true>> "ayarlar\eula.txt"
+            )
 
             echo HonorMC baslatiliyor...
             echo RAM: %HONORMC_MIN_RAM% - %HONORMC_MAX_RAM%
@@ -262,6 +279,7 @@ abstract class GenerateHonorMCBaslatBat : DefaultTask() {
               -Dfile.encoding=UTF-8 ^
               -Duser.language=tr ^
               -Duser.country=TR ^
+              -DbundlerRepoDir=altyapi\bundler ^
               -jar "%HONOR_JAR%" ^
               --nogui ^
               --config "ayarlar\sunucu.properties" ^
@@ -321,6 +339,7 @@ tasks.register<Sync>("paketleHonorMCDagitim") {
             "cekirdek/Honor-*.jar",
             "libraries/**",
             "versions/**",
+            "altyapi/bundler/**",
             "logs/**",
             "crash-reports/**",
             "banned-ips.json",
@@ -374,6 +393,7 @@ val honorMCSonSurumCiktiKlasoru = layout.dir(honorMCSonSurumCiktiYolu.map { file
 val kopyalaHonorMCSonSurum = tasks.register<Copy>("kopyalaHonorMCSonSurum") {
     group = "honormc"
     description = "Son HonorMC jar, baslatici ve dagitim zip ciktisini Belgeler/HonorMC klasorune kopyalar."
+    doNotTrackState("Belgeler/HonorMC aktif dunya session.lock dosyalari icerebilir.")
 
     dependsOn(packageHonorMCJar)
     dependsOn(hazirlaHonorMCBaslatBat)
@@ -381,6 +401,9 @@ val kopyalaHonorMCSonSurum = tasks.register<Copy>("kopyalaHonorMCSonSurum") {
     dependsOn("paketleHonorMCDagitim")
     dependsOn(zipHonorMCDagitim)
 
+    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.EXCLUDE
+
+    from(layout.buildDirectory.dir("honormc-dagitim"))
     from(packageHonorMCJar.flatMap { it.outputJar })
     from(honorMCBaslatBat)
     from(zipHonorMCDagitim.flatMap { it.archiveFile })

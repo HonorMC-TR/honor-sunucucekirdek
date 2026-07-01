@@ -5,9 +5,11 @@ Subject: [PATCH] HonorMC disable optional telemetry by default
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index 6194d6d8952864c71cc4017a639b818e4ecccea9..b5978bffe67c61db65e72da6a61d48751855ab8d 100644
 --- a/src/main/java/com/destroystokyo/paper/Metrics.java
 +++ b/src/main/java/com/destroystokyo/paper/Metrics.java
-@@ -564,5 +564,9 @@ public class Metrics {
+@@ -562,6 +562,10 @@ public class Metrics {
+
      public static class PaperMetrics {
          public static void startMetrics() {
 +            if (!Boolean.getBoolean("honormc.telemetri")) {
@@ -18,14 +20,15 @@ diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/
              File configFile = new File(new File((File) MinecraftServer.getServer().options.valueOf("plugins"), "bStats"), "config.yml");
              YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+index 7d2b38ecf1478c9e53d033f41c4184864c8d32e4..a108e6dbbdcb2d4246d40d21b3827fec76147062 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-@@ -104,7 +104,7 @@ public class GlobalConfiguration extends ConfigurationPart {
+@@ -100,7 +100,7 @@ public class GlobalConfiguration extends ConfigurationPart {
      public Spark spark;
- 
+
      public class Spark extends ConfigurationPart {
 -        public boolean enabled = true;
 +        public boolean enabled = false; // HonorMC - keep profiler opt-in for a clean Turkish runtime
          public boolean enableImmediately = false;
      }
- 
+

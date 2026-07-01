@@ -1,0 +1,184 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Thu, 2 Jul 2026 01:07:58 +0300
+Subject: [PATCH] HonorMC relocate runtime files and commands
+
+
+diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
+index 2163382ba946a71c23c0a7bcff431ecd92c7c9c7..a0e8170b181af0c7988c3087a83ff87122b7f5ed 100644
+--- a/net/minecraft/server/Main.java
++++ b/net/minecraft/server/Main.java
+@@ -118,7 +118,7 @@ public class Main {
+             Bootstrap.bootStrap();
+             Bootstrap.validate();
+             Util.startTimerHackThread();
+-            Path settingsFile = Paths.get("server.properties");
++            Path settingsFile = Paths.get("ayarlar", "sunucu.properties");
+             DedicatedServerSettings settings = new DedicatedServerSettings(options); // CraftBukkit - CLI argument support
+             settings.forceSave();
+             // Paper start
+@@ -128,7 +128,7 @@ public class Main {
+             }
+             // Paper end
+             RegionFileVersion.configure(settings.getProperties().regionFileComression);
+-            Path eulaFile = Paths.get("eula.txt");
++            Path eulaFile = Paths.get("ayarlar", "eula.txt");
+             Eula eula = new Eula(eulaFile);
+             // Paper start - load config files early for access below if needed
+             org.bukkit.configuration.file.YamlConfiguration bukkitConfiguration = io.papermc.paper.configuration.PaperConfigurations.loadLegacyConfigFile((File) options.valueOf("bukkit-settings"));
+@@ -148,7 +148,7 @@ public class Main {
+                 commandsConfiguration.setDefaults(org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(Main.class.getClassLoader().getResourceAsStream("configurations/commands.yml"), java.nio.charset.StandardCharsets.UTF_8)));
+                 commandsConfiguration.save(commandFile);
+                 // CraftBukkit end
+-                LOGGER.info("Initialized '{}' and '{}'", settingsFile.toAbsolutePath(), eulaFile.toAbsolutePath());
++                LOGGER.info("HonorMC ayarlari hazirlandi: '{}' ve '{}'", settingsFile.toAbsolutePath(), eulaFile.toAbsolutePath());
+                 return;
+             }
+
+@@ -160,7 +160,7 @@ public class Main {
+                 LOGGER.warn("If you do not agree to the above EULA please stop your server and remove this flag immediately.");
+             } else if (!eula.hasAgreedToEULA()) {
+                 // Paper end - eula system property
+-                LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
++                LOGGER.info("Sunucuyu calistirmak icin Mojang EULA onayi gerekir. Detay: ayarlar/eula.txt");
+                 return;
+             }
+
+@@ -180,13 +180,16 @@ public class Main {
+
+             // Paper start - fix SPIGOT-5824
+             File universePath;
+-            File userCacheFile = new File(Services.USERID_CACHE_FILE);
++            File userCacheFile = new File("ayarlar/oyuncular/" + Services.USERID_CACHE_FILE);
+             if (options.has("universe")) {
+                 universePath = (File) options.valueOf("universe"); // CraftBukkit
+-                userCacheFile = new File(universePath, Services.USERID_CACHE_FILE);
+             } else {
+                 universePath = new File(bukkitConfiguration.getString("settings.world-container", "."));
+             }
++            File userCacheParent = userCacheFile.getParentFile();
++            if (userCacheParent != null) {
++                userCacheParent.mkdirs();
++            }
+             // Paper end - fix SPIGOT-5824
+             Services services = Services.create(new com.destroystokyo.paper.profile.PaperAuthenticationService(Proxy.NO_PROXY), universePath, userCacheFile, options); // Paper - pass OptionSet to load paper config files; override authentication service; fix world-container
+             NotificationManager notificationManager = new NotificationManager();
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index 1add5336762515705fbb848b92fdf795ab745107..3f5b628340936df6e84897a9a4de7018ebd24466 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -650,7 +650,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         }
+         // Paper end - Configurable player collision; Handle collideRule team for player collision toggle
+         this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD);
+-        this.server.spark.registerCommandBeforePlugins(this.server); // Paper - spark
++        // HonorMC - spark command is not registered as a legacy Paper command.
+         this.server.spark.enableAfterPlugins(this.server); // Paper - spark
+         io.papermc.paper.command.brigadier.PaperCommands.INSTANCE.setValid(); // Paper - reset invalid state for event fire below
+         io.papermc.paper.plugin.lifecycle.event.LifecycleEventRunner.INSTANCE.callReloadableRegistrarEvent(io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents.COMMANDS, io.papermc.paper.command.brigadier.PaperCommands.INSTANCE, org.bukkit.plugin.Plugin.class, io.papermc.paper.plugin.lifecycle.event.registrar.ReloadableRegistrarEvent.Cause.INITIAL); // Paper - call commands event for regular plugins
+@@ -1406,7 +1406,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             LOGGER.error("Beklenmeyen bir hata olustu", t);
+             CrashReport report = constructOrExtractCrashReport(t);
+             this.fillSystemReport(report.getSystemReport());
+-            Path file = this.getServerDirectory().resolve("crash-reports").resolve("crash-" + Util.getFilenameFormattedDateTime() + "-server.txt");
++            Path file = this.getServerDirectory().resolve("kayitlar").resolve("crash-reports").resolve("crash-" + Util.getFilenameFormattedDateTime() + "-server.txt");
+             if (report.saveToFile(file, ReportType.CRASH)) {
+                 LOGGER.error("Cokme raporu kaydedildi: {}", file.toAbsolutePath());
+             } else {
+@@ -3015,7 +3015,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     private void storeChunkIoError(final CrashReport report, final ChunkPos pos, final RegionStorageInfo storageInfo) {
+         Util.ioPool().execute(() -> {
+             try {
+-                Path debugDir = this.getFile("debug");
++                Path debugDir = this.getFile("kayitlar/debug");
+                 FileUtil.createDirectoriesSafe(debugDir);
+                 String sanitizedLevelName = FileUtil.sanitizeName(storageInfo.level());
+                 Path reportFile = debugDir.resolve("chunk-" + sanitizedLevelName + "-" + Util.getFilenameFormattedDateTime() + "-server.txt");
+diff --git a/net/minecraft/server/ReloadableServerResources.java b/net/minecraft/server/ReloadableServerResources.java
+index 8921b17a2caf39ae4b892238e926066c1ebe0330..097ffd060f4b568cc20cf49942e11ff8f12bd1ee 100644
+--- a/net/minecraft/server/ReloadableServerResources.java
++++ b/net/minecraft/server/ReloadableServerResources.java
+@@ -46,7 +46,7 @@ public class ReloadableServerResources {
+         this.recipes = new RecipeManager(loadingContext);
+         this.commands = new Commands(commandSelection, CommandBuildContext.simple(loadingContext, enabledFeatures), true); // Paper - Brigadier Command API - use modern alias registration
+         io.papermc.paper.command.brigadier.PaperCommands.INSTANCE.setDispatcher(this.commands, CommandBuildContext.simple(loadingContext, enabledFeatures)); // Paper - Brigadier Command API
+-        io.papermc.paper.command.PaperCommands.registerCommands(); // Paper
++        // HonorMC - do not register public Paper commands.
+         this.advancements = new ServerAdvancementManager(loadingContext);
+         this.functionLibrary = new ServerFunctionLibrary(functionCompilationPermissions, this.commands.getDispatcher());
+     }
+diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
+index e580a1d0d7e5634eb5f2ed3443f599618e119d84..3fbd6bc266a94f5e6298bfcb7acc4521b55dbf2b 100644
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -233,7 +233,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         // Spigot start
+         this.setPlayerList(new DedicatedPlayerList(this, this.registries(), this.playerDataStorage));
+         org.spigotmc.SpigotConfig.init((java.io.File) this.options.valueOf("spigot-settings"));
+-        org.spigotmc.SpigotConfig.registerCommands();
++        // HonorMC - Spigot commands are not registered publicly.
+         // Spigot end
+         // Purpur start - Migrate Setting to reintroduce end void rings
+         try {
+@@ -242,7 +242,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+             DedicatedServer.LOGGER.error("Sunucu ayarlari yuklenemedi", e);
+             return false;
+         }
+-        org.purpurmc.purpur.PurpurConfig.registerCommands();
++        // HonorMC - Purpur commands are not registered publicly.
+         // Purpur end - Migrate Setting to reintroduce end void rings
+         // Paper start - initialize global and world-defaults configuration
+         this.paperConfigurations.initializeGlobalConfiguration(this.registryAccess());
+@@ -257,18 +257,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         // Paper end - fix converting txt to json file
+         org.spigotmc.WatchdogThread.doStart(org.spigotmc.SpigotConfig.timeoutTime, org.spigotmc.SpigotConfig.restartOnCrash); // Paper - start watchdog thread
+         consoleThread.start(); // Paper - Enhance console tab completions for brigadier commands; start console thread after MinecraftServer.console & PaperConfig are initialized
+-        io.papermc.paper.command.PaperCommands.registerCommands(this); // Paper - setup /paper command
+-        this.server.spark.registerCommandBeforePlugins(this.server); // Paper - spark
+-        com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
+-        /*// Purpur start - Purpur config files // Purpur start - Migrate Setting to reintroduce end void rings
+-        try {
+-            org.purpurmc.purpur.PurpurConfig.init((java.io.File) options.valueOf("purpur-settings"));
+-        } catch (Exception e) {
+-            DedicatedServer.LOGGER.error("Unable to load server configuration", e);
+-            return false;
+-        }
+-        org.purpurmc.purpur.PurpurConfig.registerCommands();
+-        */// Purpur end - Purpur config files // Purpur end - Migrate Setting to reintroduce end void rings
++        tr.honormc.command.HonorCommands.registerCommands(this); // HonorMC - own command surface
++        // HonorMC - Paper commands, spark command and bStats startup are opt-in/disabled by default.
+         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
+
+         // this.worldData.setGameType(properties.gameMode.get()); // CraftBukkit - moved to world loading
+diff --git a/net/minecraft/server/dedicated/ServerWatchdog.java b/net/minecraft/server/dedicated/ServerWatchdog.java
+index dfab2ade5c37e310cbafed83a014247ab43aee95..7e945955515b5c2b8cee8f77ce10ad51bda185fa 100644
+--- a/net/minecraft/server/dedicated/ServerWatchdog.java
++++ b/net/minecraft/server/dedicated/ServerWatchdog.java
+@@ -59,7 +59,7 @@ public class ServerWatchdog implements Runnable {
+                         .collect(Collectors.joining(",\n"))
+                 );
+                 Bootstrap.realStdoutPrintln("Crash report:\n" + report.getFriendlyReport(ReportType.CRASH));
+-                Path file = this.server.getServerDirectory().resolve("crash-reports").resolve("crash-" + Util.getFilenameFormattedDateTime() + "-server.txt");
++                Path file = this.server.getServerDirectory().resolve("kayitlar").resolve("crash-reports").resolve("crash-" + Util.getFilenameFormattedDateTime() + "-server.txt");
+                 if (report.saveToFile(file, ReportType.CRASH)) {
+                     LOGGER.error("This crash report has been saved to: {}", file.toAbsolutePath());
+                 } else {
+diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
+index 6520389d01f83fc303b68ba9f1a5c2c4270301dc..d50456564498896996b9dbc25e878b63a29743fa 100644
+--- a/net/minecraft/server/players/PlayerList.java
++++ b/net/minecraft/server/players/PlayerList.java
+@@ -103,10 +103,10 @@ import org.jspecify.annotations.Nullable;
+ import org.slf4j.Logger;
+
+ public abstract class PlayerList {
+-    public static final File USERBANLIST_FILE = new File("banned-players.json");
+-    public static final File IPBANLIST_FILE = new File("banned-ips.json");
+-    public static final File OPLIST_FILE = new File("ops.json");
+-    public static final File WHITELIST_FILE = new File("whitelist.json");
++    public static final File USERBANLIST_FILE = new File("ayarlar/oyuncular/banned-players.json");
++    public static final File IPBANLIST_FILE = new File("ayarlar/oyuncular/banned-ips.json");
++    public static final File OPLIST_FILE = new File("ayarlar/oyuncular/ops.json");
++    public static final File WHITELIST_FILE = new File("ayarlar/oyuncular/whitelist.json");
+     public static final Component CHAT_FILTERED_FULL = Component.translatable("chat.filtered_full");
+     public static final Component DUPLICATE_LOGIN_DISCONNECT_MESSAGE = Component.translatable("multiplayer.disconnect.duplicate_login");
+     private static final Logger LOGGER = LogUtils.getLogger();

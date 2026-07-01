@@ -5,6 +5,7 @@ Subject: [PATCH] HonorMC Bukkit default config
 
 
 diff --git a/src/main/resources/configurations/bukkit.yml b/src/main/resources/configurations/bukkit.yml
+index 00a5b4dc0d7bc57ae3f9231f84a081617ec4b15b..f19a919cdde351cf950e916232c0b3d2b0cf6c5e 100644
 --- a/src/main/resources/configurations/bukkit.yml
 +++ b/src/main/resources/configurations/bukkit.yml
 @@ -1,24 +1,16 @@

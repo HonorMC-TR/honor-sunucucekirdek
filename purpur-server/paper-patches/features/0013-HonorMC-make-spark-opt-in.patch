@@ -5,6 +5,7 @@ Subject: [PATCH] HonorMC make spark opt-in
 
 
 diff --git a/src/main/java/io/papermc/paper/SparksFly.java b/src/main/java/io/papermc/paper/SparksFly.java
+index 9172dfa037bc67057b151e4decfa6054bf421722..9e798c9c4f16643559a7b308b138aca36f655180 100644
 --- a/src/main/java/io/papermc/paper/SparksFly.java
 +++ b/src/main/java/io/papermc/paper/SparksFly.java
 @@ -44,6 +44,10 @@ public final class SparksFly {
@@ -18,7 +19,7 @@ diff --git a/src/main/java/io/papermc/paper/SparksFly.java b/src/main/java/io/pa
          this.spark = PaperSparkModule.create(Compatibility.VERSION_1_0, server, this.logger, new PaperScheduler() {
              @Override
              public void executeAsync(final Runnable runnable) {
-@@ -98,18 +102,27 @@ public final class SparksFly {
+@@ -97,18 +101,27 @@ public final class SparksFly {
      }
  
      public void enableEarlyIfRequested() {
@@ -46,7 +47,7 @@ diff --git a/src/main/java/io/papermc/paper/SparksFly.java b/src/main/java/io/pa
          final boolean isPluginPreferred = isPluginPreferred();
          final boolean isPluginEnabled = isPluginEnabled(server);
          if (!isPluginPreferred || !isPluginEnabled) {
-@@ -142,12 +155,18 @@ public final class SparksFly {
+@@ -141,12 +154,18 @@ public final class SparksFly {
      }
  
      public void registerCommandBeforePlugins(final Server server) {
@@ -65,7 +66,7 @@ diff --git a/src/main/java/io/papermc/paper/SparksFly.java b/src/main/java/io/pa
          if ((!isPluginPreferred() || !isPluginEnabled(server)) && server.getCommandMap().getCommand(COMMAND_NAME) == null) {
              this.registerCommand(server);
          }
-@@ -158,18 +177,30 @@ public final class SparksFly {
+@@ -157,18 +176,30 @@ public final class SparksFly {
      }
  
      public void tickStart() {

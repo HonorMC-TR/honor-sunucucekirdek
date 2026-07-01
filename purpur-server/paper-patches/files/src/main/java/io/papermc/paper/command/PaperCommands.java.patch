@@ -1,6 +1,6 @@
 --- a/src/main/java/io/papermc/paper/command/PaperCommands.java
 +++ b/src/main/java/io/papermc/paper/command/PaperCommands.java
-@@ -21,18 +_,17 @@
+@@ -22,18 +_,17 @@
      private static final Map<String, Command> COMMANDS = new HashMap<>();
  
      public static void registerCommands(final MinecraftServer server) {
