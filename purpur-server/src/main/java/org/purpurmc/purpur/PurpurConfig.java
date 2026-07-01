@@ -25,7 +25,6 @@ import org.bukkit.command.Command;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.purpurmc.purpur.command.PurpurCommand;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +69,6 @@ public class PurpurConfig {
         verbose = getBoolean("verbose", false);
 
         commands = new HashMap<>();
-        commands.put("purpur", new PurpurCommand("purpur"));
 
         version = getInt("config-version", 48);
         set("config-version", 48);
@@ -92,8 +90,9 @@ public class PurpurConfig {
 
     public static void registerCommands() {
         for (Map.Entry<String, Command> entry : commands.entrySet()) {
-            MinecraftServer.getServer().server.getCommandMap().register(entry.getKey(), "HonorMC", entry.getValue());
+            MinecraftServer.getServer().server.getCommandMap().register(entry.getKey(), "honor", entry.getValue());
         }
+        tr.honormc.command.HonorCommands.registerCommands(MinecraftServer.getServer());
     }
 
     static void readConfig(Class<?> clazz, Object instance) {

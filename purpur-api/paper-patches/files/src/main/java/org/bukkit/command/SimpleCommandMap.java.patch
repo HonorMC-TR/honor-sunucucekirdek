@@ -1,5 +1,22 @@
 --- a/src/main/java/org/bukkit/command/SimpleCommandMap.java
 +++ b/src/main/java/org/bukkit/command/SimpleCommandMap.java
+@@ -31,14 +_,11 @@
+     }
+ 
+     private void setDefaultCommands() {
+-        final ReloadCommand reload = new ReloadCommand("reload");
+-        this.knownCommands.put("bukkit:reload", reload);
+-        this.knownCommands.put("bukkit:rl", reload);
+-        register("bukkit", new co.aikar.timings.TimingsCommand("timings"));
++        // HonorMC - legacy Bukkit/Timings defaults are intentionally not exposed.
+     }
+ 
+     public void setFallbackCommands() {
+-        register("bukkit", new HelpCommand());
++        register("honor", new HelpCommand());
+     }
+ 
+     /**
 @@ -148,6 +_,19 @@
              return false;
          }

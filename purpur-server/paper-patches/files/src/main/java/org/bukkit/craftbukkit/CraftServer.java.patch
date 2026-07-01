@@ -37,11 +37,12 @@
          }
  
          Plugin[] pluginClone = pluginManager.getPlugins().clone(); // Paper
-@@ -1017,6 +_,7 @@
+@@ -1017,6 +_,8 @@
          org.spigotmc.SpigotConfig.registerCommands(); // Spigot
          io.papermc.paper.command.PaperCommands.registerCommands(this.console); // Paper
          this.spark.registerCommandBeforePlugins(this); // Paper - spark
 +        org.purpurmc.purpur.PurpurConfig.registerCommands(); // Purpur - Purpur config files
++        tr.honormc.command.HonorCommands.registerCommands(this.console); // HonorMC - own command surface
          this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
          this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
  

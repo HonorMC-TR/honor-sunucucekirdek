@@ -1,0 +1,24 @@
+--- a/src/main/java/io/papermc/paper/command/PaperCommands.java
++++ b/src/main/java/io/papermc/paper/command/PaperCommands.java
+@@ -21,18 +_,17 @@
+     private static final Map<String, Command> COMMANDS = new HashMap<>();
+ 
+     public static void registerCommands(final MinecraftServer server) {
+-        COMMANDS.put("paper", new PaperCommand("paper"));
+         COMMANDS.put("mspt", new MSPTCommand("mspt"));
+ 
+         COMMANDS.forEach((s, command) -> {
+-            server.server.getCommandMap().register(s, "Paper", command);
++            server.server.getCommandMap().register(s, "honor", command);
+         });
+     }
+ 
+     public static void registerCommands() {
+         // Paper commands go here
+-        registerInternalCommand(PaperVersionCommand.create(), "bukkit", PaperVersionCommand.DESCRIPTION, List.of("ver", "about"), Set.of());
+-        registerInternalCommand(PaperPluginsCommand.create(), "bukkit", PaperPluginsCommand.DESCRIPTION, List.of("pl"), Set.of());
++        registerInternalCommand(PaperVersionCommand.create(), "honor", PaperVersionCommand.DESCRIPTION, List.of("surum"), Set.of());
++        registerInternalCommand(PaperPluginsCommand.create(), "honor", PaperPluginsCommand.DESCRIPTION, List.of("eklentiler"), Set.of());
+     }
+ 
+     private static void registerInternalCommand(final LiteralCommandNode<CommandSourceStack> node, final String namespace, final String description, final List<String> aliases, final Set<CommandRegistrationFlag> flags) {
