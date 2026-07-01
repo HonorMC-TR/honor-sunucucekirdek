@@ -216,6 +216,45 @@ abstract class PackageHonorMCJar : DefaultTask() {
     }
 }
 
+abstract class GenerateHonorMCBaslatBat : DefaultTask() {
+    @get:Input
+    abstract val minecraftVersion: Property<String>
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
+
+    @TaskAction
+    fun generate() {
+        val version = minecraftVersion.get().trim()
+        val batFile = outputFile.get().asFile
+        batFile.parentFile.mkdirs()
+        val content = """
+            @echo off
+            chcp 65001 >nul
+            setlocal
+
+            set "HONOR_JAR=%~dp0Honor-$version.jar"
+            if not exist "%HONOR_JAR%" (
+              echo HonorMC cekirdek jar dosyasi bulunamadi: %HONOR_JAR%
+              echo Bu bat dosyasini Honor-$version.jar ile ayni klasore koyup tekrar deneyin.
+              pause
+              exit /b 1
+            )
+
+            if "%HONORMC_MIN_RAM%"=="" set "HONORMC_MIN_RAM=8G"
+            if "%HONORMC_MAX_RAM%"=="" set "HONORMC_MAX_RAM=16G"
+
+            echo HonorMC baslatiliyor...
+            echo RAM: %HONORMC_MIN_RAM% - %HONORMC_MAX_RAM%
+            java -Xms%HONORMC_MIN_RAM% -Xmx%HONORMC_MAX_RAM% -Dfile.encoding=UTF-8 -Duser.language=tr -Duser.country=TR -jar "%HONOR_JAR%" nogui
+            set "HONOR_EXIT=%ERRORLEVEL%"
+            pause
+            exit /b %HONOR_EXIT%
+        """.trimIndent().replace("\n", "\r\n") + "\r\n"
+        batFile.writeText(content, Charsets.UTF_8)
+    }
+}
+
 val packageHonorMCJar = tasks.register<PackageHonorMCJar>("packageHonorMCJar") {
     group = "honormc"
     description = "Builds the runnable server jar and copies it as Honor-<mcVersion>.jar."
@@ -230,11 +269,24 @@ val packageHonorMCJar = tasks.register<PackageHonorMCJar>("packageHonorMCJar") {
     outputJar.set(layout.buildDirectory.file(providers.gradleProperty("mcVersion").map { "honormc/Honor-$it.jar" }))
 }
 
+val honorMCBaslatBat = layout.buildDirectory.file(
+    providers.gradleProperty("mcVersion").map { "honormc/Honor-$it-baslat.bat" }
+)
+
+val hazirlaHonorMCBaslatBat = tasks.register<GenerateHonorMCBaslatBat>("hazirlaHonorMCBaslatBat") {
+    group = "honormc"
+    description = "HonorMC icin surume ozel Windows baslatma dosyasini hazirlar."
+
+    minecraftVersion.set(providers.gradleProperty("mcVersion"))
+    outputFile.set(honorMCBaslatBat)
+}
+
 tasks.register<Sync>("paketleHonorMCDagitim") {
     group = "honormc"
     description = "HonorMC icin temiz Turkce dagitim klasorunu hazirlar."
 
     dependsOn(packageHonorMCJar)
+    dependsOn(hazirlaHonorMCBaslatBat)
     dependsOn(":honormc-baslatici:jar")
 
     from(layout.projectDirectory.dir("honormc-dagitim")) {
@@ -276,7 +328,7 @@ tasks.register("packageHonorMCDistribution") {
     dependsOn("paketleHonorMCDagitim")
 }
 
-tasks.register<Zip>("zipHonorMCDagitim") {
+val zipHonorMCDagitim = tasks.register<Zip>("zipHonorMCDagitim") {
     group = "honormc"
     description = "HonorMC Turkce dagitim klasorunu zip olarak paketler."
 
@@ -285,4 +337,27 @@ tasks.register<Zip>("zipHonorMCDagitim") {
     archiveFileName.set(providers.gradleProperty("mcVersion").map { "Honor-$it-dagitim.zip" })
     destinationDirectory.set(layout.buildDirectory.dir("honormc"))
     from(layout.buildDirectory.dir("honormc-dagitim"))
+}
+
+val honorMCSonSurumCiktiYolu = providers.gradleProperty("honorMCOutputDir")
+    .orElse(providers.environmentVariable("HONORMC_OUTPUT_DIR"))
+    .orElse(providers.systemProperty("user.home").map { "$it/Documents/HonorMC" })
+val honorMCSonSurumCiktiKlasoru = layout.dir(honorMCSonSurumCiktiYolu.map { file(it) })
+
+val kopyalaHonorMCSonSurum = tasks.register<Copy>("kopyalaHonorMCSonSurum") {
+    group = "honormc"
+    description = "Son HonorMC jar, bat ve dagitim zip ciktisini Belgeler/HonorMC klasorune kopyalar."
+
+    dependsOn(packageHonorMCJar)
+    dependsOn(hazirlaHonorMCBaslatBat)
+    dependsOn(zipHonorMCDagitim)
+
+    from(packageHonorMCJar.flatMap { it.outputJar })
+    from(honorMCBaslatBat)
+    from(zipHonorMCDagitim.flatMap { it.archiveFile })
+    into(honorMCSonSurumCiktiKlasoru)
+}
+
+zipHonorMCDagitim.configure {
+    finalizedBy(kopyalaHonorMCSonSurum)
 }

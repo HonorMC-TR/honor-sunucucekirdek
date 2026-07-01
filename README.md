@@ -38,13 +38,25 @@ Cikti: `build/honormc/Honor-26.2.jar`
 Temiz dagitim paketi:
 
 ```powershell
+./gradlew applyAllPatches
 ./gradlew paketleHonorMCDagitim zipHonorMCDagitim
 ```
 
 Cikti:
 
 - `build/honormc-dagitim`
+- `build/honormc/Honor-26.2.jar`
+- `build/honormc/Honor-26.2-baslat.bat`
 - `build/honormc/Honor-26.2-dagitim.zip`
+- `C:\Users\<kullanici>\Documents\HonorMC\Honor-26.2.jar`
+- `C:\Users\<kullanici>\Documents\HonorMC\Honor-26.2-baslat.bat`
+- `C:\Users\<kullanici>\Documents\HonorMC\Honor-26.2-dagitim.zip`
+
+Belgeler cikti klasorunu degistirmek icin:
+
+```powershell
+./gradlew zipHonorMCDagitim -PhonorMCOutputDir="D:\HonorMC"
+```
 
 ## Sürüm Yayimlama (GitHub Release)
 
