@@ -23,6 +23,7 @@ Ne geldigini acikca gozukmesi icin 3 bolum:
 - `## + Ne Geldi`
 - `## - Ne Gitti`
 - `## ~ Ne Duzenlendi`
+- `## Gecis Karsilastirmasi`
 
 ## 4) Paket Notu
 
@@ -50,6 +51,13 @@ Son blokta birden fazla dosyanin verildigi net sekilde yazilir.
 
 ## ~ Ne Duzenlendi
 - ~ [hij98765](https://github.com/HonorMC-TR/honor-sunucucekirdek/commit/hij98765) Release cikti formati daha okunur hale getirildi.
+
+## Gecis Karsilastirmasi
+- Karsilastirma: https://github.com/HonorMC-TR/honor-sunucucekirdek/compare/Honor-26.1...Honor-26.2
+- Commit Sayisi: 12
+- + Ne Geldi sayisi: 3
+- - Ne Gitti sayisi: 1
+- ~ Ne Duzenlendi sayisi: 8
 
 ## Paket Notu
 - JAR dosyasi: Honor-26.2.jar

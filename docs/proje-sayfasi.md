@@ -22,6 +22,7 @@ Release sayfasinda asagidaki bölümler kullanilir:
 - `## + Ne Geldi`
 - `## - Ne Gitti`
 - `## ~ Ne Duzenlendi`
+- `## Gecis Karsilastirmasi`
 - `## Paket Notu`
 
 Detayli örnek: [docs/HONORMC-SURUM-SAYFA-TASARIMI.md](docs/HONORMC-SURUM-SAYFA-TASARIMI.md)

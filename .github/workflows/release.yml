@@ -82,9 +82,11 @@ jobs:
           if [ -n "$PREV_TAG" ]; then
             LOG_RANGE="${PREV_TAG}..${TAG}"
             COMPARISON_TEXT="${PREV_TAG} .. ${TAG}"
+            COMPARE_URL="https://github.com/${REPO}/compare/${PREV_TAG}...${TAG}"
           else
             LOG_RANGE="${TAG}"
             COMPARISON_TEXT="ilk release"
+            COMPARE_URL="https://github.com/${REPO}/releases/tag/${TAG}"
           fi
 
           mapfile -t CHANGES < <(git log --no-color --oneline --no-decorate "${LOG_RANGE}")
@@ -101,14 +103,19 @@ jobs:
             LOWERS="$(printf '%s' "$MSG" | tr '[:upper:]' '[:lower:]')"
             LINK="https://github.com/${REPO}/commit/${HASH}"
 
-            if echo "$LOWERS" | grep -Eqi "(feat|feature|add(ed)?|yeni|add|ekle|eklendi|yenilik)"; then
+            if echo "$LOWERS" | grep -Eqi "(^feat|^feature|add(ed)?|yeni|add|ekle|eklendi|yenilik|support|optimizer|performans iyileştirme|perf|refactor|support ed|destek)"; then
               ADDED+=("- + [\`$HASH\`]($LINK) ${MSG}")
-            elif echo "$LOWERS" | grep -Eqi "(remove|removed|delete(d)?|kaldir|sil|silme|temizle|drop|dropped|silindi|kaldirildi)"; then
+            elif echo "$LOWERS" | grep -Eqi "(remove|removed|delete(d)?|kaldır|kaldir|sil|silme|temizle|drop|dropped|silindi|kaldirildi|çık|cıkart|cikart|dışarı|outside|yok|retire)"; then
               REMOVED+=("- - [\`$HASH\`]($LINK) ${MSG}")
             else
               CHANGED+=("- ~ [\`$HASH\`]($LINK) ${MSG}")
             fi
           done
+
+          TOTAL_COMMITS=${#CHANGES[@]}
+          ADDED_COUNT=${#ADDED[@]}
+          REMOVED_COUNT=${#REMOVED[@]}
+          CHANGED_COUNT=${#CHANGED[@]}
 
           {
             echo "# HonorMC ${VERSION}"
@@ -142,6 +149,13 @@ jobs:
             else
               echo "- Bu surumde duzenlenen bir kod kaydi bulunamadi."
             fi
+            echo
+            echo "## Gecis Karsilastirmasi"
+            echo "- Karsilastirma: ${COMPARE_URL}"
+            echo "- Commit Sayisi: ${TOTAL_COMMITS}"
+            echo "- + Ne Geldi sayisi: ${ADDED_COUNT}"
+            echo "- - Ne Gitti sayisi: ${REMOVED_COUNT}"
+            echo "- ~ Ne Duzenlendi sayisi: ${CHANGED_COUNT}"
             echo
             echo "## Paket Notu"
             echo "- JAR dosyasi: ${JAR_ASSET}"
