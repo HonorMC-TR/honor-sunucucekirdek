@@ -29,13 +29,14 @@ Detayli örnek: [docs/HONORMC-SURUM-SAYFA-TASARIMI.md](docs/HONORMC-SURUM-SAYFA-
 
 ## Yukleme Notu
 
-Yayimlama asamalari:
+Yayimlama asamalari (ornek akis):
 
-1. `git tag Honor-26.2`
-2. `git push origin Honor-26.2`
-3. GitHub Action otomatik olarak su assetleri yayinlar:
+1. `powershell -ExecutionPolicy Bypass -File ./tools/honormc-yayin-hazirla.ps1 -Version Honor-26.2`
+2. Script, tag'i `Honor-26.2` olarak olusturur ve tag aciklamasini release formatinda hazirlar.
+3. Tag push'i otomatik olarak release akisini tetikler.
+4. GitHub Action otomatik olarak su assetleri yayinlar:
    - `Honor-26.2.jar`
    - `Honor-26.2-baslat.bat`
    - `Honor-26.2-dagitim.zip`
 
-Not: Bu format repo etiketleriyle birlikte `Honor-*` etiketi takibi icin hazirdir.
+Not: Tag mesaji artık su sayfasinda gorunen release ozeti ile uyumlu olacak sekilde ayarlanir; hem `releases` hem `tags` sayfalarinda aynı surum ozeti gorulur.

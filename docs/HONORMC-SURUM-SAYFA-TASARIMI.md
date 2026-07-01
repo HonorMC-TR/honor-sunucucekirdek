@@ -1,70 +1,67 @@
 # HonorMC Surum Sayfasi Tasarimi
 
-Bu dokuman, GitHub release notlarinda kullanilan sayfa formatini tarif eder.
+Bu dokuman, GitHub Releases ve Tags sayfalarinda gorulecek formatlari tarif eder.
 
-## 1) Genel Dusunce
+## Hedef
 
-- Baslik: `HonorMC <surum>`
-- Alt baslikta hangi versiyon/etiket araligi kaldigini göster:
-  - ornek: `Indirme Secenekleri (Honor-26.1..Honor-26.2)`
+- Release sayfasi: her tagin su sayfada "Ne Geldi / Ne Gitti / Ne Duzenlendi" olarak gormesi.
+- Tag sayfasi: tag notlari ayni formatta olur ve kisaca surum ozeti gorulur.
 
-## 2) Indirme Secenekleri
+## 1) Release Sayfasi Bloklari
 
-Ilk blok asagidaki gibi olmalidir:
-
-- `Jar + Baslatma BAT`
-- `Tam Dagitim (ZIP)`
-- Her iki secenek de dogrudan asset linki icermeli
-
-## 3) Degisiklik Ozeti
-
-Ne geldigini acikca gozukmesi icin 3 bolum:
-
+- `## Indirme Secenekleri (...)`
 - `## + Ne Geldi`
 - `## - Ne Gitti`
 - `## ~ Ne Duzenlendi`
 - `## Gecis Karsilastirmasi`
+- `## Paket Notu`
 
-## 4) Paket Notu
+## 2) Tag Sayfasi Tasarimi
 
-Son blokta birden fazla dosyanin verildigi net sekilde yazilir.
+Tag listesinde asagidaki gorunum hedeflenir:
 
-## Ornek Release Body
+- Tag ismi: `Honor-26.2`
+- Tag mesaji: surumun ozeti (release formatindan alinmis)
+- Linkler: release sayfasina yonlendirir
+- Bu sekilde hem `releases` hem `tags` sayfasi ayni bilgiyi tuketen sunar.
+
+## Ornek Release + Tag Bloklari
 
 ```text
 # HonorMC 26.2
 
-## Indirme Secenekleri (Honor-26.1..Honor-26.2)
+## Indirme Secenekleri (Honor-26.1 .. Honor-26.2)
 
-### 1) Sadece jar + baslatma isteyenler
+### 1) Sadece jar + baslatma isteyenlere
 - [Jar](https://github.com/HonorMC-TR/honor-sunucucekirdek/releases/download/Honor-26.2/Honor-26.2.jar) (`Honor-26.2.jar`)
 - [Baslatma BAT](https://github.com/HonorMC-TR/honor-sunucucekirdek/releases/download/Honor-26.2/Honor-26.2-baslat.bat) (`Honor-26.2-baslat.bat`)
 
-### 2) Tum kurulum paketini isteyenler
+### 2) Tum kurulum paketini isteyenlere
 - [ZIP](https://github.com/HonorMC-TR/honor-sunucucekirdek/releases/download/Honor-26.2/Honor-26.2-dagitim.zip) (`Honor-26.2-dagitim.zip`)
 
 ## + Ne Geldi
-- + [abc12345](https://github.com/HonorMC-TR/honor-sunucucekirdek/commit/abc12345) Yeni konsol mesajlari Turkceye cevrildi.
+- + Yeni Turkce konsol mesajlari eklendi.
 
 ## - Ne Gitti
-- - [def67890](https://github.com/HonorMC-TR/honor-sunucucekirdek/commit/def67890) Gereksiz yabanci log sabitleri kaldirildi.
+- - Eski yabanci log sabitleri azaltildi.
 
 ## ~ Ne Duzenlendi
-- ~ [hij98765](https://github.com/HonorMC-TR/honor-sunucucekirdek/commit/hij98765) Release cikti formati daha okunur hale getirildi.
+- ~ Sürüm sayfasi ve karşılaştırma bloklari genisletildi.
 
 ## Gecis Karsilastirmasi
 - Karsilastirma: https://github.com/HonorMC-TR/honor-sunucucekirdek/compare/Honor-26.1...Honor-26.2
-- Commit Sayisi: 12
-- + Ne Geldi sayisi: 3
+- Commit Sayisi: 3
+- + Ne Geldi sayisi: 1
 - - Ne Gitti sayisi: 1
-- ~ Ne Duzenlendi sayisi: 8
+- ~ Ne Duzenlendi sayisi: 1
 
 ## Paket Notu
 - JAR dosyasi: Honor-26.2.jar
 - Baslatma BAT: Honor-26.2-baslat.bat
-- Dagitim ZIP: Honor-26.2-dagitim.zip
+- Tam Dagitim: Honor-26.2-dagitim.zip
 ```
 
 ## Not
 
-Her satir + / - / ~ on ekiyle baslamali. `-` sadece silinen/çıkarılan davranışı, `+` yeni ozellikleri, `~` ise duzenleme/stabilite değişikliklerini temsil eder.
+- Satirlar su sekilde baslar: `+` (yeni ozellik), `-` (cikarilan), `~` (duzenleme)
+- Tag basligi ayni formatta tutulur, bu da Tags sayfasinda da surum ozeti okunur hale getirir.
