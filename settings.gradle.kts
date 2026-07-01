@@ -40,24 +40,6 @@ for (name in listOf("purpur-api", "purpur-server")) {
 
 include("honormc-baslatici")
 
-optionalInclude("test-plugin")
-
-fun optionalInclude(name: String, op: (ProjectDescriptor.() -> Unit)? = null) {
-    val settingsFile = file("$name.settings.gradle.kts")
-    if (settingsFile.exists()) {
-        apply(from = settingsFile)
-        findProject(":$name")?.let { op?.invoke(it) }
-    } else {
-        settingsFile.writeText(
-            """
-            // Uncomment to enable the '$name' project
-            // include(":$name")
-
-            """.trimIndent()
-        )
-    }
-}
-
 gradle.lifecycle.beforeProject {
     val mcVersion = providers.gradleProperty("mcVersion").get().trim()
     val purpurChannel = providers.gradleProperty("channel").get().trim()

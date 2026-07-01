@@ -2,10 +2,8 @@
 core.*
 hs_err_pid*
 
-# Intellij
-/.idea/*
-!/.idea/runConfigurations
-!/.idea/icon.svg
+# IntelliJ / JetBrains
+/.idea/
 *.iml
 *.ipr
 *.iws
@@ -59,25 +57,28 @@ manifest.mf
 /purpur-api/build.gradle.kts
 /paper-api
 *.jar
-test-plugin.settings.gradle.kts
+*.zip
 
-# Honorya local runtime output
-/honorya-dagitim/cekirdek/Honorya.jar
-/honorya-dagitim/libraries/
-/honorya-dagitim/versions/
-/honorya-dagitim/logs/
-/honorya-dagitim/crash-reports/
-/honorya-dagitim/banned-ips.json
-/honorya-dagitim/banned-players.json
-/honorya-dagitim/ops.json
-/honorya-dagitim/whitelist.json
-/honorya-dagitim/version_history.json
-/honorya-dagitim/help.yml
-/honorya-dagitim/dunyalar/ana-dunya/
-/honorya-dagitim/dunyalar/usercache.json
-/honorya-dagitim/eklentiler/bStats/
-/honorya-dagitim/eklentiler/spark/
-/honorya-dagitim/ayarlar/paper/legacy-backup/
-/honorya-dagitim/ayarlar/paper/paper-global.yml
-/honorya-dagitim/ayarlar/paper/paper-world-defaults.yml
-/honorya-dagitim/ayarlar/paper-eski-uyumluluk.yml-README.txt
+# HonorMC local runtime output
+/Honor-*.jar
+/Honor-*-dagitim.zip
+/honormc-dagitim/cekirdek/*.jar
+/honormc-dagitim/baslatici/*.jar
+/honormc-dagitim/libraries/
+/honormc-dagitim/versions/
+/honormc-dagitim/logs/
+/honormc-dagitim/crash-reports/
+/honormc-dagitim/banned-ips.json
+/honormc-dagitim/banned-players.json
+/honormc-dagitim/ops.json
+/honormc-dagitim/whitelist.json
+/honormc-dagitim/version_history.json
+/honormc-dagitim/help.yml
+/honormc-dagitim/dunyalar/ana-dunya/
+/honormc-dagitim/dunyalar/usercache.json
+/honormc-dagitim/eklentiler/bStats/
+/honormc-dagitim/eklentiler/spark/
+/honormc-dagitim/ayarlar/paper/legacy-backup/
+/honormc-dagitim/ayarlar/paper/paper-global.yml
+/honormc-dagitim/ayarlar/paper/paper-world-defaults.yml
+/honormc-dagitim/ayarlar/paper-eski-uyumluluk.yml-README.txt
