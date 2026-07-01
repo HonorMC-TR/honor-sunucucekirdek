@@ -14,3 +14,23 @@
              io.papermc.paper.plugin.PluginInitializerManager.load(options); // Paper
              Bootstrap.bootStrap();
              Bootstrap.validate();
+@@ -280,9 +_,9 @@
+                                     );
+                                     return new WorldLoader.DataLoadOutput<>(
+                                         worldData.worldDataAndGenSettings(), worldData.dimensions().dimensionsRegistryAccess()
+                                     );
+                                 } else {
+-                                    LOGGER.info("No existing world data, creating new world");
++                                    LOGGER.info("Mevcut dunya verisi bulunamadi, yeni dunya olusturuluyor");
+                                     return createNewWorldData(settings, context, datapackDimensions, options.has("demo"), options.has("bonusChest")); // CraftBukkit
+                                 }
+                             },
+@@ -296,7 +_,7 @@
+                     .get();
+             } catch (Exception e) {
+                 LOGGER.warn(
+-                    "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode", e
++                    "Veri paketleri yuklenemedi, sunucu yuklemesine devam edilemiyor. Veri paketlerini duzelt ya da vanilla ayarlara donmek icin --safeMode kullan.", e
+                 );
+                 return;
+             }

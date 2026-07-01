@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/storage/LevelStorageSource.java
++++ b/net/minecraft/world/level/storage/LevelStorageSource.java
+@@ -157,7 +_,7 @@
+                 Function.identity(),
+                 error -> {
+                     LOGGER.error(
+-                        "Unable to read or access the world gen settings file! Falling back to the default settings with a random world seed. {}",
++                        "Dunya uretim ayarlari dosyasi okunamadi veya erisilemedi. Varsayilan ayarlar ve rastgele seed ile devam ediliyor. {}",
+                         error.message()
+                     );
+                     return new WorldGenSettings(WorldOptions.defaultWithRandomSeed(), new WorldDimensions(datapackDimensions));

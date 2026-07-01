@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/level/levelgen/WorldDimensions.java
++++ b/net/minecraft/world/level/levelgen/WorldDimensions.java
+@@ -44,7 +_,7 @@
+     public WorldDimensions {
+         LevelStem overworld = dimensions.get(LevelStem.OVERWORLD);
+         if (overworld == null) {
+-            throw new IllegalStateException("Overworld settings missing");
++            throw new IllegalStateException("Ana dunya ayarlari eksik");
+         }
+     }
+ 
+@@ -82,7 +_,7 @@
+     public ChunkGenerator overworld() {
+         LevelStem stem = this.dimensions.get(LevelStem.OVERWORLD);
+         if (stem == null) {
+-            throw new IllegalStateException("Overworld settings missing");
++            throw new IllegalStateException("Ana dunya ayarlari eksik");
+         } else {
+             return stem.generator();
+         }
