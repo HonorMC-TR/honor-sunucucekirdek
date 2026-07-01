@@ -94,9 +94,7 @@ tasks.matching { it.name == "applyAllPatches" }.configureEach {
     dependsOn(
         ":honormc-baslatici:processResources",
         ":honormc-baslatici:compileJava",
-        ":honormc-baslatici:jar",
-        ":purpur-api:generateApiVersioningFile",
-        ":purpur-api:compileJava"
+        ":honormc-baslatici:jar"
     )
 }
 
