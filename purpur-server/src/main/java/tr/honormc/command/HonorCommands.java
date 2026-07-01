@@ -34,7 +34,8 @@ public final class HonorCommands {
     }
 
     private static void registerOrReplace(final SimpleCommandMap commandMap, final String label, final Command command) {
-        removeLabels(commandMap, Set.of(label, command.getName()));
+        removeLabel(commandMap, label);
+        removeLabel(commandMap, command.getName());
         removeLabels(commandMap, command.getAliases());
         commandMap.register(label, "honor", command);
     }
@@ -54,11 +55,15 @@ public final class HonorCommands {
     }
 
     private static void removeLabels(final SimpleCommandMap commandMap, final Collection<String> labels) {
-        final Map<String, Command> knownCommands = commandMap.getKnownCommands();
         for (final String label : labels) {
-            final String normalized = label.toLowerCase(Locale.ROOT);
-            knownCommands.remove(normalized);
-            knownCommands.remove("honor:" + normalized);
+            removeLabel(commandMap, label);
         }
+    }
+
+    private static void removeLabel(final SimpleCommandMap commandMap, final String label) {
+        final Map<String, Command> knownCommands = commandMap.getKnownCommands();
+        final String normalized = label.toLowerCase(Locale.ROOT);
+        knownCommands.remove(normalized);
+        knownCommands.remove("honor:" + normalized);
     }
 }
