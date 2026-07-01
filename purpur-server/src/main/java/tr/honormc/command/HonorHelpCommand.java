@@ -32,6 +32,8 @@ public final class HonorHelpCommand extends Command {
         sender.sendMessage(Component.text("HonorMC Yardim", NamedTextColor.GOLD));
         sender.sendMessage(Component.text("/honor", NamedTextColor.YELLOW)
             .append(Component.text(" - HonorMC komut merkezini acar.", NamedTextColor.WHITE)));
+        sender.sendMessage(Component.text("/durum", NamedTextColor.YELLOW)
+            .append(Component.text(" - Oyuncu, TPS, MSPT, RAM ve dunya ozetini gosterir.", NamedTextColor.WHITE)));
         sender.sendMessage(Component.text("/yardim", NamedTextColor.YELLOW)
             .append(Component.text(" veya ", NamedTextColor.GRAY))
             .append(Component.text("/help", NamedTextColor.YELLOW))
@@ -48,5 +50,9 @@ public final class HonorHelpCommand extends Command {
             .append(Component.text(" / ", NamedTextColor.GRAY))
             .append(Component.text("/mspt", NamedTextColor.YELLOW))
             .append(Component.text(" - Performans durumunu gosterir.", NamedTextColor.WHITE)));
+        sender.sendMessage(Component.text("/dosyalar", NamedTextColor.YELLOW)
+            .append(Component.text(" - HonorMC klasor duzenini gosterir.", NamedTextColor.WHITE)));
+        sender.sendMessage(Component.text("/telemetri", NamedTextColor.YELLOW)
+            .append(Component.text(" - bStats ve spark durumunu gosterir.", NamedTextColor.WHITE)));
     }
 }

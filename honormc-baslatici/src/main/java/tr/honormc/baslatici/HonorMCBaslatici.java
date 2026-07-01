@@ -2,6 +2,7 @@ package tr.honormc.baslatici;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 public final class HonorMCBaslatici {
     private static final String RESET = "\u001B[0m";
@@ -25,8 +27,10 @@ public final class HonorMCBaslatici {
     private static final String SARI = "\u001B[33m";
     private static final String KIRMIZI = "\u001B[31m";
     private static final String MAVI = "\u001B[36m";
+    private static final String CAMGOBEGI_KALIN = "\u001B[36;1m";
     private static final String MOR = "\u001B[35m";
     private static final String SOLUK = "\u001B[90m";
+    private static final Pattern ANSI_KODU = Pattern.compile("\u001B\\[[;?0-9]*[ -/]*[@-~]");
 
     private HonorMCBaslatici() {
     }
@@ -53,6 +57,9 @@ public final class HonorMCBaslatici {
         Files.createDirectories(ayar.calismaDizini);
         Files.createDirectories(ayar.calismaDizini.resolve("kayitlar"));
         Files.createDirectories(ayar.calismaDizini.resolve("yedekler"));
+        Files.createDirectories(ayar.calismaDizini.resolve("ayarlar"));
+        Files.createDirectories(ayar.calismaDizini.resolve("eklentiler"));
+        Files.createDirectories(ayar.calismaDizini.resolve("dunyalar"));
 
         final List<String> komut = new ArrayList<>();
         komut.add(ayar.javaKomutu);
@@ -83,6 +90,7 @@ public final class HonorMCBaslatici {
 
         final Process surec = builder.start();
         final BufferedWriter sunucuGirdisi = new BufferedWriter(new OutputStreamWriter(surec.getOutputStream(), StandardCharsets.UTF_8));
+        final HtmlKayit htmlKayit = HtmlKayit.ac(ayar);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (surec.isAlive()) {
@@ -97,9 +105,10 @@ public final class HonorMCBaslatici {
                     surec.destroy();
                 }
             }
+            htmlKayit.close();
         }, "honormc-kapanis"));
 
-        final Thread cikti = new Thread(() -> ciktiOku(surec, ayar), "honormc-konsol");
+        final Thread cikti = new Thread(() -> ciktiOku(surec, ayar, htmlKayit), "honormc-konsol");
         cikti.setDaemon(true);
         cikti.start();
 
@@ -113,6 +122,7 @@ public final class HonorMCBaslatici {
                     continue;
                 }
 
+                komutGirdisiYaz(satir, htmlKayit);
                 sunucuGirdisi.write(satir);
                 sunucuGirdisi.newLine();
                 sunucuGirdisi.flush();
@@ -125,6 +135,7 @@ public final class HonorMCBaslatici {
         } else {
             hata("Sunucu " + kod + " cikis koduyla kapandi.");
         }
+        htmlKayit.close();
     }
 
     private static boolean baslaticiKomutu(
@@ -156,21 +167,36 @@ public final class HonorMCBaslatici {
         return false;
     }
 
-    private static void ciktiOku(final Process surec, final BaslaticiAyar ayar) {
+    private static void ciktiOku(final Process surec, final BaslaticiAyar ayar, final HtmlKayit htmlKayit) {
         try (BufferedReader okuyucu = new BufferedReader(new InputStreamReader(surec.getInputStream(), StandardCharsets.UTF_8))) {
             String satir;
             while ((satir = okuyucu.readLine()) != null) {
-                final Kategori kategori = Kategori.bul(satir);
+                final String temizSatir = ansiTemizle(satir);
+                if (temizSatir.isBlank() || ">".equals(temizSatir.trim())) {
+                    continue;
+                }
+                final Kategori kategori = Kategori.bul(temizSatir);
                 if (!ayar.goster(kategori)) {
                     continue;
                 }
 
-                System.out.println(kategori.renk + satir + RESET);
-                analizEt(satir);
+                final String islenmisSatir = kategori.onEk(temizSatir);
+                System.out.println(kategori.renk + islenmisSatir + RESET);
+                htmlKayit.yaz(kategori, islenmisSatir);
+                analizEt(temizSatir);
             }
         } catch (final IOException ex) {
             hata("Konsol cikti akisi okunamadi: " + ex.getMessage());
         }
+    }
+
+    private static void komutGirdisiYaz(final String satir, final HtmlKayit htmlKayit) {
+        if (satir.isBlank()) {
+            return;
+        }
+        final String metin = "[KOMUT] > " + satir;
+        System.out.println(CAMGOBEGI_KALIN + metin + RESET);
+        htmlKayit.yaz(Kategori.KOMUT, metin);
     }
 
     private static void analizEt(final String satir) {
@@ -182,6 +208,10 @@ public final class HonorMCBaslatici {
         } else if (kucuk.contains("failed to bind to port")) {
             System.out.println(KIRMIZI + "[HONORMC ANALIZ] Port zaten kullaniliyor olabilir. sunucu.properties icindeki server-port degerini kontrol et." + RESET);
         }
+    }
+
+    private static String ansiTemizle(final String metin) {
+        return ANSI_KODU.matcher(metin).replaceAll("");
     }
 
     private static void yardimYaz() {
@@ -217,6 +247,8 @@ public final class HonorMCBaslatici {
         UYARI(SARI),
         OYUNCU(MAVI),
         EKLENTI(MOR),
+        KOMUT("\u001B[36;1m"),
+        CEKIRDEK(YESIL),
         BILGI(YESIL),
         DIGER(SOLUK);
 
@@ -228,22 +260,160 @@ public final class HonorMCBaslatici {
 
         static Kategori bul(final String satir) {
             final String kucuk = satir.toLowerCase(Locale.ROOT);
-            if (satir.contains("[HATA]") || kucuk.contains("exception") || kucuk.contains("error")) {
+            if (satir.startsWith("WARNING:")) {
+                return UYARI;
+            }
+            if (satir.contains("[HATA]") || kucuk.contains("exception") || kucuk.contains("error") || kucuk.contains("hata")) {
                 return HATA;
             }
             if (satir.contains("[UYARI]") || kucuk.contains("warn")) {
                 return UYARI;
             }
-            if (satir.contains("[OYUNCU]") || kucuk.contains("oyuna katildi") || kucuk.contains("komutu kullandi")) {
+            if (satir.contains("[bootstrap]") || satir.contains("HonorMC") || satir.contains("[BASLATICI]")) {
+                return CEKIRDEK;
+            }
+            if (satir.contains("[OYUNCU]") || kucuk.contains("oyuna katildi") || kucuk.contains("komutu kullandi") || kucuk.contains("issued server command")) {
                 return OYUNCU;
             }
-            if (satir.matches(".*\\[[^\\]]+].*\\[[^\\]]+].*") && !satir.contains("[bootstrap]")) {
+            final String kaynak = kaynakBul(satir);
+            if (kaynak != null && !cekirdekKaynagi(kaynak)) {
                 return EKLENTI;
             }
             if (satir.contains("[BILGI]")) {
                 return BILGI;
             }
             return DIGER;
+        }
+
+        String onEk(final String satir) {
+            if (this != EKLENTI) {
+                return satir;
+            }
+
+            final String kaynak = kaynakBul(satir);
+            if (kaynak != null && !kaynak.isBlank() && !cekirdekKaynagi(kaynak)) {
+                return "[Eklenti - " + kaynak + "] " + satir;
+            }
+            return satir;
+        }
+
+        private static String kaynakBul(final String satir) {
+            final int baslikSonu = satir.indexOf(':');
+            final String baslik = baslikSonu >= 0 ? satir.substring(0, baslikSonu) : satir;
+            int arama = 0;
+            int sayac = 0;
+            while (arama < baslik.length()) {
+                final int bas = baslik.indexOf('[', arama);
+                if (bas < 0) {
+                    return null;
+                }
+                final int son = baslik.indexOf(']', bas + 1);
+                if (son < 0) {
+                    return null;
+                }
+                sayac++;
+                if (sayac == 3) {
+                    return baslik.substring(bas + 1, son);
+                }
+                arama = son + 1;
+            }
+            return null;
+        }
+
+        private static boolean cekirdekKaynagi(final String kaynak) {
+            final String kucuk = kaynak.toLowerCase(Locale.ROOT);
+            return kucuk.isBlank()
+                || "bilgi".equals(kucuk)
+                || "uyari".equals(kucuk)
+                || "hata".equals(kucuk)
+                || "bootstrap".equals(kucuk)
+                || "minecraft".equals(kucuk)
+                || "plugininitializermanager".equals(kucuk)
+                || "worldfoldermigration".equals(kucuk)
+                || "chunkholdermanager".equals(kucuk)
+                || kucuk.startsWith("moonrise")
+                || kucuk.startsWith("net.minecraft")
+                || kucuk.startsWith("org.bukkit")
+                || kucuk.startsWith("org.spigotmc")
+                || kucuk.startsWith("io.papermc")
+                || kucuk.startsWith("org.purpurmc")
+                || kucuk.startsWith("tr.honormc");
+        }
+    }
+
+    static final class HtmlKayit implements Closeable {
+        private final BufferedWriter writer;
+        private boolean kapandi;
+
+        private HtmlKayit(final BufferedWriter writer) {
+            this.writer = writer;
+        }
+
+        static HtmlKayit ac(final BaslaticiAyar ayar) throws IOException {
+            if (!ayar.htmlKayit) {
+                return new HtmlKayit(null);
+            }
+
+            final Path dosya = ayar.calismaDizini.resolve(ayar.htmlKayitDosyasi).normalize();
+            Files.createDirectories(dosya.toAbsolutePath().getParent());
+            final BufferedWriter writer = Files.newBufferedWriter(dosya, StandardCharsets.UTF_8);
+            writer.write("""
+                <!doctype html>
+                <html lang="tr">
+                <head>
+                  <meta charset="utf-8">
+                  <title>HonorMC Konsol Kaydi</title>
+                  <style>
+                    body{margin:0;background:#101318;color:#d7dde8;font:14px Consolas,monospace}
+                    header{position:sticky;top:0;background:#171d26;padding:12px 16px;border-bottom:1px solid #2a3443}
+                    main{padding:12px 16px;white-space:pre-wrap}
+                    .BILGI,.CEKIRDEK{color:#7ee787}.UYARI{color:#ffd166}.HATA{color:#ff6b6b;font-weight:700}
+                    .OYUNCU{color:#5cc8ff}.EKLENTI{color:#d2a8ff}.KOMUT{color:#39d0d8;font-weight:700}.DIGER{color:#9aa7b7}
+                    .satir{display:block;line-height:1.45}
+                  </style>
+                </head>
+                <body>
+                <header>HonorMC canli konsol kaydi - metin secilebilir ve kopyalanabilir.</header>
+                <main>
+                """);
+            writer.flush();
+            return new HtmlKayit(writer);
+        }
+
+        synchronized void yaz(final Kategori kategori, final String satir) {
+            if (this.writer == null) {
+                return;
+            }
+            try {
+                this.writer.write("<span class=\"" + kategori.name() + " satir\">");
+                this.writer.write(escape(satir));
+                this.writer.write("</span>");
+                this.writer.newLine();
+                this.writer.flush();
+            } catch (final IOException ignored) {
+            }
+        }
+
+        @Override
+        public synchronized void close() {
+            if (this.writer == null || this.kapandi) {
+                return;
+            }
+            this.kapandi = true;
+            try {
+                this.writer.write("</main></body></html>");
+                this.writer.newLine();
+                this.writer.close();
+            } catch (final IOException ignored) {
+            }
+        }
+
+        private static String escape(final String metin) {
+            return metin
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
         }
     }
 
@@ -263,11 +433,16 @@ public final class HonorMCBaslatici {
         boolean hata = true;
         boolean oyuncu = true;
         boolean eklenti = true;
+        boolean htmlKayit = true;
+        Path htmlKayitDosyasi = Path.of("kayitlar", "canli-konsol.html");
         final List<String> jvmEkleri = new ArrayList<>();
         final List<String> sunucuEkleri = new ArrayList<>();
 
         static BaslaticiAyar yukle(final String[] args) throws IOException {
             final BaslaticiAyar ayar = new BaslaticiAyar();
+            ayar.jvmEkleri.add("--enable-native-access=ALL-UNNAMED");
+            ayar.jvmEkleri.add("--illegal-native-access=allow");
+            ayar.jvmEkleri.add("--sun-misc-unsafe-memory-access=allow");
             for (int i = 0; i < args.length; i++) {
                 if ("--ayar".equals(args[i]) && i + 1 < args.length) {
                     ayar.ayarDosyasi = Path.of(args[++i]);
@@ -322,6 +497,8 @@ public final class HonorMCBaslatici {
             this.hata = Boolean.parseBoolean(p.getProperty("log.hata", Boolean.toString(this.hata)));
             this.oyuncu = Boolean.parseBoolean(p.getProperty("log.oyuncu", Boolean.toString(this.oyuncu)));
             this.eklenti = Boolean.parseBoolean(p.getProperty("log.eklenti", Boolean.toString(this.eklenti)));
+            this.htmlKayit = Boolean.parseBoolean(p.getProperty("log.html", Boolean.toString(this.htmlKayit)));
+            this.htmlKayitDosyasi = Path.of(p.getProperty("log.htmlDosyasi", this.htmlKayitDosyasi.toString()));
             listeOku(p.getProperty("jvmEkleri", ""), this.jvmEkleri);
             listeOku(p.getProperty("sunucuEkleri", ""), this.sunucuEkleri);
         }
@@ -342,8 +519,10 @@ public final class HonorMCBaslatici {
                 log.hata=true
                 log.oyuncu=true
                 log.eklenti=true
+                log.html=true
+                log.htmlDosyasi=kayitlar/canli-konsol.html
                 jvmEkleri=
-                sunucuEkleri=
+                sunucuEkleri=--config ayarlar/sunucu.properties --plugins eklentiler --world-dir dunyalar --world ana-dunya --bukkit-settings ayarlar/bukkit-uyumluluk.yml --spigot-settings ayarlar/spigot-uyumluluk.yml --paper-settings-directory ayarlar/paper --paper-settings ayarlar/paper-eski-uyumluluk.yml --purpur-settings ayarlar/purpur-uyumluluk.yml --commands-settings ayarlar/komutlar.yml
                 """;
             Files.writeString(this.ayarDosyasi, icerik, StandardCharsets.UTF_8);
         }
@@ -384,7 +563,7 @@ public final class HonorMCBaslatici {
                     .filter(path -> esleyici.matches(path.getFileName()))
                     .sorted(Comparator.comparing((Path path) -> path.getFileName().toString()).reversed())
                     .findFirst()
-                    .orElse(aramaDizini.resolve(dosyaDeseni))
+                    .orElseGet(() -> aramaDizini.resolve(dosyaDeseni))
                     .normalize();
             }
         }
@@ -396,6 +575,8 @@ public final class HonorMCBaslatici {
                 case HATA -> this.hata;
                 case OYUNCU -> this.oyuncu;
                 case EKLENTI -> this.eklenti;
+                case KOMUT -> true;
+                case CEKIRDEK -> true;
                 case DIGER -> true;
             };
         }

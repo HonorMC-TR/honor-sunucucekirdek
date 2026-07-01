@@ -20,7 +20,7 @@ public final class HonorCommand extends Command {
     public HonorCommand(final String name) {
         super(name);
         this.description = "HonorMC komut merkezi";
-        this.usageMessage = "/honor [yardim | surum | eklentiler | tps | mspt | yenile]";
+        this.usageMessage = "/honor [yardim | surum | durum | eklentiler | tps | mspt | dosyalar | telemetri | yenile]";
         this.setAliases(List.of("hmc"));
     }
 
@@ -37,10 +37,13 @@ public final class HonorCommand extends Command {
                 HonorHelpCommand.sendHelp(sender);
                 yield true;
             }
-            case "surum", "version" -> dispatch(sender, "surum");
-            case "eklentiler", "plugins" -> dispatch(sender, "eklentiler");
-            case "tps" -> dispatch(sender, "tps");
-            case "mspt" -> dispatch(sender, "mspt");
+            case "surum", "version" -> send(sender, HonorInfoCommand.Mode.SURUM);
+            case "durum", "status" -> send(sender, HonorInfoCommand.Mode.DURUM);
+            case "eklentiler", "plugins" -> send(sender, HonorInfoCommand.Mode.EKLENTILER);
+            case "tps" -> send(sender, HonorInfoCommand.Mode.TPS);
+            case "mspt" -> send(sender, HonorInfoCommand.Mode.MSPT);
+            case "dosyalar", "klasorler" -> send(sender, HonorInfoCommand.Mode.DOSYALAR);
+            case "telemetri", "olcum" -> send(sender, HonorInfoCommand.Mode.TELEMETRI);
             case "yenile", "reload" -> reloadHonor(sender);
             default -> {
                 sender.sendMessage(Component.text("Bilinmeyen HonorMC komutu: " + args[0], NamedTextColor.RED));
@@ -54,17 +57,15 @@ public final class HonorCommand extends Command {
     public @NotNull List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String alias, @NotNull final String[] args) {
         if (args.length == 1) {
             final String prefix = args[0].toLowerCase(Locale.ROOT);
-            return Stream.of("yardim", "surum", "eklentiler", "tps", "mspt", "yenile")
+            return Stream.of("yardim", "surum", "durum", "eklentiler", "tps", "mspt", "dosyalar", "telemetri", "yenile")
                 .filter(command -> command.startsWith(prefix))
                 .toList();
         }
         return Collections.emptyList();
     }
 
-    private static boolean dispatch(final CommandSender sender, final String commandLine) {
-        if (!Bukkit.dispatchCommand(sender, commandLine)) {
-            sender.sendMessage(Component.text("HonorMC komutu su an hazir degil: /" + commandLine, NamedTextColor.RED));
-        }
+    private static boolean send(final CommandSender sender, final HonorInfoCommand.Mode mode) {
+        HonorInfoCommand.send(sender, mode);
         return true;
     }
 

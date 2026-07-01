@@ -244,9 +244,36 @@ abstract class GenerateHonorMCBaslatBat : DefaultTask() {
             if "%HONORMC_MIN_RAM%"=="" set "HONORMC_MIN_RAM=8G"
             if "%HONORMC_MAX_RAM%"=="" set "HONORMC_MAX_RAM=16G"
 
+            if not exist "ayarlar" mkdir "ayarlar"
+            if not exist "ayarlar\paper" mkdir "ayarlar\paper"
+            if not exist "eklentiler" mkdir "eklentiler"
+            if not exist "dunyalar" mkdir "dunyalar"
+            if not exist "kayitlar" mkdir "kayitlar"
+            if not exist "yedekler" mkdir "yedekler"
+
             echo HonorMC baslatiliyor...
             echo RAM: %HONORMC_MIN_RAM% - %HONORMC_MAX_RAM%
-            java -Xms%HONORMC_MIN_RAM% -Xmx%HONORMC_MAX_RAM% -Dfile.encoding=UTF-8 -Duser.language=tr -Duser.country=TR -jar "%HONOR_JAR%" nogui
+            java ^
+              --enable-native-access=ALL-UNNAMED ^
+              --illegal-native-access=allow ^
+              --sun-misc-unsafe-memory-access=allow ^
+              -Xms%HONORMC_MIN_RAM% ^
+              -Xmx%HONORMC_MAX_RAM% ^
+              -Dfile.encoding=UTF-8 ^
+              -Duser.language=tr ^
+              -Duser.country=TR ^
+              -jar "%HONOR_JAR%" ^
+              --nogui ^
+              --config "ayarlar\sunucu.properties" ^
+              --plugins "eklentiler" ^
+              --world-dir "dunyalar" ^
+              --world "ana-dunya" ^
+              --bukkit-settings "ayarlar\bukkit-uyumluluk.yml" ^
+              --spigot-settings "ayarlar\spigot-uyumluluk.yml" ^
+              --paper-settings-directory "ayarlar\paper" ^
+              --paper-settings "ayarlar\paper-eski-uyumluluk.yml" ^
+              --purpur-settings "ayarlar\purpur-uyumluluk.yml" ^
+              --commands-settings "ayarlar\komutlar.yml"
             set "HONOR_EXIT=%ERRORLEVEL%"
             pause
             exit /b %HONOR_EXIT%
@@ -346,15 +373,33 @@ val honorMCSonSurumCiktiKlasoru = layout.dir(honorMCSonSurumCiktiYolu.map { file
 
 val kopyalaHonorMCSonSurum = tasks.register<Copy>("kopyalaHonorMCSonSurum") {
     group = "honormc"
-    description = "Son HonorMC jar, bat ve dagitim zip ciktisini Belgeler/HonorMC klasorune kopyalar."
+    description = "Son HonorMC jar, baslatici ve dagitim zip ciktisini Belgeler/HonorMC klasorune kopyalar."
 
     dependsOn(packageHonorMCJar)
     dependsOn(hazirlaHonorMCBaslatBat)
+    dependsOn(":honormc-baslatici:jar")
+    dependsOn("paketleHonorMCDagitim")
     dependsOn(zipHonorMCDagitim)
 
     from(packageHonorMCJar.flatMap { it.outputJar })
     from(honorMCBaslatBat)
     from(zipHonorMCDagitim.flatMap { it.archiveFile })
+    from(packageHonorMCJar.flatMap { it.outputJar }) {
+        into("cekirdek")
+    }
+    from(project(":honormc-baslatici").tasks.named<Jar>("jar").flatMap { it.archiveFile }) {
+        into("baslatici")
+        rename { "HonorMC-Baslatici.jar" }
+    }
+    from(files(
+        "honormc-dagitim/HONORMC-BASLATICI.bat",
+        "honormc-dagitim/HONORMC-BASLATICI.ps1",
+        "honormc-dagitim/BENI-OKU.md"
+    ))
+    from(layout.projectDirectory.dir("honormc-dagitim/ayarlar")) {
+        include("baslatici.properties", "komutlar.yml", "honormc.yml")
+        into("ayarlar")
+    }
     into(honorMCSonSurumCiktiKlasoru)
 }
 

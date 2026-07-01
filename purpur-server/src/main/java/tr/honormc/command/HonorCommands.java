@@ -18,9 +18,16 @@ public final class HonorCommands {
         "timings",
         "reload",
         "rl",
+        "help",
+        "?",
+        "version",
         "ver",
         "about",
-        "pl"
+        "plugins",
+        "pl",
+        "tps",
+        "mspt",
+        "spark"
     );
 
     private HonorCommands() {
@@ -31,6 +38,13 @@ public final class HonorCommands {
         removeLegacyForkCommands(commandMap);
         registerOrReplace(commandMap, "honor", new HonorCommand("honor"));
         registerOrReplace(commandMap, "yardim", new HonorHelpCommand("yardim"));
+        registerOrReplace(commandMap, "surum", new HonorInfoCommand("surum", HonorInfoCommand.Mode.SURUM, "version", "ver", "about"));
+        registerOrReplace(commandMap, "eklentiler", new HonorInfoCommand("eklentiler", HonorInfoCommand.Mode.EKLENTILER, "plugins", "pl"));
+        registerOrReplace(commandMap, "tps", new HonorInfoCommand("tps", HonorInfoCommand.Mode.TPS));
+        registerOrReplace(commandMap, "mspt", new HonorInfoCommand("mspt", HonorInfoCommand.Mode.MSPT));
+        registerOrReplace(commandMap, "durum", new HonorInfoCommand("durum", HonorInfoCommand.Mode.DURUM, "status"));
+        registerOrReplace(commandMap, "dosyalar", new HonorInfoCommand("dosyalar", HonorInfoCommand.Mode.DOSYALAR, "klasorler"));
+        registerOrReplace(commandMap, "telemetri", new HonorInfoCommand("telemetri", HonorInfoCommand.Mode.TELEMETRI, "olcum"));
     }
 
     private static void registerOrReplace(final SimpleCommandMap commandMap, final String label, final Command command) {

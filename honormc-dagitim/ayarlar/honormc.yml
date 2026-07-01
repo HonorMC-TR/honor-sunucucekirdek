@@ -14,14 +14,19 @@ klasorler:
 
 komutlar:
   turkce_aliaslar: true
-  ayar_dosyasi: komutlar.yml
+  ayar_dosyasi: ayarlar/komutlar.yml
 
 log:
   profil: sade
+  html_kayit: kayitlar/canli-konsol.html
   secenekler:
     - sade
     - detayli
   zorunlu_hatalari_saklama: false
+
+araclar:
+  bstats: false
+  spark: false
 
 performans:
   profil: smp

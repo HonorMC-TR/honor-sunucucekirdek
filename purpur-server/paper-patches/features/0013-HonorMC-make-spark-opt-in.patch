@@ -1,0 +1,98 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Thu, 2 Jul 2026 00:36:00 +0300
+Subject: [PATCH] HonorMC make spark opt-in
+
+
+diff --git a/src/main/java/io/papermc/paper/SparksFly.java b/src/main/java/io/papermc/paper/SparksFly.java
+--- a/src/main/java/io/papermc/paper/SparksFly.java
++++ b/src/main/java/io/papermc/paper/SparksFly.java
+@@ -44,6 +44,10 @@ public final class SparksFly {
+         if (Boolean.getBoolean("honormc.spark.duyuru")) {
+             this.logger.log(Level.INFO, "Spark profiler HonorMC icinde istege bagli olarak bulunur. Bilgi: https://docs.papermc.io/paper/profiling");
+         }
++        if (!Boolean.getBoolean("honormc.spark")) {
++            this.spark = null;
++            return;
++        }
+         this.spark = PaperSparkModule.create(Compatibility.VERSION_1_0, server, this.logger, new PaperScheduler() {
+             @Override
+             public void executeAsync(final Runnable runnable) {
+@@ -98,18 +102,27 @@ public final class SparksFly {
+     }
+ 
+     public void enableEarlyIfRequested() {
++        if (this.spark == null) {
++            return;
++        }
+         if (!isPluginPreferred() && shouldEnableImmediately()) {
+             this.enable();
+         }
+     }
+ 
+     public void enableBeforePlugins() {
++        if (this.spark == null) {
++            return;
++        }
+         if (!isPluginPreferred()) {
+             this.enable();
+         }
+     }
+ 
+     public void enableAfterPlugins(final Server server) {
++        if (this.spark == null) {
++            return;
++        }
+         final boolean isPluginPreferred = isPluginPreferred();
+         final boolean isPluginEnabled = isPluginEnabled(server);
+         if (!isPluginPreferred || !isPluginEnabled) {
+@@ -142,12 +155,18 @@ public final class SparksFly {
+     }
+ 
+     public void registerCommandBeforePlugins(final Server server) {
++        if (this.spark == null) {
++            return;
++        }
+         if (!isPluginPreferred()) {
+             this.registerCommand(server);
+         }
+     }
+ 
+     public void registerCommandAfterPlugins(final Server server) {
++        if (this.spark == null) {
++            return;
++        }
+         if ((!isPluginPreferred() || !isPluginEnabled(server)) && server.getCommandMap().getCommand(COMMAND_NAME) == null) {
+             this.registerCommand(server);
+         }
+@@ -158,18 +177,30 @@ public final class SparksFly {
+     }
+ 
+     public void tickStart() {
++        if (this.spark == null) {
++            return;
++        }
+         this.spark.onServerTickStart();
+     }
+ 
+     public void tickEnd(final double duration) {
++        if (this.spark == null) {
++            return;
++        }
+         this.spark.onServerTickEnd(duration);
+     }
+ 
+     void executeCommand(final CommandSender sender, final String[] args) {
++        if (this.spark == null) {
++            return;
++        }
+         this.spark.executeCommand(sender, args);
+     }
+ 
+     List<String> tabComplete(final CommandSender sender, final String[] args) {
++        if (this.spark == null) {
++            return List.of();
++        }
+         return this.spark.tabComplete(sender, args);
+     }
+ 

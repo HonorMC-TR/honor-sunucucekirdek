@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Thu, 2 Jul 2026 00:12:00 +0300
+Subject: [PATCH] HonorMC disable optional telemetry by default
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -564,5 +564,9 @@ public class Metrics {
+     public static class PaperMetrics {
+         public static void startMetrics() {
++            if (!Boolean.getBoolean("honormc.telemetri")) {
++                return;
++            }
++
+             // Get the config file
+             File configFile = new File(new File((File) MinecraftServer.getServer().options.valueOf("plugins"), "bStats"), "config.yml");
+             YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+--- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
++++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+@@ -104,7 +104,7 @@ public class GlobalConfiguration extends ConfigurationPart {
+     public Spark spark;
+ 
+     public class Spark extends ConfigurationPart {
+-        public boolean enabled = true;
++        public boolean enabled = false; // HonorMC - keep profiler opt-in for a clean Turkish runtime
+         public boolean enableImmediately = false;
+     }
+ 

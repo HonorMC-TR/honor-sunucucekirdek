@@ -8,7 +8,7 @@ Bu paket HonorMC'nin sade Turkce dagitim duzenidir. Sunucuyu `BASLAT.ps1` veya `
 - `eklentiler/`: Plugin jar dosyalarini buraya koy.
 - `dunyalar/`: Dunya dosyalari burada tutulur.
 - `ayarlar/`: HonorMC, Bukkit/Paper/Purpur uyumluluk ve sunucu ayarlari burada tutulur.
-- `kayitlar/`: HonorMC tarafindan ayrilan kayit klasoru. Cekirdek log sistemi su an bazi loglari `logs/` altinda da uretebilir.
+- `kayitlar/`: Konsol ve HTML kayitlari burada tutulur. HonorMC Baslatici canli kaydi `kayitlar/canli-konsol.html` dosyasina yazar.
 - `yedekler/`: Elle veya ileride baslatici ile alinacak yedekler icin.
 
 ## Neden bazi ayar anahtarlari Ingilizce?
@@ -41,3 +41,12 @@ Ham loglari gormek istersen:
 $env:HONORMC_LOG="detayli"
 .\BASLAT.ps1
 ```
+
+## bStats ve spark
+
+HonorMC temiz baslangic icin bStats telemetrisini ve spark profiler'i varsayilan kapali getirir.
+
+- bStats zorunlu degildir; acik olursa kullanim istatistigi gonderir.
+- spark zorunlu degildir; performans sorunu incelerken acilacak profiler aracidir.
+
+Sunucu icinden `/telemetri` veya `/honor telemetri` ile mevcut durumu gorebilirsin.

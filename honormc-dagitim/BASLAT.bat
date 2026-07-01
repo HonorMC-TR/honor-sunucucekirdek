@@ -50,7 +50,7 @@ java ^
   --paper-settings-directory "ayarlar\paper" ^
   --paper-settings "ayarlar\paper-eski-uyumluluk.yml" ^
   --purpur-settings "ayarlar\purpur-uyumluluk.yml" ^
-  --commands-settings "komutlar.yml"
+  --commands-settings "ayarlar\komutlar.yml"
 
 set "HONORMC_CIKIS=%ERRORLEVEL%"
 pause

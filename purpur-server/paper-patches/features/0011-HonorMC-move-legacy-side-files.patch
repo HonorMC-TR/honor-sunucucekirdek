@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Thu, 2 Jul 2026 00:20:00 +0300
+Subject: [PATCH] HonorMC move legacy side files
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java b/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java
+--- a/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java
++++ b/src/main/java/com/destroystokyo/paper/VersionHistoryManager.java
+@@ -29,7 +29,7 @@ public enum VersionHistoryManager {
+     private VersionData currentData = null;
+ 
+     VersionHistoryManager() {
+-        final Path path = Paths.get("version_history.json");
++        final Path path = Paths.get("ayarlar", "version_history.json"); // HonorMC - keep side files under ayarlar
+ 
+         if (Files.exists(path)) {
+             // Basic file sanity checks
+@@ -70,14 +70,19 @@ public enum VersionHistoryManager {
+     }
+ 
+     private void writeFile(@Nonnull final Path path) {
+-        try (final BufferedWriter writer = Files.newBufferedWriter(
+-            path,
+-            StandardCharsets.UTF_8,
+-            StandardOpenOption.WRITE,
+-            StandardOpenOption.CREATE,
+-            StandardOpenOption.TRUNCATE_EXISTING
+-        )) {
+-            gson.toJson(currentData, writer);
++        try {
++            if (path.getParent() != null) {
++                Files.createDirectories(path.getParent());
++            }
++            try (final BufferedWriter writer = Files.newBufferedWriter(
++                path,
++                StandardCharsets.UTF_8,
++                StandardOpenOption.WRITE,
++                StandardOpenOption.CREATE,
++                StandardOpenOption.TRUNCATE_EXISTING
++            )) {
++                gson.toJson(currentData, writer);
++            }
+         } catch (final IOException e) {
+             logger.log(Level.SEVERE, "Failed to write to version history file", e);
+         }
+diff --git a/src/main/java/org/bukkit/craftbukkit/help/HelpYamlReader.java b/src/main/java/org/bukkit/craftbukkit/help/HelpYamlReader.java
+--- a/src/main/java/org/bukkit/craftbukkit/help/HelpYamlReader.java
++++ b/src/main/java/org/bukkit/craftbukkit/help/HelpYamlReader.java
+@@ -25,7 +25,11 @@ public class HelpYamlReader {
+     public HelpYamlReader(Server server) {
+         this.server = server;
+ 
+-        File helpYamlFile = new File("help.yml");
++        File helpYamlFile = new File("ayarlar", "yardim-uyumluluk.yml"); // HonorMC - keep legacy help config grouped
++        File parent = helpYamlFile.getParentFile();
++        if (parent != null) {
++            parent.mkdirs();
++        }
+         YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("configurations/help.yml"), StandardCharsets.UTF_8));
+ 
+         try {
+@@ -40,7 +44,7 @@ public class HelpYamlReader {
+                 server.getLogger().log(Level.SEVERE, "Could not save " + helpYamlFile, ex);
+             }
+         } catch (Exception ex) {
+-            server.getLogger().severe("Failed to load help.yml. Verify the yaml indentation is correct. Reverting to default help.yml.");
++            server.getLogger().severe("yardim-uyumluluk.yml yuklenemedi. YAML girintisini kontrol et. Varsayilan yardim ayarina donuluyor.");
+             this.helpYaml = defaultConfig;
+         }
+     }
