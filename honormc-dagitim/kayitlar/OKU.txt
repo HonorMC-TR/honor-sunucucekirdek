@@ -1,0 +1,3 @@
+﻿Bu klasor HonorMC kayitlari icin ayrilmistir.
+
+Not: Upstream log sistemi su an bazi dosyalari `logs` klasorune de yazabilir. Bu davranis sonraki cekirdek patchlerinde HonorMC log profiline baglanacak.

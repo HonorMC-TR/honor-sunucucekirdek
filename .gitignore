@@ -60,3 +60,24 @@ manifest.mf
 /paper-api
 *.jar
 test-plugin.settings.gradle.kts
+
+# Honorya local runtime output
+/honorya-dagitim/cekirdek/Honorya.jar
+/honorya-dagitim/libraries/
+/honorya-dagitim/versions/
+/honorya-dagitim/logs/
+/honorya-dagitim/crash-reports/
+/honorya-dagitim/banned-ips.json
+/honorya-dagitim/banned-players.json
+/honorya-dagitim/ops.json
+/honorya-dagitim/whitelist.json
+/honorya-dagitim/version_history.json
+/honorya-dagitim/help.yml
+/honorya-dagitim/dunyalar/ana-dunya/
+/honorya-dagitim/dunyalar/usercache.json
+/honorya-dagitim/eklentiler/bStats/
+/honorya-dagitim/eklentiler/spark/
+/honorya-dagitim/ayarlar/paper/legacy-backup/
+/honorya-dagitim/ayarlar/paper/paper-global.yml
+/honorya-dagitim/ayarlar/paper/paper-world-defaults.yml
+/honorya-dagitim/ayarlar/paper-eski-uyumluluk.yml-README.txt

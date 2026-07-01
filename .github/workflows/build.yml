@@ -5,11 +5,19 @@ on:
   push:
     branches:
       - "ver/**"
+      - "codex/**"
+      - "main"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     if: "!contains(github.event.commits[0].message, '[ci-skip]')"
+    env:
+      GIT_AUTHOR_NAME: HonorMC Builder
+      GIT_AUTHOR_EMAIL: builder@honormc.local
+      GIT_COMMITTER_NAME: HonorMC Builder
+      GIT_COMMITTER_EMAIL: builder@honormc.local
+      BUILD_NUMBER: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -24,9 +32,23 @@ jobs:
         run: ./gradlew applyAllPatches --stacktrace
       - name: Build
         run: ./gradlew build --stacktrace
+      - name: Package HonorMC
+        run: ./gradlew packageHonorMCJar paketleHonorMCDagitim zipHonorMCDagitim --stacktrace
+      - name: Upload HonorMC Jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: HonorMC
+          path: build/honormc/Honor-*.jar
+          if-no-files-found: error
+      - name: Upload HonorMC Distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: HonorMC-dagitim
+          path: build/honormc/Honor-*-dagitim.zip
+          if-no-files-found: error
       - name: Rebuild on Failure
         if: ${{ failure() }}
         run: |
           ./gradlew clean cleanCache --refresh-dependencies
           ./gradlew applyAllPatches --stacktrace 
-          ./gradlew build --stacktrace
+          ./gradlew build packageHonorMCJar paketleHonorMCDagitim zipHonorMCDagitim --stacktrace

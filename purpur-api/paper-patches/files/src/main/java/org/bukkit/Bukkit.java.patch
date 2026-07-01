@@ -1,5 +1,18 @@
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -124,7 +_,11 @@
+     @NotNull
+     public static String getVersionMessage() {
+         final io.papermc.paper.ServerBuildInfo version = io.papermc.paper.ServerBuildInfo.buildInfo();
+-        return "This server is running " + getName() + " version " + version.asString(io.papermc.paper.ServerBuildInfo.StringRepresentation.VERSION_FULL) + " (Implementing API version " + getBukkitVersion() + ")";
++        return "HonorMC surumu: " + version.minecraftVersionId()
++            + " (Minecraft " + version.minecraftVersionName()
++            + ", API " + getBukkitVersion()
++            + ", cekirdek " + version.brandName()
++            + ")";
+         // Paper end
+     }
+ 
 @@ -3010,4 +_,147 @@
      public static void restart() {
          server.restart();

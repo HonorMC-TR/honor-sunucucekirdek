@@ -1,0 +1,3 @@
+﻿Plugin jar dosyalarini bu klasore koy.
+
+HonorMC baslaticisi bu klasoru cekirdege `--plugins eklentiler` olarak verir.

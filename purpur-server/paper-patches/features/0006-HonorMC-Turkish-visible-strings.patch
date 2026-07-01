@@ -1,0 +1,518 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Wed, 1 Jul 2026 01:08:38 +0300
+Subject: [PATCH] HonorMC Turkish visible strings
+
+
+diff --git a/src/main/java/ca/spottedleaf/moonrise/common/util/MoonriseCommon.java b/src/main/java/ca/spottedleaf/moonrise/common/util/MoonriseCommon.java
+index b9f788693b0c4be48e8a923a3dec50555d135e7e..e05223e87ed0581e33bc50627f30741d83e46735 100644
+--- a/src/main/java/ca/spottedleaf/moonrise/common/util/MoonriseCommon.java
++++ b/src/main/java/ca/spottedleaf/moonrise/common/util/MoonriseCommon.java
+@@ -22,13 +22,13 @@ public final class MoonriseCommon {
+ 
+             @Override
+             public Thread newThread(final Runnable run) {
+-                final Thread thread = new Thread(run, PlatformHooks.get().getBrand() + " Common Worker #" + this.idGenerator.getAndIncrement());
++                final Thread thread = new Thread(run, PlatformHooks.get().getBrand() + " Genel Isci #" + this.idGenerator.getAndIncrement());
+ 
+                 thread.setDaemon(true);
+                 thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                     @Override
+                     public void uncaughtException(final Thread thread, final Throwable throwable) {
+-                        LOGGER.error("Uncaught exception in thread " + thread.getName(), throwable);
++                        LOGGER.error("Is parcaciginda yakalanmayan hata: " + thread.getName(), throwable);
+                     }
+                 });
+ 
+@@ -59,7 +59,7 @@ public final class MoonriseCommon {
+         WORKER_POOL.adjustThreadCount(workerThreads);
+         IO_POOL.adjustThreadCount(ioThreads);
+ 
+-        LOGGER.info(PlatformHooks.get().getBrand() + " is using " + workerThreads + " worker threads, " + ioThreads + " I/O threads");
++        LOGGER.info(PlatformHooks.get().getBrand() + " " + workerThreads + " is parcacigi ve " + ioThreads + " I/O parcacigi kullaniyor");
+     }
+ 
+     public static final long IO_QUEUE_HOLD_TIME = (long)(25.0e6); // 25ms
+@@ -70,13 +70,13 @@ public final class MoonriseCommon {
+ 
+                 @Override
+                 public Thread newThread(final Runnable run) {
+-                    final Thread thread = new Thread(run, PlatformHooks.get().getBrand() + " I/O Worker #" + this.idGenerator.getAndIncrement());
++                    final Thread thread = new Thread(run, PlatformHooks.get().getBrand() + " I/O Iscisi #" + this.idGenerator.getAndIncrement());
+ 
+                     thread.setDaemon(true);
+                     thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                         @Override
+                         public void uncaughtException(final Thread thread, final Throwable throwable) {
+-                            LOGGER.error("Uncaught exception in thread " + thread.getName(), throwable);
++                            LOGGER.error("Is parcaciginda yakalanmayan hata: " + thread.getName(), throwable);
+                         }
+                     });
+ 
+@@ -89,16 +89,16 @@ public final class MoonriseCommon {
+ 
+     public static void haltExecutors() {
+         MoonriseCommon.WORKER_POOL.shutdown(false);
+-        LOGGER.info("Awaiting termination of worker pool for up to 60s...");
++        LOGGER.info("Is parcacigi havuzunun kapanmasi icin en fazla 60 saniye bekleniyor...");
+         if (!MoonriseCommon.WORKER_POOL.join(TimeUnit.SECONDS.toMillis(60L))) {
+-            LOGGER.error("Worker pool did not shut down in time!");
++            LOGGER.error("Is parcacigi havuzu zamaninda kapanmadi!");
+             MoonriseCommon.WORKER_POOL.halt(false);
+         }
+ 
+         MoonriseCommon.IO_POOL.shutdown(false);
+-        LOGGER.info("Awaiting termination of I/O pool for up to 60s...");
++        LOGGER.info("I/O havuzunun kapanmasi icin en fazla 60 saniye bekleniyor...");
+         if (!MoonriseCommon.IO_POOL.join(TimeUnit.SECONDS.toMillis(60L))) {
+-            LOGGER.error("I/O pool did not shut down in time!");
++            LOGGER.error("I/O havuzu zamaninda kapanmadi!");
+             MoonriseCommon.IO_POOL.halt(false);
+         }
+     }
+diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+index bc7e4e5560708fea89c584b1d8b471f4966f311a..c0b37771c6fbb167966691d429faf390e0103ef1 100644
+--- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
++++ b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+@@ -20,7 +20,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
+     @Override
+     protected LineReader buildReader(LineReaderBuilder builder) {
+         builder
+-                .appName("Purpur") // Purpur - Rebrand
++                .appName("HonorMC") // HonorMC - Rebrand
+                 .variable(LineReader.HISTORY_FILE, java.nio.file.Paths.get(".console_history"))
+                 .completer(new ConsoleCommandCompleter(this.server))
+                 .option(LineReader.Option.COMPLETE_IN_WORD, true);
+diff --git a/src/main/java/io/papermc/paper/PaperBootstrap.java b/src/main/java/io/papermc/paper/PaperBootstrap.java
+index d543b1b107ab8d3eeb1fc3c1cadf489928d2786e..5eeaece67454d7a306efa842e5d402965d7a8ada 100644
+--- a/src/main/java/io/papermc/paper/PaperBootstrap.java
++++ b/src/main/java/io/papermc/paper/PaperBootstrap.java
+@@ -34,7 +34,7 @@ public final class PaperBootstrap {
+         final ServerBuildInfo bi = ServerBuildInfo.buildInfo();
+         return List.of(
+             String.format(
+-                "Running Java %s (%s %s; %s %s) on %s %s (%s)",
++                "Java %s hazir (%s %s; %s %s) - Sistem: %s %s (%s)",
+                 javaSpecVersion,
+                 javaVmName,
+                 javaVmVersion,
+@@ -45,7 +45,7 @@ public final class PaperBootstrap {
+                 osArch
+             ),
+             String.format(
+-                "Loading %s %s for Minecraft %s",
++                "%s cekirdegi yukleniyor: %s / Minecraft %s",
+                 bi.brandName(),
+                 bi.asString(ServerBuildInfo.StringRepresentation.VERSION_FULL),
+                 bi.minecraftVersionId()
+diff --git a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
+index 1b0ee48e28aaa68ddb1f28c23d3c5f5f40505c98..f9e5715c2833dccb0f45c928c8d53fbb6fc1f7db 100644
+--- a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
+@@ -31,7 +31,8 @@ public record ServerBuildInfoImpl(
+     private static final String ATTRIBUTE_GIT_COMMIT = "Git-Commit";
+ 
+     private static final String BRAND_PAPER_NAME = "Paper";
+-    private static final String BRAND_PURPUR_NAME = "Purpur"; // Purpur - Rebrand
++    private static final Key BRAND_HONORMC_ID = Key.key("honormc", "honormc"); // HonorMC - Rebrand
++    private static final String BRAND_HONORMC_NAME = "HonorMC"; // HonorMC - Rebrand
+ 
+     private static final String BUILD_DEV = "DEV";
+ 
+@@ -43,9 +44,9 @@ public record ServerBuildInfoImpl(
+         this(
+             getManifestAttribute(manifest, ATTRIBUTE_BRAND_ID)
+                 .map(Key::key)
+-                .orElse(BRAND_PURPUR_ID), // Purpur - Rebrand
++                .orElse(BRAND_HONORMC_ID), // HonorMC - Rebrand
+             getManifestAttribute(manifest, ATTRIBUTE_BRAND_NAME)
+-                .orElse(BRAND_PURPUR_NAME), // Purpur - Rebrand
++                .orElse(BRAND_HONORMC_NAME), // HonorMC - Rebrand
+             SharedConstants.getCurrentVersion().id(),
+             SharedConstants.getCurrentVersion().name(),
+             getManifestAttribute(manifest, ATTRIBUTE_BUILD_NUMBER)
+@@ -62,7 +63,7 @@ public record ServerBuildInfoImpl(
+ 
+     @Override
+     public boolean isBrandCompatible(final @NotNull Key brandId) {
+-        return brandId.equals(this.brandId) || brandId.equals(BRAND_PAPER_ID); // Purpur - Fix pufferfish issues // Purpur - Rebrand
++        return brandId.equals(this.brandId) || brandId.equals(BRAND_PAPER_ID) || brandId.equals(BRAND_PURPUR_ID); // HonorMC - Keep plugin compatibility
+     }
+ 
+     @Override
+diff --git a/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java b/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
+index 727253cb847e56e8716bc6b17512c0eb515f34e3..d71a1cd09c8ee4735d76e279bddfe1c2b1366488 100644
+--- a/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
++++ b/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
+@@ -35,30 +35,29 @@ import org.jspecify.annotations.NullMarked;
+ 
+ @NullMarked
+ public class PaperPluginsCommand {
+-    public static final String DESCRIPTION = "Gets a list of plugins running on the server";
++    public static final String DESCRIPTION = "Sunucuda calisan eklentileri listeler";
+ 
+     private static final TextColor INFO_COLOR = TextColor.color(52, 159, 218);
+ 
+-    private static final Component SERVER_PLUGIN_INFO = Component.text("ℹ What is a server plugin?", INFO_COLOR)
++    private static final Component SERVER_PLUGIN_INFO = Component.text("[i] Sunucu eklentisi nedir?", INFO_COLOR)
+         .append(asPlainComponents("""
+-                                      Server plugins can add new behavior to your server!
+-                                      You can find new plugins on Paper's plugin repository, Hangar.
++                                      Sunucu eklentileri sunucuna yeni davranislar ekler.
++                                      Paper uyumlu yeni eklentileri Hangar deposunda bulabilirsin.
+                                       
+                                       https://hangar.papermc.io/
+                                       """));
+ 
+-    private static final Component LEGACY_PLUGIN_INFO = Component.text("ℹ What is a legacy plugin?", INFO_COLOR)
++    private static final Component LEGACY_PLUGIN_INFO = Component.text("[i] Eski eklenti nedir?", INFO_COLOR)
+         .append(asPlainComponents("""
+-                                      A legacy plugin is a plugin that was made on
+-                                      very old unsupported versions of the game.
++                                      Eski eklenti, oyunun artik desteklenmeyen
++                                      cok eski surumleri icin yazilmis eklentidir.
+                                       
+-                                      It is encouraged that you replace this plugin,
+-                                      as they might not work in the future and may cause
+-                                      performance issues.
++                                      Bu eklentileri guncel alternatiflerle degistirmen onerilir.
++                                      Ileride calismayabilir veya performans sorunlari olusturabilir.
+                                       """));
+ 
+     private static final Component LEGACY_PLUGIN_STAR = Component.text('*', TextColor.color(255, 212, 42)).hoverEvent(LEGACY_PLUGIN_INFO);
+-    private static final Component INFO_ICON_START = Component.text("ℹ ", INFO_COLOR);
++    private static final Component INFO_ICON_START = Component.text("[i] ", INFO_COLOR);
+     private static final Component PLUGIN_TICK = Component.text("- ", NamedTextColor.DARK_GRAY);
+     private static final Component PLUGIN_TICK_EMPTY = Component.text(" ");
+ 
+@@ -119,26 +118,26 @@ public class PaperPluginsCommand {
+             // Event components
+             String description = provider.getMeta().getDescription();
+             TextComponent.Builder hover = Component.text();
+-            hover.append(Component.text("Version: ", NamedTextColor.WHITE)).append(Component.text(provider.getMeta().getVersion(), NamedTextColor.GREEN));
++            hover.append(Component.text("Surum: ", NamedTextColor.WHITE)).append(Component.text(provider.getMeta().getVersion(), NamedTextColor.GREEN));
+ 
+             if (description != null) {
+                 hover.append(Component.newline())
+-                        .append(Component.text("Description: ", NamedTextColor.WHITE))
++                        .append(Component.text("Aciklama: ", NamedTextColor.WHITE))
+                         .append(Component.text(description, NamedTextColor.GREEN));
+             }
+ 
+             if (provider.getMeta().getWebsite() != null) {
+                 hover.append(Component.newline())
+-                        .append(Component.text("Website: ", NamedTextColor.WHITE))
++                        .append(Component.text("Site: ", NamedTextColor.WHITE))
+                         .append(Component.text(provider.getMeta().getWebsite(), NamedTextColor.GREEN));
+             }
+ 
+             if (!provider.getMeta().getAuthors().isEmpty()) {
+                 hover.append(Component.newline());
+                 if (provider.getMeta().getAuthors().size() == 1) {
+-                    hover.append(Component.text("Author: "));
++                    hover.append(Component.text("Yazar: "));
+                 } else {
+-                    hover.append(Component.text("Authors: "));
++                    hover.append(Component.text("Yazarlar: "));
+                 }
+ 
+                 hover.append(getAuthors(provider.getMeta()));
+@@ -171,7 +170,7 @@ public class PaperPluginsCommand {
+ 
+         for (int i = 0; i < authors.size(); i++) {
+             if (i > 0) {
+-                builder.append(Component.text(i < authors.size() - 1 ? ", " : " and ", NamedTextColor.WHITE));
++                builder.append(Component.text(i < authors.size() - 1 ? ", " : " ve ", NamedTextColor.WHITE));
+             }
+ 
+             builder.append(Component.text(authors.get(i), NamedTextColor.GREEN));
+@@ -241,12 +240,12 @@ public class PaperPluginsCommand {
+         final int sizePlugins = sizePaperPlugins + sizeSpigotPlugins;
+         final boolean hasAllPluginTypes = true; // Purpur - Improve output of plugins command
+ 
+-        final Component infoMessage = Component.text().append(INFO_ICON_SERVER_PLUGIN).append(Component.text("Server Plugins (%s):".formatted(sizePlugins), NamedTextColor.WHITE)).build();
++        final Component infoMessage = Component.text().append(INFO_ICON_SERVER_PLUGIN).append(Component.text("Sunucu eklentileri (%s):".formatted(sizePlugins), NamedTextColor.WHITE)).build();
+ 
+         sender.sendMessage(infoMessage);
+ 
+         //if (!paperPlugins.isEmpty()) { // Purpur - Improve output of plugins command
+-            sender.sendMessage(header("Paper Plugins", 0x0288D1, sizePaperPlugins, hasAllPluginTypes));
++            sender.sendMessage(header("Paper uyumlu eklentiler", 0x0288D1, sizePaperPlugins, hasAllPluginTypes));
+         //} // Purpur - Improve output of plugins command
+ 
+         for (final Component component : formatProviders(paperPlugins, sender)) { // Purpur - Improve output of plugins command
+@@ -254,7 +253,7 @@ public class PaperPluginsCommand {
+         }
+ 
+         //if (!spigotPlugins.isEmpty()) { // Purpur - Improve output of plugins command
+-            sender.sendMessage(header("Bukkit Plugins", 0xED8106, sizeSpigotPlugins, hasAllPluginTypes));
++            sender.sendMessage(header("Bukkit/Spigot uyumlu eklentiler", 0xED8106, sizeSpigotPlugins, hasAllPluginTypes));
+         //} // Purpur - Improve output of plugins command
+ 
+         for (final Component component : formatProviders(spigotPlugins, sender)) { // Purpur - Improve output of plugins command
+diff --git a/src/main/java/io/papermc/paper/command/PaperVersionCommand.java b/src/main/java/io/papermc/paper/command/PaperVersionCommand.java
+index 5f17c295e2158b93ed6f77012c0ac5507ac88284..b36266f367fa8a7dd66cac7670a1c4065696b443 100644
+--- a/src/main/java/io/papermc/paper/command/PaperVersionCommand.java
++++ b/src/main/java/io/papermc/paper/command/PaperVersionCommand.java
+@@ -31,19 +31,19 @@ import org.jspecify.annotations.NullMarked;
+ 
+ @NullMarked
+ public class PaperVersionCommand {
+-    public static final String DESCRIPTION = "Gets the version of this server including any plugins in use";
++    public static final String DESCRIPTION = "Sunucu ve eklenti surum bilgisini gosterir";
+ 
+     private static final Component NOT_RUNNING = Component.text()
+-        .append(Component.text("This server is not running any plugin by that name."))
++        .append(Component.text("Bu adda calisan bir eklenti yok."))
+         .appendNewline()
+-        .append(Component.text("Use /plugins to get a list of plugins.").clickEvent(ClickEvent.suggestCommand("/plugins")))
++        .append(Component.text("Eklenti listesini gormek icin /eklentiler yaz.").clickEvent(ClickEvent.suggestCommand("/eklentiler")))
+         .build();
+     private static final JoinConfiguration PLAYER_JOIN_CONFIGURATION = JoinConfiguration.separators(
+         Component.text(", ", NamedTextColor.WHITE),
+-        Component.text(", and ", NamedTextColor.WHITE)
++        Component.text(" ve ", NamedTextColor.WHITE)
+     );
+-    private static final Component FAILED_TO_FETCH = Component.text("Could not fetch version information!", NamedTextColor.RED);
+-    private static final Component FETCHING = Component.text("Checking version, please wait...", NamedTextColor.WHITE, TextDecoration.ITALIC);
++    private static final Component FAILED_TO_FETCH = Component.text("Surum bilgisi alinamadi!", NamedTextColor.RED);
++    private static final Component FETCHING = Component.text("Surum denetleniyor, lutfen bekle...", NamedTextColor.WHITE, TextDecoration.ITALIC);
+ 
+     private final VersionFetcher versionFetcher = InternalAPIBridge.get().getVersionFetcher();
+     private CompletableFuture<ComputedVersion> computedVersion = CompletableFuture.completedFuture(new ComputedVersion(Component.empty(), -1)); // Precompute-- someday move that stuff out of bukkit
+@@ -97,7 +97,7 @@ public class PaperVersionCommand {
+ 
+         final TextComponent.Builder builder = Component.text()
+             .append(Component.text(meta.getName()))
+-            .append(Component.text(" version "))
++            .append(Component.text(" surum "))
+             .append(Component.text(meta.getVersion(), NamedTextColor.GREEN)
+                 .hoverEvent(Component.translatable("chat.copy.click"))
+                 .clickEvent(ClickEvent.copyToClipboard(meta.getVersion()))
+@@ -111,16 +111,16 @@ public class PaperVersionCommand {
+ 
+         if (meta.getWebsite() != null) {
+             Component websiteComponent = Component.text(meta.getWebsite(), NamedTextColor.GREEN).clickEvent(ClickEvent.openUrl(meta.getWebsite()));
+-            builder.appendNewline().append(Component.text("Website: ").append(websiteComponent));
++            builder.appendNewline().append(Component.text("Site: ").append(websiteComponent));
+         }
+ 
+         if (!meta.getAuthors().isEmpty()) {
+-            String prefix = meta.getAuthors().size() == 1 ? "Author: " : "Authors: ";
++            String prefix = meta.getAuthors().size() == 1 ? "Yazar: " : "Yazarlar: ";
+             builder.appendNewline().append(Component.text(prefix).append(formatNameList(meta.getAuthors())));
+         }
+ 
+         if (!meta.getContributors().isEmpty()) {
+-            builder.appendNewline().append(Component.text("Contributors: ").append(formatNameList(meta.getContributors())));
++            builder.appendNewline().append(Component.text("Katkida bulunanlar: ").append(formatNameList(meta.getContributors())));
+         }
+         sender.sendMessage(builder.build());
+     }
+@@ -145,7 +145,7 @@ public class PaperVersionCommand {
+                 sender.sendMessage(computedVersion.message);
+             } else if (throwable != null) {
+                 sender.sendMessage(FAILED_TO_FETCH);
+-                MinecraftServer.LOGGER.warn("Could not fetch version information!", throwable);
++                MinecraftServer.LOGGER.warn("Surum bilgisi alinamadi!", throwable);
+             }
+         });
+     }
+diff --git a/src/main/java/io/papermc/paper/plugin/PluginInitializerManager.java b/src/main/java/io/papermc/paper/plugin/PluginInitializerManager.java
+index 5741a60faba70da485053599c9370f0e27e868f4..30022efadf1deda6663401892a5d9ae8d5009369 100644
+--- a/src/main/java/io/papermc/paper/plugin/PluginInitializerManager.java
++++ b/src/main/java/io/papermc/paper/plugin/PluginInitializerManager.java
+@@ -49,9 +49,9 @@ public class PluginInitializerManager {
+         final Path resolvedUpdateDirectory = pluginDirectory.resolve(updateDirectoryName);
+         if (!Files.isDirectory(resolvedUpdateDirectory)) {
+             if (Files.exists(resolvedUpdateDirectory)) {
+-                LOGGER.error("Misconfigured update directory!");
+-                LOGGER.error("Your configured update directory ({}) in bukkit.yml is pointing to a non-directory path. " +
+-                    "Auto updating functionality will not work.", resolvedUpdateDirectory);
++                LOGGER.error("Eklenti guncelleme klasoru hatali!");
++                LOGGER.error("bukkit.yml icindeki guncelleme klasoru ({}) klasor olmayan bir yola isaret ediyor. " +
++                    "Otomatik guncelleme calismayacak.", resolvedUpdateDirectory);
+             }
+             return new PluginInitializerManager(pluginDirectory, null);
+         }
+@@ -60,15 +60,15 @@ public class PluginInitializerManager {
+         try {
+             isSameFile = Files.isSameFile(resolvedUpdateDirectory, pluginDirectory);
+         } catch (final IOException e) {
+-            LOGGER.error("Misconfigured update directory!");
+-            LOGGER.error("Failed to compare update/plugin directory", e);
++            LOGGER.error("Eklenti guncelleme klasoru hatali!");
++            LOGGER.error("Guncelleme ve eklenti klasorleri karsilastirilamadi", e);
+             return new PluginInitializerManager(pluginDirectory, null);
+         }
+ 
+         if (isSameFile) {
+-            LOGGER.error("Misconfigured update directory!");
+-            LOGGER.error(("Your configured update directory (%s) in bukkit.yml is pointing to the same location as the plugin directory (%s). " +
+-                "Disabling auto updating functionality.").formatted(resolvedUpdateDirectory, pluginDirectory));
++            LOGGER.error("Eklenti guncelleme klasoru hatali!");
++            LOGGER.error(("bukkit.yml icindeki guncelleme klasoru (%s), eklenti klasoruyle (%s) ayni yere isaret ediyor. " +
++                "Otomatik guncelleme kapatiliyor.").formatted(resolvedUpdateDirectory, pluginDirectory));
+ 
+             return new PluginInitializerManager(pluginDirectory, null);
+         }
+@@ -96,7 +96,7 @@ public class PluginInitializerManager {
+     }
+ 
+     public static void load(OptionSet optionSet) throws Exception {
+-        LOGGER.info("Initializing plugins...");
++        LOGGER.info("Eklentiler baslatiliyor...");
+         // We have to load the bukkit configuration inorder to get the update folder location.
+         io.papermc.paper.plugin.PluginInitializerManager pluginSystem = io.papermc.paper.plugin.PluginInitializerManager.init(optionSet);
+ 
+@@ -124,19 +124,19 @@ public class PluginInitializerManager {
+             });
+         });
+         final int total = paperPluginNames.size() + legacyPluginNames.size();
+-        LOGGER.info("Initialized {} plugin{}", total, total == 1 ? "" : "s");
++        LOGGER.info("{} eklenti hazir.", total);
+         if (!paperPluginNames.isEmpty()) {
+             if (LOGGER.isDebugEnabled()) {
+-                LOGGER.info("Paper plugins ({}):\n - {}", paperPluginNames.size(), String.join("\n - ", paperPluginNames));
++                LOGGER.info("Paper uyumlu eklentiler ({}):\n - {}", paperPluginNames.size(), String.join("\n - ", paperPluginNames));
+             } else {
+-                LOGGER.info("Paper plugins ({}):\n - {}", paperPluginNames.size(), String.join(", ", paperPluginNames));
++                LOGGER.info("Paper uyumlu eklentiler ({}):\n - {}", paperPluginNames.size(), String.join(", ", paperPluginNames));
+             }
+         }
+         if (!legacyPluginNames.isEmpty()) {
+             if (LOGGER.isDebugEnabled()) {
+-                LOGGER.info("Bukkit plugins ({}):\n - {}", legacyPluginNames.size(), String.join("\n - ", legacyPluginNames));
++                LOGGER.info("Bukkit/Spigot uyumlu eklentiler ({}):\n - {}", legacyPluginNames.size(), String.join("\n - ", legacyPluginNames));
+             } else {
+-                LOGGER.info("Bukkit plugins ({}):\n - {}", legacyPluginNames.size(), String.join(", ", legacyPluginNames));
++                LOGGER.info("Bukkit/Spigot uyumlu eklentiler ({}):\n - {}", legacyPluginNames.size(), String.join(", ", legacyPluginNames));
+             }
+         }
+     }
+@@ -148,7 +148,7 @@ public class PluginInitializerManager {
+         try {
+             load(dedicatedServer.options);
+         } catch (Exception e) {
+-            throw new RuntimeException("Failed to reload!", e);
++            throw new RuntimeException("Yeniden yukleme basarisiz!", e);
+         }
+ 
+         boolean hasPaperPlugin = false;
+@@ -160,9 +160,9 @@ public class PluginInitializerManager {
+         }
+ 
+         if (hasPaperPlugin) {
+-            LOGGER.warn("======== WARNING ========");
+-            LOGGER.warn("You are reloading while having Paper plugins installed on your server.");
+-            LOGGER.warn("Paper plugins do NOT support being reloaded. This will cause some unexpected issues.");
++            LOGGER.warn("======== UYARI ========");
++            LOGGER.warn("Sunucuda Paper eklentileri varken yeniden yukleme yapiyorsun.");
++            LOGGER.warn("Paper eklentileri yeniden yuklemeyi desteklemez. Beklenmeyen sorunlar olusabilir.");
+             LOGGER.warn("=========================");
+         }
+     }
+diff --git a/src/main/java/io/papermc/paper/world/migration/LegacyCraftBukkitWorldMigration.java b/src/main/java/io/papermc/paper/world/migration/LegacyCraftBukkitWorldMigration.java
+index ba24fda2395f07cdb3d1c0c66811dfd4a5b81533..6d9bee2dfe73480fc74c3da63bcf7f3712d19498 100644
+--- a/src/main/java/io/papermc/paper/world/migration/LegacyCraftBukkitWorldMigration.java
++++ b/src/main/java/io/papermc/paper/world/migration/LegacyCraftBukkitWorldMigration.java
+@@ -72,7 +72,7 @@ final class LegacyCraftBukkitWorldMigration {
+     }
+ 
+     private void run() throws IOException {
+-        LOGGER.info("Starting legacy CraftBukkit import for world '{}' ({})", this.context.worldName(), this.context.dimensionKey().identifier());
++        LOGGER.info("Eski CraftBukkit dunya aktarimi basladi: '{}' ({})", this.context.worldName(), this.context.dimensionKey().identifier());
+         try (final var sourceAccess = this.context.rootAccess().parent().createAccess(this.context.worldName())) {
+             Files.createDirectories(this.targetDataRoot);
+ 
+@@ -86,7 +86,7 @@ final class LegacyCraftBukkitWorldMigration {
+ 
+             final var levelDataResult = WorldMigrationSupport.readFixedLevelData(sourceAccess);
+             if (levelDataResult.fatalError()) {
+-                throw new IOException("Failed to read level data for world migration");
++                throw new IOException("Dunya tasimasi icin level verisi okunamadi");
+             }
+ 
+             this.sourceDataRoots = this.locateSavedDataRoots();
+@@ -97,7 +97,7 @@ final class LegacyCraftBukkitWorldMigration {
+             tempStorage.saveAndJoin();
+         }
+         deleteMigratedSeparateRoot(this.sourceRoot);
+-        LOGGER.info("Completed legacy CraftBukkit import for world '{}' ({})", this.context.worldName(), this.context.dimensionKey().identifier());
++        LOGGER.info("Eski CraftBukkit dunya aktarimi tamamlandi: '{}' ({})", this.context.worldName(), this.context.dimensionKey().identifier());
+     }
+ 
+     private void migrateSharedSavedData() throws IOException {
+diff --git a/src/main/java/io/papermc/paper/world/migration/VanillaWorldMigration.java b/src/main/java/io/papermc/paper/world/migration/VanillaWorldMigration.java
+index 00ab529b50f3cd8b5e0b3256d500e00066ade762..a2614eaf4e8d226b5f00fa197b5ef1071ada0d98 100644
+--- a/src/main/java/io/papermc/paper/world/migration/VanillaWorldMigration.java
++++ b/src/main/java/io/papermc/paper/world/migration/VanillaWorldMigration.java
+@@ -36,10 +36,10 @@ final class VanillaWorldMigration {
+     }
+ 
+     static void migrate(final WorldMigrationContext context) throws IOException {
+-        LOGGER.info("Starting Vanilla import for world '{}' ({})", context.worldName(), context.dimensionKey().identifier());
++        LOGGER.info("Vanilla dunya aktarimi basladi: '{}' ({})", context.worldName(), context.dimensionKey().identifier());
+         final var levelDataResult = WorldMigrationSupport.readFixedLevelData(context.rootAccess());
+         if (levelDataResult.fatalError()) {
+-            throw new IOException("Failed to read level data for world migration");
++            throw new IOException("Dunya tasimasi icin level verisi okunamadi");
+         }
+ 
+         final boolean rootOwnsThisWorld = context.dimensionKey() == Level.OVERWORLD;
+@@ -53,7 +53,7 @@ final class VanillaWorldMigration {
+         createLevelOverrides(context, levelDataResult.dataTag());
+         migrateLegacyPdc(context, levelDataResult.dataTag());
+ 
+-        LOGGER.info("Completed Vanilla import for world '{}' ({})", context.worldName(), context.dimensionKey().identifier());
++        LOGGER.info("Vanilla dunya aktarimi tamamlandi: '{}' ({})", context.worldName(), context.dimensionKey().identifier());
+     }
+ 
+     private static void migrateSavedData(final WorldMigrationContext context) throws IOException {
+diff --git a/src/main/java/io/papermc/paper/world/migration/WorldFolderMigration.java b/src/main/java/io/papermc/paper/world/migration/WorldFolderMigration.java
+index 77fb09a15bcefaeb5016fcda53cd6a0c9e604ef8..19ad9d7433e1eec2d735fc28304249d23c4e83b6 100644
+--- a/src/main/java/io/papermc/paper/world/migration/WorldFolderMigration.java
++++ b/src/main/java/io/papermc/paper/world/migration/WorldFolderMigration.java
+@@ -66,22 +66,22 @@ public final class WorldFolderMigration {
+             return;
+         }
+         startupMigrationWarningShown = true;
+-        LOGGER.warn("===================== ! ALERT ! =====================");
+-        LOGGER.warn("World storage migration is required during startup.");
+-        LOGGER.warn("If you do not have a backup: interrupt the server now. Use Ctrl+C, your panel kill function, etc.");
++        LOGGER.warn("===================== ! UYARI ! =====================");
++        LOGGER.warn("Acilista dunya depolama tasimasi gerekiyor.");
++        LOGGER.warn("Yedegin yoksa sunucuyu simdi durdur. Ctrl+C, panel durdurma dugmesi veya benzeri bir yontem kullan.");
+         LOGGER.warn("=====================================================");
+-        LOGGER.warn("Continuing in 30 seconds...");
++        LOGGER.warn("30 saniye sonra devam edilecek...");
+         if (DISABLE_MIGRATION_DELAY) {
+-            LOGGER.warn("Migration delay disabled by system property.");
++            LOGGER.warn("Dunya tasima beklemesi sistem ozelligiyle kapatildi.");
+         } else {
+             try {
+                 Thread.sleep(30_000L);
+             } catch (final InterruptedException ex) {
+                 Thread.currentThread().interrupt();
+-                throw new RuntimeException("Interrupted while waiting before startup world migration", ex);
++                throw new RuntimeException("Baslangic dunya tasimasi beklenirken islem kesildi", ex);
+             }
+         }
+-        LOGGER.info("Continuing with startup world migration.");
++        LOGGER.info("Baslangic dunya tasimasina devam ediliyor.");
+     }
+ 
+     private static MigrationMode classifyStartupMigration(final WorldMigrationContext context) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java b/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
+index 3a7dbc219d470082f07ad24e9072557452433c67..0021408e2fa10c7941925aca11fd77d05e19b961 100644
+--- a/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
++++ b/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
+@@ -261,7 +261,7 @@ public final class CraftLegacy {
+ 
+     static {
+         if (!org.purpurmc.purpur.PurpurConfig.loggerSuppressInitLegacyMaterialError) // Purpur - Logger settings (suppressing pointless logs)
+-        LOGGER.warn("Initializing Legacy Material Support. Unless you have legacy plugins and/or data this is a bug!"); // Paper - Improve logging and errors; doesn't need to be an error
++        LOGGER.warn("Eski Material uyumlulugu baslatiliyor. Eski eklenti veya veri kullanmiyorsan bu beklenmeyen bir durumdur!"); // Paper - Improve logging and errors; doesn't need to be an error
+         if (MinecraftServer.getServer() != null && MinecraftServer.getServer().isDebugging()) {
+             new Exception().printStackTrace();
+         }

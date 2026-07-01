@@ -1,0 +1,61 @@
+# This is the Bukkit commands configuration file for Paper.
+#
+# If you need help with the configuration or have any questions related to Paper,
+# join us in our Discord or check the docs page.
+#
+# File Reference: https://docs.papermc.io/paper/reference/bukkit-commands-configuration/
+# Docs: https://docs.papermc.io/
+# Discord: https://discord.gg/papermc
+# Website: https://papermc.io/
+
+command-block-overrides: []
+ignore-vanilla-permissions: false
+aliases:
+  yardim:
+  - help $1-
+  surum:
+  - version $1-
+  eklentiler:
+  - plugins $1-
+  oyuncular:
+  - list $1-
+  durdur:
+  - stop $1-
+  kaydet:
+  - save-all $1-
+  kayitkapat:
+  - save-off $1-
+  kayitac:
+  - save-on $1-
+  beyazliste:
+  - whitelist $1-
+  yasakla:
+  - ban $1-
+  yasakip:
+  - ban-ip $1-
+  affet:
+  - pardon $1-
+  affetip:
+  - pardon-ip $1-
+  at:
+  - kick $1-
+  yetkiver:
+  - op $1-
+  yetkial:
+  - deop $1-
+  oyunmodu:
+  - gamemode $1-
+  isinla:
+  - tp $1-
+  ver:
+  - give $1-
+  zaman:
+  - time $1-
+  hava:
+  - weather $1-
+  zorluk:
+  - difficulty $1-
+  dogusnoktasi:
+  - spawnpoint $1-
+  yenidenyukle:
+  - reload $1-

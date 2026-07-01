@@ -1,0 +1,15 @@
+name: Upstream Check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+jobs:
+  upstream-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check upstream versions
+        shell: pwsh
+        run: ./tools/check-upstream.ps1 -Version 26.2

@@ -1,0 +1,3 @@
+﻿HonorMC dunya dosyalarini bu klasor altinda tutar.
+
+Varsayilan ana dunya adi: ana-dunya

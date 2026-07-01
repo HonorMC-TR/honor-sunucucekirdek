@@ -31,12 +31,14 @@ if (!file(".git").exists()) {
     error(errorText)
 }
 
-rootProject.name = "purpur"
+rootProject.name = "honormc"
 for (name in listOf("purpur-api", "purpur-server")) {
     val projName = name.lowercase(Locale.ENGLISH)
     include(projName)
     findProject(":$projName")!!.projectDir = file(name)
 }
+
+include("honormc-baslatici")
 
 optionalInclude("test-plugin")
 

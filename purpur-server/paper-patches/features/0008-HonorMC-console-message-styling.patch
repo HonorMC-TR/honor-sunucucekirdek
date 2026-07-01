@@ -1,0 +1,215 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Wed, 1 Jul 2026 16:09:07 +0300
+Subject: [PATCH] HonorMC console message styling
+
+
+diff --git a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..7c7c8aa3a0426466dd0278928745d323addd5179
+--- /dev/null
++++ b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java
+@@ -0,0 +1,85 @@
++package io.papermc.paper.console;
++
++import org.apache.logging.log4j.Level;
++import org.apache.logging.log4j.Marker;
++import org.apache.logging.log4j.core.LogEvent;
++
++final class HonorMCConsoleStyles {
++    static final String CHAT_MARKER = "HONORMC_CHAT";
++
++    private static final String RESET = "\u001B[m";
++    private static final String GREEN = "\u001B[32m";
++    private static final String CYAN = "\u001B[36m";
++    private static final String CYAN_BOLD = "\u001B[36;1m";
++    private static final String YELLOW = "\u001B[33m";
++    private static final String YELLOW_BOLD = "\u001B[33;1m";
++    private static final String RED = "\u001B[31m";
++    private static final String RED_BOLD = "\u001B[31;1m";
++    private static final String BRIGHT_RED_BOLD = "\u001B[91;1m";
++    private static final String WHITE = "\u001B[37m";
++    private static final String DIM = "\u001B[90m";
++
++    private HonorMCConsoleStyles() {
++    }
++
++    static String label(final LogEvent event) {
++        if (isChat(event)) {
++            return "OYUNCU";
++        }
++
++        final Level level = event.getLevel();
++        return switch (level.getStandardLevel()) {
++            case FATAL -> "KRITIK";
++            case ERROR -> "HATA";
++            case WARN -> "UYARI";
++            case INFO -> "BILGI";
++            case DEBUG -> "DEBUG";
++            case TRACE -> "TRACE";
++            default -> level.name();
++        };
++    }
++
++    static String coloredLabel(final LogEvent event) {
++        return labelColor(event) + "[" + label(event) + "]" + RESET;
++    }
++
++    static String messageColor(final LogEvent event) {
++        if (isChat(event)) {
++            return CYAN;
++        }
++
++        return switch (event.getLevel().getStandardLevel()) {
++            case FATAL, ERROR -> RED;
++            case WARN -> YELLOW;
++            case INFO -> WHITE;
++            case DEBUG -> CYAN;
++            case TRACE -> DIM;
++            default -> WHITE;
++        };
++    }
++
++    static String reset() {
++        return RESET;
++    }
++
++    private static String labelColor(final LogEvent event) {
++        if (isChat(event)) {
++            return CYAN_BOLD;
++        }
++
++        return switch (event.getLevel().getStandardLevel()) {
++            case FATAL -> BRIGHT_RED_BOLD;
++            case ERROR -> RED_BOLD;
++            case WARN -> YELLOW_BOLD;
++            case INFO -> GREEN;
++            case DEBUG -> CYAN;
++            case TRACE -> DIM;
++            default -> WHITE;
++        };
++    }
++
++    private static boolean isChat(final LogEvent event) {
++        final Marker marker = event.getMarker();
++        return marker != null && (CHAT_MARKER.equals(marker.getName()) || marker.isInstanceOf(CHAT_MARKER));
++    }
++}
+diff --git a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCLevelConverter.java b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCLevelConverter.java
+index 7c524089b66cbf30ad615c5804a27af75c1f9059..516fbc3f1d275b91f0562d9dc70ec4bea9874650 100644
+--- a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCLevelConverter.java
++++ b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCLevelConverter.java
+@@ -1,6 +1,5 @@
+ package io.papermc.paper.console;
+ 
+-import org.apache.logging.log4j.Level;
+ import org.apache.logging.log4j.core.LogEvent;
+ import org.apache.logging.log4j.core.config.plugins.Plugin;
+ import org.apache.logging.log4j.core.pattern.ConverterKeys;
+@@ -10,29 +9,19 @@ import org.apache.logging.log4j.core.pattern.PatternConverter;
+ @Plugin(name = "honormcLevel", category = PatternConverter.CATEGORY)
+ @ConverterKeys({"honormcLevel"})
+ public final class HonorMCLevelConverter extends LogEventPatternConverter {
++    private final boolean color;
+ 
+-    private HonorMCLevelConverter() {
++    private HonorMCLevelConverter(final boolean color) {
+         super("honormcLevel", null);
++        this.color = color;
+     }
+ 
+     @Override
+     public void format(final LogEvent event, final StringBuilder toAppendTo) {
+-        toAppendTo.append(toHonorMCLevel(event.getLevel()));
+-    }
+-
+-    private static String toHonorMCLevel(final Level level) {
+-        return switch (level.getStandardLevel()) {
+-            case FATAL -> "KRITIK";
+-            case ERROR -> "HATA";
+-            case WARN -> "UYARI";
+-            case INFO -> "BILGI";
+-            case DEBUG -> "DEBUG";
+-            case TRACE -> "TRACE";
+-            default -> level.name();
+-        };
++        toAppendTo.append(this.color ? HonorMCConsoleStyles.coloredLabel(event) : HonorMCConsoleStyles.label(event));
+     }
+ 
+     public static HonorMCLevelConverter newInstance(final String[] options) {
+-        return new HonorMCLevelConverter();
++        return new HonorMCLevelConverter(options.length > 0 && "color".equalsIgnoreCase(options[0]));
+     }
+ }
+diff --git a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..2e7a3d9c2b4d4c2e23cd516540b2c76df7f35bfa
+--- /dev/null
++++ b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java
+@@ -0,0 +1,48 @@
++package io.papermc.paper.console;
++
++import java.util.List;
++import org.apache.logging.log4j.core.LogEvent;
++import org.apache.logging.log4j.core.config.Configuration;
++import org.apache.logging.log4j.core.config.plugins.Plugin;
++import org.apache.logging.log4j.core.layout.PatternLayout;
++import org.apache.logging.log4j.core.pattern.ConverterKeys;
++import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
++import org.apache.logging.log4j.core.pattern.PatternConverter;
++import org.apache.logging.log4j.core.pattern.PatternFormatter;
++import org.apache.logging.log4j.core.pattern.PatternParser;
++
++@Plugin(name = "honormcMessage", category = PatternConverter.CATEGORY)
++@ConverterKeys({"honormcMessage"})
++public final class HonorMCMessageConverter extends LogEventPatternConverter {
++    private final List<PatternFormatter> formatters;
++
++    private HonorMCMessageConverter(final List<PatternFormatter> formatters) {
++        super("honormcMessage", null);
++        this.formatters = formatters;
++    }
++
++    @Override
++    public void format(final LogEvent event, final StringBuilder toAppendTo) {
++        final int start = toAppendTo.length();
++        for (final PatternFormatter formatter : this.formatters) {
++            formatter.format(event, toAppendTo);
++        }
++
++        final String content = toAppendTo.substring(start);
++        toAppendTo.setLength(start);
++        toAppendTo
++            .append(HonorMCConsoleStyles.messageColor(event))
++            .append(content)
++            .append(HonorMCConsoleStyles.reset());
++    }
++
++    public static HonorMCMessageConverter newInstance(final Configuration config, final String[] options) {
++        if (options.length != 1) {
++            LOGGER.error("honormcMessage icin hatali secenek sayisi. Beklenen: 1, gelen: " + options.length);
++            return null;
++        }
++
++        final PatternParser parser = PatternLayout.createPatternParser(config);
++        return new HonorMCMessageConverter(parser.parse(options[0]));
++    }
++}
+diff --git a/src/main/resources/log4j2.xml b/src/main/resources/log4j2.xml
+index da1656240385338268035981230bd35ebf382138..f67ad0cd6a509b125976f96fdf5139746ebc2750 100644
+--- a/src/main/resources/log4j2.xml
++++ b/src/main/resources/log4j2.xml
+@@ -15,11 +15,11 @@
+         </Queue>
+         <TerminalConsole name="TerminalConsole">
+             <PatternLayout disableAnsi="false" noConsoleNoAnsi="false">
+-                <LoggerNamePatternSelector defaultPattern="%style{[%d{HH:mm:ss}]}{bright_black} %highlight{[%honormcLevel]}{FATAL=bright_red bold, ERROR=bright_red bold, WARN=yellow bold, INFO=green, DEBUG=cyan, TRACE=bright_black} %style{[%logger]}{blue}: %msg%n%xEx{full}">
++                <LoggerNamePatternSelector defaultPattern="%style{[%d{HH:mm:ss}]}{bright_black} %honormcLevel{color} %style{[%logger]}{blue}: %honormcMessage{%msg%n%xEx{full}}">
+                     <!-- Log root, Minecraft, Mojang and Bukkit loggers without prefix -->
+                     <!-- Disable prefix for various plugins that bypass the plugin logger -->
+                     <PatternMatch key=",net.minecraft.,Minecraft,com.mojang.,com.sk89q.,ru.tehkode.,Minecraft.AWE"
+-                                  pattern="%style{[%d{HH:mm:ss}]}{bright_black} %highlight{[%honormcLevel]}{FATAL=bright_red bold, ERROR=bright_red bold, WARN=yellow bold, INFO=green, DEBUG=cyan, TRACE=bright_black}: %msg%n%xEx{full}" />
++                                  pattern="%style{[%d{HH:mm:ss}]}{bright_black} %honormcLevel{color}: %honormcMessage{%msg%n%xEx{full}}" />
+                 </LoggerNamePatternSelector>
+             </PatternLayout>
+         </TerminalConsole>

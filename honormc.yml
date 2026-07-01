@@ -1,0 +1,64 @@
+﻿project:
+  name: HonorMC
+  type: minecraft-server-core
+  language: tr-TR
+  first_target: 26.2
+  current_phase: alpha
+
+upstream:
+  project: purpur
+  minecraft_version: 26.2
+  purpur_latest_build_checked: 2603
+  paper_channel_checked: ALPHA
+  checked_at: 2026-06-30
+
+compatibility:
+  priority:
+    - Paper plugin API
+    - Purpur plugin API
+    - Spigot/Bukkit plugin API
+  rule: "Eklenti uyumlulugunu bozan optimizasyonlar varsayilan olarak kapali gelmelidir."
+
+distribution:
+  clean_root: build/honormc-dagitim
+  jar_path: cekirdek/Honor-*.jar
+  plugin_directory: eklentiler
+  world_directory: dunyalar
+  main_world: ana-dunya
+  settings_directory: ayarlar
+  command_settings: komutlar.yml
+  launcher:
+    - BASLAT.ps1
+    - BASLAT.bat
+
+logging:
+  default_profile: balanced
+  user_selectable: true
+  profiles:
+    quiet:
+      console_min_level: WARN
+      show_plugin_enable_lines: false
+      show_chunk_noise: false
+    balanced:
+      console_min_level: INFO
+      show_plugin_enable_lines: true
+      show_chunk_noise: false
+    diagnostic:
+      console_min_level: DEBUG
+      show_plugin_enable_lines: true
+      show_chunk_noise: true
+
+release:
+  jar_name_pattern: "Honor-<minecraft-surumu>.jar"
+  github_artifact: HonorMC
+  update_check: github-actions-and-upstream-api
+
+license:
+  model: derivative-fork
+  upstream_notice_required: true
+  project_identity:
+    - Turkish launcher
+    - Turkish distribution layout
+    - Turkish command aliases
+    - HonorMC profiles
+    - HonorMC documentation

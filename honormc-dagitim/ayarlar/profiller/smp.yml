@@ -1,0 +1,11 @@
+﻿# HonorMC SMP profili.
+
+profil: smp
+hedef: "Vanilla davranisa yakin, dengeli performans."
+onerilen:
+  view-distance: 8
+  simulation-distance: 6
+  online-mode: true
+risk:
+  eklenti_uyumlulugu: dusuk
+  oyun_davranisi: dusuk

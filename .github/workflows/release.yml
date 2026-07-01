@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "Honor-*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Manuel yayında kullanılacak sürüm etiketi (ornek: Honor-26.2)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GIT_AUTHOR_NAME: HonorMC Builder
+      GIT_AUTHOR_EMAIL: builder@honormc.local
+      GIT_COMMITTER_NAME: HonorMC Builder
+      GIT_COMMITTER_EMAIL: builder@honormc.local
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: gradle
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Configure Git
+        run: git config --global user.email "no-reply@github.com" && git config --global user.name "Github Actions"
+
+      - name: Yayın etiketini belirle
+        id: release_info
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG_NAME="${{ github.event.inputs.version }}"
+          else
+            TAG_NAME="${GITHUB_REF_NAME}"
+          fi
+          if [[ "${TAG_NAME}" != Honor-* ]]; then
+            echo "Etiket formatı gecersiz. Beklenen: Honor-X.Y" >&2
+            exit 1
+          fi
+          if [ -z "$TAG_NAME" ]; then
+            echo "release etiketi belirlenemedi." >&2
+            exit 1
+          fi
+          VERSION="${TAG_NAME#Honor-}"
+          {
+            echo "tag_name=$TAG_NAME"
+            echo "minecraft_version=$VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Turkish release notlari hazirla
+        run: |
+          VERSION="${{ steps.release_info.outputs.minecraft_version }}"
+          REPO="HonorMC-TR/honor-sunucucekirdek"
+          TAG="${{ steps.release_info.outputs.tag_name }}"
+          JAR_ASSET="Honor-${VERSION}.jar"
+          ZIP_ASSET="Honor-${VERSION}-dagitim.zip"
+          JAR_URL="https://github.com/${REPO}/releases/download/${TAG}/${JAR_ASSET}"
+          ZIP_URL="https://github.com/${REPO}/releases/download/${TAG}/${ZIP_ASSET}"
+          cat <<EOF > release-notes.md
+          # HonorMC ${VERSION}
+          
+          ## Indirme seçenekleri
+          - [Sunucu çekirdeği JAR](${JAR_URL}) (`${JAR_ASSET}`)
+          - [Dağıtım paketi ZIP](${ZIP_URL}) (`${ZIP_ASSET}`)
+          
+          ## Yapilanlar
+          - Performans ve stabilite için temel başlangıç düzenlemeleri güncellendi.
+          - Türkçe sunucu başlangıç mesajları ve konsol uyarıları optimize edildi.
+          - Sürüm kontrol sistemi `HonorMC-TR/honor-sunucucekirdek` deposuna bağlı çalışacak şekilde güncellendi.
+          - Dağıtım paketi: `Honor-${VERSION}.jar` ve `Honor-${VERSION}-dagitim.zip`
+
+          ## Notlar
+          - Bu sürüm, eski `Purpur/Paper` temelli çekirdek üzerinde yeniden marka ve denetim uyarlaması içerir.
+          EOF
+
+      - name: Apply Patches
+        run: ./gradlew applyAllPatches --stacktrace
+
+      - name: Package HonorMC
+        run: ./gradlew packageHonorMCJar paketleHonorMCDagitim zipHonorMCDagitim --stacktrace
+
+      - name: Publish HonorMC Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "HonorMC ${{ steps.release_info.outputs.tag_name }}"
+          tag_name: "${{ steps.release_info.outputs.tag_name }}"
+          files: |
+            build/honormc/Honor-*.jar
+            build/honormc/Honor-*-dagitim.zip
+          body_path: release-notes.md

@@ -1,8 +1,6 @@
 package org.purpurmc.purpur;
 
-import com.destroystokyo.paper.VersionHistoryManager;
 import com.destroystokyo.paper.util.VersionFetcher;
-import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -14,8 +12,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.OptionalInt;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -25,7 +21,6 @@ import org.checkerframework.framework.qual.DefaultQualifier;
 import org.slf4j.Logger;
 
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.format.TextColor.color;
 import static io.papermc.paper.ServerBuildInfo.StringRepresentation.VERSION_SIMPLE;
 
 /**
@@ -36,15 +31,17 @@ public class PurpurVersionFetcher implements VersionFetcher {
     private static final Logger LOGGER = LogUtils.getClassLogger();
     private static final int DISTANCE_ERROR = -1;
     private static final int DISTANCE_UNKNOWN = -2;
-    private static final String DOWNLOAD_PAGE = "https://purpurmc.org/downloads";
-    private static final String REPOSITORY = "PurpurMC/Purpur";
+    private static final String REPOSITORY = "HonorMC-TR/honor-sunucucekirdek";
+    private static final String RELEASES_PAGE = "https://github.com/" + REPOSITORY + "/releases";
+    private static final String LATEST_RELEASE_API = "https://api.github.com/repos/" + REPOSITORY + "/releases/latest";
+    private static final String RELEASE_TAG_PREFIX = "Honor-";
     private static final ServerBuildInfo BUILD_INFO;
     private static final String USER_AGENT;
     private static final Gson GSON = new Gson();
 
     static {
         BUILD_INFO = ServerBuildInfo.buildInfo();
-        USER_AGENT = BUILD_INFO.brandName() + "/" + BUILD_INFO.asString(VERSION_SIMPLE) + " (https://purpurmc.org)";
+        USER_AGENT = BUILD_INFO.brandName() + "/" + BUILD_INFO.asString(VERSION_SIMPLE) + " (HonorMC)";
     }
 
     private static int distance = DISTANCE_UNKNOWN;
@@ -59,99 +56,74 @@ public class PurpurVersionFetcher implements VersionFetcher {
 
     @Override
     public Component getVersionMessage() {
-        final Component updateMessage;
-        if (BUILD_INFO.buildNumber().isEmpty() && BUILD_INFO.gitCommit().isEmpty()) {
-            updateMessage = text("You are running a development version without access to version information", color(0xFF5300));
-        } else {
-            updateMessage = getUpdateStatusMessage();
-        }
-        final @Nullable Component history = this.getHistory();
-
-        return history != null ? Component.textOfChildren(updateMessage, Component.newline(), history) : updateMessage;
+        return getUpdateStatusMessage();
     }
 
     private static Component getUpdateStatusMessage() {
-        final OptionalInt buildNumber = BUILD_INFO.buildNumber();
-        if (buildNumber.isPresent()) {
-            distance = fetchDistanceFromSiteApi(buildNumber.getAsInt());
-        } else {
-            final Optional<String> gitBranch = BUILD_INFO.gitBranch();
-            final Optional<String> gitCommit = BUILD_INFO.gitCommit();
-            if (gitBranch.isPresent() && gitCommit.isPresent()) {
-                distance = fetchDistanceFromGitHub(gitBranch.get(), gitCommit.get());
-            }
-        }
-
-        return switch (distance) {
-            case DISTANCE_ERROR -> text("* Error obtaining version information", NamedTextColor.RED);
-            case 0 -> text("* You are running the latest version", NamedTextColor.GREEN);
-            case DISTANCE_UNKNOWN -> text("* Unknown version", NamedTextColor.YELLOW);
-            default -> text("* You are " + distance + " version(s) behind", NamedTextColor.YELLOW)
+        final String localTag = localReleaseTag();
+        final @Nullable ReleaseInfo latestRelease = fetchLatestRelease();
+        if (latestRelease == null || latestRelease.tagName == null || latestRelease.tagName.isBlank()) {
+            distance = DISTANCE_ERROR;
+            return text("* HonorMC GitHub release bilgisi alinamadi.", NamedTextColor.RED)
                 .append(Component.newline())
-                .append(text("Download the new version at: ")
-                    .append(text(DOWNLOAD_PAGE, NamedTextColor.GOLD)
-                        .hoverEvent(text("Click to open", NamedTextColor.WHITE))
-                        .clickEvent(ClickEvent.openUrl(DOWNLOAD_PAGE))));
-        };
-    }
-
-    private static int fetchDistanceFromSiteApi(final int jenkinsBuild) {
-        try {
-            try (final BufferedReader reader = Resources.asCharSource(
-                URI.create("https://api.purpurmc.org/v2/purpur/" + BUILD_INFO.minecraftVersionId()).toURL(),
-                StandardCharsets.UTF_8
-            ).openBufferedStream()) {
-                final JsonObject json = new Gson().fromJson(reader, JsonObject.class);
-                final int latest = json.getAsJsonObject("builds").getAsJsonPrimitive("latest").getAsInt();
-                return latest - jenkinsBuild;
-            } catch (final JsonSyntaxException ex) {
-                LOGGER.error("Error parsing json from Purpur's downloads API", ex);
-                return DISTANCE_ERROR;
-            }
-        } catch (final IOException e) {
-            LOGGER.error("Error while parsing version", e);
-            return DISTANCE_ERROR;
+                .append(text("Kontrol edilen repo: " + REPOSITORY, NamedTextColor.GRAY));
         }
+
+        if (latestRelease.tagName.equalsIgnoreCase(localTag)) {
+            distance = 0;
+            return text("* HonorMC guncel: " + localTag, NamedTextColor.GREEN);
+        }
+
+        distance = 1;
+        final String releaseUrl = latestRelease.htmlUrl != null && !latestRelease.htmlUrl.isBlank()
+            ? latestRelease.htmlUrl
+            : RELEASES_PAGE;
+        return text("* Yeni HonorMC release'i var: " + latestRelease.tagName, NamedTextColor.YELLOW)
+            .append(Component.newline())
+            .append(text("Yerel surum: " + localTag, NamedTextColor.GRAY))
+            .append(Component.newline())
+            .append(text("Indirme: ")
+                .append(text(releaseUrl, NamedTextColor.GOLD)
+                    .hoverEvent(text("Ac", NamedTextColor.WHITE))
+                    .clickEvent(ClickEvent.openUrl(releaseUrl))));
     }
 
-    // Contributed by Techcable <Techcable@outlook.com> in PaperMC/Paper GH-65
-    private static int fetchDistanceFromGitHub(final String branch, final String hash) {
+    private static String localReleaseTag() {
+        return RELEASE_TAG_PREFIX + BUILD_INFO.minecraftVersionId();
+    }
+
+    private static @Nullable ReleaseInfo fetchLatestRelease() {
         try {
-            final HttpURLConnection connection = (HttpURLConnection) URI.create("https://api.github.com/repos/%s/compare/%s...%s".formatted(REPOSITORY, branch, hash)).toURL().openConnection();
+            final HttpURLConnection connection = (HttpURLConnection) URI.create(LATEST_RELEASE_API).toURL().openConnection();
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
+            connection.setRequestProperty("Accept", "application/vnd.github+json");
             connection.setRequestProperty("User-Agent", USER_AGENT);
             connection.connect();
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) return DISTANCE_UNKNOWN; // Unknown commit
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                LOGGER.debug("HonorMC release bilgisi alinamadi. HTTP {}", connection.getResponseCode());
+                return null;
+            }
+
             try (final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-                final JsonObject obj = GSON.fromJson(reader, JsonObject.class);
-                final String status = obj.get("status").getAsString();
-                return switch (status) {
-                    case "identical" -> 0;
-                    case "behind" -> obj.get("behind_by").getAsInt();
-                    default -> DISTANCE_ERROR;
-                };
+                final JsonObject json = GSON.fromJson(reader, JsonObject.class);
+                final String tagName = json.has("tag_name") && !json.get("tag_name").isJsonNull()
+                    ? json.get("tag_name").getAsString()
+                    : null;
+                final String htmlUrl = json.has("html_url") && !json.get("html_url").isJsonNull()
+                    ? json.get("html_url").getAsString()
+                    : RELEASES_PAGE;
+                return new ReleaseInfo(tagName, htmlUrl);
             } catch (final JsonSyntaxException | NumberFormatException e) {
-                LOGGER.error("Error parsing json from GitHub's API", e);
-                return DISTANCE_ERROR;
+                LOGGER.error("HonorMC GitHub release bilgisi okunamadi", e);
+                return null;
             }
         } catch (final IOException e) {
-            LOGGER.error("Error while parsing version", e);
-            return DISTANCE_ERROR;
+            LOGGER.error("HonorMC surum denetimi yapilamadi", e);
+            return null;
         }
     }
 
-    private @Nullable Component getHistory() {
-        final VersionHistoryManager.@Nullable VersionData data = VersionHistoryManager.INSTANCE.getVersionData();
-        if (data == null) {
-            return null;
-        }
-
-        final @Nullable String oldVersion = data.getOldVersion();
-        if (oldVersion == null) {
-            return null;
-        }
-
-        return text("Previous: " + oldVersion, NamedTextColor.GRAY);
+    private record ReleaseInfo(@Nullable String tagName, @Nullable String htmlUrl) {
     }
 }

@@ -1,0 +1,33 @@
+﻿# HonorMC ana ayar sozlesmesi.
+# Bu dosya HonorMC'nin Turkce kullanici yuzeyi icindir.
+
+surum: 1
+dil: tr-TR
+
+klasorler:
+  cekirdek: cekirdek
+  eklentiler: eklentiler
+  dunyalar: dunyalar
+  ayarlar: ayarlar
+  kayitlar: kayitlar
+  yedekler: yedekler
+
+komutlar:
+  turkce_aliaslar: true
+  ayar_dosyasi: komutlar.yml
+
+log:
+  profil: sade
+  secenekler:
+    - sade
+    - detayli
+  zorunlu_hatalari_saklama: false
+
+performans:
+  profil: smp
+  agresif_optimizasyonlar: false
+
+uyumluluk:
+  paper_eklentileri: true
+  purpur_eklentileri: true
+  bukkit_spigot_eklentileri: true

@@ -1,0 +1,3 @@
+Yedekler icin ayrilan klasor.
+
+Otomatik yedekleme baslatici veya yonetim uygulamasi fazinda eklenecek.

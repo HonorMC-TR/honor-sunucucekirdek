@@ -1,3 +1,157 @@
+﻿# HonorMC
+
+HonorMC, Turkiye odakli, Turkce dokumantasyonlu, performans profilli ve temiz Minecraft sunucu cekirdegi/ekosistemi hedefidir. Ilk teknik taban Paper/Purpur eklenti uyumlulugunu korumak icin Purpur `26.2` forkudur.
+
+Bu depo su anda HonorMC'nin ilk alpha omurgasidir:
+
+- `Honor-<surum>.jar` paketleme gorevi: `./gradlew packageHonorMCJar`
+- Temiz Turkce dagitim paketi: `./gradlew paketleHonorMCDagitim`
+- HonorMC Baslatici MVP: `./gradlew :honormc-baslatici:jar`
+- Upstream kontrol scripti: `powershell -ExecutionPolicy Bypass -File ./tools/check-upstream.ps1 -Version 26.2`
+- Release artifact akisi: `.github/workflows/build.yml`
+- Teknik kararlar: `docs/TEKNIK-KARARLAR.md`
+- Yol haritasi: `docs/YOL-HARITASI.md`
+- HonorMC ekosistem stratejisi: `docs/HONORMC-EKOSISTEM-STRATEJISI.md`
+- HonorMC baslatici dokumani: `docs/HONORMC-BASLATICI.md`
+
+HonorMC; Paper, Purpur, Spigot ve Bukkit eklenti uyumlulugunu ilk oncelik kabul eder. Cekirdek ici agresif optimizasyonlar, eklenti uyumlulugu riskine gore kademeli ve secilebilir sekilde gelecektir.
+
+## Hizli Build
+
+```powershell
+$env:GIT_AUTHOR_NAME='HonorMC Builder'
+$env:GIT_AUTHOR_EMAIL='builder@honormc.local'
+$env:GIT_COMMITTER_NAME='HonorMC Builder'
+$env:GIT_COMMITTER_EMAIL='builder@honormc.local'
+./gradlew applyAllPatches
+./gradlew packageHonorMCJar
+```
+
+Windows yerel script politikasi `.ps1` calistirmayi engellerse:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ./tools/check-upstream.ps1 -Version 26.2
+```
+
+Cikti: `build/honormc/Honor-26.2.jar`
+
+Temiz dagitim paketi:
+
+```powershell
+./gradlew paketleHonorMCDagitim zipHonorMCDagitim
+```
+
+Cikti:
+
+- `build/honormc-dagitim`
+- `build/honormc/Honor-26.2-dagitim.zip`
+
+## Sürüm Yayimlama (GitHub Release)
+
+HonorMC yayinini tag ile otomatik cikarmak için:
+
+```powershell
+git tag Honor-26.2
+git push origin Honor-26.2
+```
+
+Release workflow’u dosyalari otomatik olarak yukleyecek:
+- `build/honormc/Honor-26.2.jar`
+- `build/honormc/Honor-26.2-dagitim.zip`
+
+Manuel çalıştırma icin:
+
+```powershell
+gh workflow run release.yml --ref main -f version=Honor-26.2
+```
+
+Not: Yuksek test/kararlilik icin her surumde release etiketi ile birikirken `release.yml` acik sekilde çalışir.
+
+### Hızlı yayın scripti (önerilen)
+
+PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ./tools/honormc-yayin-hazirla.ps1 -Version Honor-26.2
+```
+
+### Yayinlama is akisi (Hazir paket)
+
+1) release etiketi ver:
+
+```powershell
+git tag Honor-26.2
+git push origin Honor-26.2
+```
+
+2) workflow release notunu onayla:
+
+Release açıldığında başlık: `HonorMC Honor-26.2`  
+Dosyalar:  
+- `Honor-26.2.jar`  
+- `Honor-26.2-dagitim.zip`
+
+3) beklenen örnek release notu:
+
+```text
+# HonorMC 26.2
+## Yapilanlar
+- Performans ve stabilite için temel başlangıç düzenlemeleri guncellendi.
+- Turkce sunucu başlangıç mesajları ve konsol uyarıları optimize edildi.
+- Surum kontrol sistemi `HonorMC-TR/honor-sunucucekirdek` deposuna bağlı çalışacak şekilde guncellendi.
+- Dagitim paketi: `Honor-26.2.jar` ve `Honor-26.2-dagitim.zip`
+
+## Notlar
+- Bu surum, eski `Purpur/Paper` temelli cekirdek üzerinde yeniden marka ve denetim uyarlamasi içerir.
+```
+
+### Sunucu içinde surum kontrolunu doğrulama
+
+Sunucuda `/version` ya da `/surum` çalıştırıp asagidakine benzer ciktiyi bekleyin:
+
+```text
+Surum denetleniyor, lutfen bekle...
+HonorMC surumu: 26.2 (Minecraft 26.2, API 26.2.local-SNAPSHOT, cekirdek HonorMC)
+* HonorMC guncel: Honor-26.2
+```
+
+Yeni release varsa son satır:
+
+```text
+* Yeni HonorMC release'i var: Honor-26.3
+Yerel surum: Honor-26.2
+Indirme: https://github.com/HonorMC-TR/honor-sunucucekirdek/releases/latest
+```
+
+Kontrol listeni:
+- Etikette `Honor-` öneki var mı?
+- Çıkışta `kontrol edilen repo` satırında `HonorMC-TR/honor-sunucucekirdek` görünüyor mu?
+- İndirime ait URL açıldığında release sayfası `HonorMC-TR/honor-sunucucekirdek` repo sayfasını gösteriyor mu?
+
+## GitHub Proje Sayfası
+
+Proje sayfasını yönetmek için:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ./tools/honormc-github-sayfa-ayarla.ps1
+```
+
+Komutlar sizi:
+- Repo açıklaması
+- Proje ana sayfası linki
+- Anahtar kelimeler (topics)
+- Web sitesi bağlantısı
+alanlarını güncellemeye yardımcı olur.
+
+Proje sayfasının içerik dosyası:
+- [docs/proje-sayfasi.md](docs/proje-sayfasi.md)
+
+## Upstream Atfi
+
+HonorMC, Purpur/Paper altyapisindan tureyen bir fork olarak baslar. Purpur, Paper, Spigot, Bukkit ve Mojang/Minecraft ile ilgili lisans ve EULA sinirlari korunmalidir. Asagidaki bolumler upstream Purpur README iceriginden gelir.
+
+---
+
 <div align="center">
 
 <a href="https://purpurmc.org">
@@ -153,3 +307,4 @@ software so we can make Purpur the best it can be.
 ### Our Backers
 
 [![Sponsors](https://purpurmc.org/svg?type=opencollective&size=64&gap=4&cols=10)](https://opencollective.com/purpurmc)
+

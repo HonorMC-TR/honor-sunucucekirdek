@@ -1,0 +1,11 @@
+﻿# HonorMC BoxPvP profili.
+
+profil: boxpvp
+hedef: "Dusuk gecikme ve savas odakli stabil tick."
+onerilen:
+  view-distance: 6
+  simulation-distance: 4
+  spawn-protection: 0
+risk:
+  eklenti_uyumlulugu: dusuk
+  oyun_davranisi: orta

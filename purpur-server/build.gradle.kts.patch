@@ -76,34 +76,40 @@
      // Deps that were previously in the API but have now been moved here for backwards compat, eventually to be removed
      runtimeOnly("commons-lang:commons-lang:2.6")
      runtimeOnly("org.xerial:sqlite-jdbc:3.49.1.0")
-@@ -164,21 +_,21 @@
+@@ -164,22 +_,23 @@
          val git = Git(rootProject.layout.projectDirectory.path)
          val mcVersion = rootProject.providers.gradleProperty("mcVersion").get()
-         val build = System.getenv("BUILD_NUMBER") ?: null
+-        val build = System.getenv("BUILD_NUMBER") ?: null
 -        val buildTime = providers.environmentVariable("BUILD_STARTED_AT").map(Instant::parse).orElse(Instant.EPOCH).get()
++        val build = System.getenv("BUILD_NUMBER") ?: rootProject.providers.gradleProperty("honorMCBuildNumber").orNull
 +        val buildTime = if (build != null) Instant.now() else Instant.EPOCH // Purpur
          val gitHash = git.exec(providers, "rev-parse", "--short=7", "HEAD").get().trim()
-         val implementationVersion = "$mcVersion-${build ?: "DEV"}-$gitHash"
+-        val implementationVersion = "$mcVersion-${build ?: "DEV"}-$gitHash"
++        val implementationVersion = "$mcVersion-${build ?: "DEV"}"
          val date = git.exec(providers, "show", "-s", "--format=%ci", gitHash).get().trim()
-         val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
+-        val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
++        val gitBranch = rootProject.providers.gradleProperty("honorMCGitBranch").orElse("").get()
++        val gitCommit = rootProject.providers.gradleProperty("honorMCGitCommit").orElse("").get()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
 -            "Implementation-Title" to "Paper",
-+            "Implementation-Title" to "Purpur", // Purpur
++            "Implementation-Title" to "HonorMC", // HonorMC
              "Implementation-Version" to implementationVersion,
              "Implementation-Vendor" to date,
 -            "Specification-Title" to "Paper",
-+            "Specification-Title" to "Purpur", // Purpur
++            "Specification-Title" to "HonorMC", // HonorMC
              "Specification-Version" to project.version,
 -            "Specification-Vendor" to "Paper Team",
 -            "Brand-Id" to "papermc:paper",
 -            "Brand-Name" to "Paper",
-+            "Specification-Vendor" to "Purpur Team", // Purpur
-+            "Brand-Id" to "purpurmc:purpur", // Purpur
-+            "Brand-Name" to "Purpur", // Purpur
++            "Specification-Vendor" to "HonorMC", // HonorMC
++            "Brand-Id" to "honormc:honormc", // HonorMC
++            "Brand-Name" to "HonorMC", // HonorMC
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
              "Git-Branch" to gitBranch,
+-            "Git-Commit" to gitHash,
++            "Git-Commit" to gitCommit,
 @@ -237,7 +_,7 @@
      jvmArgumentProviders.add(provider)
  }

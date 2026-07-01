@@ -1,0 +1,1223 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Wed, 1 Jul 2026 16:09:30 +0300
+Subject: [PATCH] HonorMC Turkish console runtime messages
+
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index b14f5a39446ad2b277eb32ffc2d0e758dbd58038..b09ff4306cf2f1f256a463f5d47ab2416cc5bcf0 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -193,6 +193,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     private static MinecraftServer SERVER; // Paper
+     public static final Logger LOGGER = LogUtils.getLogger();
+     public static final net.kyori.adventure.text.logger.slf4j.ComponentLogger COMPONENT_LOGGER = net.kyori.adventure.text.logger.slf4j.ComponentLogger.logger(LOGGER.getName()); // Paper
++    private static final org.slf4j.Marker HONORMC_CHAT_MARKER = org.slf4j.MarkerFactory.getMarker("HONORMC_CHAT"); // HonorMC - classify player chat in console
+     public static final String VANILLA_BRAND = "vanilla";
+     private static final float AVERAGE_TICK_TIME_SMOOTHING = 0.8F;
+     private static final int TICK_STATS_SPAN = 100;
+@@ -300,7 +301,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public static <S extends MinecraftServer> S spin(final Function<Thread, S> factory) {
+         AtomicReference<S> serverReference = new AtomicReference<>();
+         Thread thread = new ca.spottedleaf.moonrise.common.util.TickThread(() -> serverReference.get().runServer(), "Server thread");
+-        thread.setUncaughtExceptionHandler((t, e) -> LOGGER.error("Uncaught exception in server thread", e));
++        thread.setUncaughtExceptionHandler((t, e) -> LOGGER.error("Sunucu is parcaciginda yakalanmayan hata olustu", e));
+         thread.setPriority(Thread.NORM_PRIORITY + 2); // Paper - Perf: Boost priority
+         if (Runtime.getRuntime().availableProcessors() > 4) {
+             thread.setPriority(8);
+@@ -500,18 +501,18 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+     @Override
+     public final void moonrise$issueEmergencySave() {
+-        LOGGER.warn("Performing emergency save...");
+-        LOGGER.info("Saving all players...");
++        LOGGER.warn("Acil kayit baslatiliyor...");
++        LOGGER.info("Tum oyuncular kaydediliyor...");
+         this.getPlayerList().saveAll();
+-        LOGGER.info("Saved all players");
+-        LOGGER.info("Saving all worlds...");
++        LOGGER.info("Tum oyuncular kaydedildi");
++        LOGGER.info("Tum dunyalar kaydediliyor...");
+         for (final ServerLevel world : this.getAllLevels()) {
+-            LOGGER.info("Saving chunks in world '" + ca.spottedleaf.moonrise.common.util.WorldUtil.getWorldName(world) + "'...");
++            LOGGER.info("'" + ca.spottedleaf.moonrise.common.util.WorldUtil.getWorldName(world) + "' dunyasinin chunk verileri kaydediliyor...");
+             ((ca.spottedleaf.moonrise.patches.chunk_system.level.ChunkSystemServerLevel)world).moonrise$issueEmergencySave();
+-            LOGGER.info("Saved chunks in world '" + ca.spottedleaf.moonrise.common.util.WorldUtil.getWorldName(world) + "'...");
++            LOGGER.info("'" + ca.spottedleaf.moonrise.common.util.WorldUtil.getWorldName(world) + "' dunyasinin chunk verileri kaydedildi...");
+         }
+-        LOGGER.info("Saved all worlds");
+-        LOGGER.warn("Performed emergency save");
++        LOGGER.info("Tum dunyalar kaydedildi");
++        LOGGER.warn("Acil kayit tamamlandi");
+     }
+     // Paper end - rewrite chunk system
+ 
+@@ -628,7 +629,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             try {
+                 JvmProfiler.INSTANCE.stop();
+             } catch (Throwable t) {
+-                LOGGER.warn("Failed to stop JFR profiling", t);
++                LOGGER.warn("JFR profil kaydi durdurulamadi", t);
+             }
+         }
+     }
+@@ -944,7 +945,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+         for (ServerLevel level : this.getAllLevels()) {
+             if (!silent) {
+-                LOGGER.info("Saving chunks for level '{}'/{}", level, level.dimension().identifier());
++                LOGGER.info("Dunya chunk verileri kaydediliyor: '{}'/{}", level, level.dimension().identifier());
+             }
+ 
+             level.save(null, flush, SharedConstants.DEBUG_DONT_SAVE_WORLD || level.noSave && !force, close); // Paper - add close param
+@@ -956,10 +957,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         if (flush) {
+             for (ServerLevel level : this.getAllLevels()) {
+                 String storageName = level.getChunkSource().chunkMap.getStorageName();
+-                LOGGER.info("ThreadedAnvilChunkStorage ({}): All chunks are saved", LEGACY_WORLD_NAMES_FOR_REALMS_LOG.getOrDefault(storageName, storageName));
++                LOGGER.info("Chunk depolama ({}): Tum chunk verileri kaydedildi", LEGACY_WORLD_NAMES_FOR_REALMS_LOG.getOrDefault(storageName, storageName));
+             }
+ 
+-            LOGGER.info("ThreadedAnvilChunkStorage: All dimensions are saved");
++            LOGGER.info("Chunk depolama: Tum boyutlar kaydedildi");
+         }
+ 
+         return result;
+@@ -1023,14 +1024,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             this.cancelRecordingMetrics();
+         }
+ 
+-        LOGGER.info("Stopping server");
++        LOGGER.info("Sunucu kapatiliyor");
+         Commands.COMMAND_SENDING_POOL.shutdownNow(); // Paper - Perf: Async command map building; Shutdown and don't bother finishing
+         // Purpur start - UPnP Port Forwarding
+         if (upnp) {
+             if (dev.omega24.upnp4j.UPnP4J.close(this.getPort(), dev.omega24.upnp4j.util.Protocol.TCP)) {
+-                LOGGER.info("[UPnP] Port {} closed", this.getPort());
++                LOGGER.info("[UPnP] Port {} kapatildi", this.getPort());
+             } else {
+-                LOGGER.error("[UPnP] Failed to close port {}", this.getPort());
++                LOGGER.error("[UPnP] Port {} kapatilamadi", this.getPort());
+             }
+         }
+         // Purpur end - UPnP Port Forwarding
+@@ -1044,13 +1045,13 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         this.getConnection().stop();
+         this.isSaving = true;
+         if (this.playerList != null) {
+-            LOGGER.info("Saving players");
++            LOGGER.info("Oyuncular kaydediliyor");
+             this.playerList.saveAll();
+             this.playerList.removeAll(this.isRestarting); // Paper
+             try { Thread.sleep(100); } catch (InterruptedException ex) {} // CraftBukkit - SPIGOT-625 - give server at least a chance to send packets
+         }
+ 
+-        LOGGER.info("Saving worlds");
++        LOGGER.info("Dunyalar kaydediliyor");
+ 
+         for (ServerLevel level : this.getAllLevels()) {
+             if (level != null) {
+@@ -1085,7 +1086,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         try {
+             this.storageSource.close();
+         } catch (IOException e) {
+-            LOGGER.error("Failed to unlock level {}", this.storageSource.getLevelId(), e);
++            LOGGER.error("{} dunyasinin kilidi kaldirilamadi", this.storageSource.getLevelId(), e);
+         }
+         // Spigot start
+         io.papermc.paper.util.MCUtil.ASYNC_EXECUTOR.shutdown(); // Paper
+@@ -1093,14 +1094,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             io.papermc.paper.util.MCUtil.ASYNC_EXECUTOR.awaitTermination(30, java.util.concurrent.TimeUnit.SECONDS); // Paper
+         } catch (InterruptedException _) {} // Paper
+         if (org.spigotmc.SpigotConfig.saveUserCacheOnStopOnly) {
+-            LOGGER.info("Saving usercache.json");
++            LOGGER.info("usercache.json kaydediliyor");
+             this.services().nameToIdCache().save(false); // Paper - Perf: Async GameProfileCache saving
+         }
+         // Spigot end
+         // Paper start - rewrite chunk system
+-        LOGGER.info("Waiting for all RegionFile I/O tasks to complete...");
++        LOGGER.info("Tum RegionFile G/C gorevlerinin tamamlanmasi bekleniyor...");
+         ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO.flush((MinecraftServer)(Object)this);
+-        LOGGER.info("All RegionFile I/O tasks to complete");
++        LOGGER.info("Tum RegionFile G/C gorevleri tamamlandi");
+         if ((Object)this instanceof net.minecraft.server.dedicated.DedicatedServer) {
+             ca.spottedleaf.moonrise.common.util.MoonriseCommon.haltExecutors();
+         }
+@@ -1139,7 +1140,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             try {
+                 this.serverThread.join();
+             } catch (InterruptedException e) {
+-                LOGGER.error("Error while shutting down", e);
++                LOGGER.error("Sunucu kapatilirken hata olustu", e);
+             }
+         }
+     }
+@@ -1289,7 +1290,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             this.server.spark.enableBeforePlugins(); // Paper - spark
+             // Spigot start
+             // Paper start
+-            LOGGER.info("Running delayed init tasks");
++            LOGGER.info("Gecikmeli baslangic gorevleri calistiriliyor");
+             new io.papermc.paper.threadedregions.RegionizedServerInitEvent().callEvent(); // Call Folia init event
+             this.server.getScheduler().mainThreadHeartbeat(); // run all 1 tick delay tasks during init,
+             // this is going to be the first thing the tick process does anyway, so move done and run it after
+@@ -1297,16 +1298,16 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             // anything at 3+ won't be caught here but also will trip watchdog....
+             // tasks are default scheduled at -1 + delay, and first tick will tick at 1
+             final long actualDoneTimeMs = System.currentTimeMillis() - org.bukkit.craftbukkit.Main.BOOT_TIME.toEpochMilli(); // Paper - Improve startup message
+-            LOGGER.info("Done ({})! For help, type \"help\"", String.format(java.util.Locale.ROOT, "%.3fs", actualDoneTimeMs / 1000.00D)); // Paper - Improve startup message
++            LOGGER.info("Hazir ({})! Yardim icin \"help\" yaz", String.format(java.util.Locale.ROOT, "%.3fs", actualDoneTimeMs / 1000.00D)); // Paper - Improve startup message
+             org.spigotmc.WatchdogThread.tick();
+             // Paper end
+             org.spigotmc.WatchdogThread.hasStarted = true; // Paper
+             // Paper start - Add onboarding message for initial server start
+             if (io.papermc.paper.configuration.GlobalConfiguration.isFirstStart) {
+                 LOGGER.info("*************************************************************************************");
+-                LOGGER.info("This is the first time you're starting this server.");
+-                LOGGER.info("It's recommended you read our 'Getting Started' documentation for guidance.");
+-                LOGGER.info("View this and more helpful information here: https://docs.papermc.io/paper/next-steps");
++                LOGGER.info("Bu sunucuyu ilk kez baslatiyorsun.");
++                LOGGER.info("Baslamadan once temel kurulum notlarini okuman onerilir.");
++                LOGGER.info("Daha fazla bilgi: https://docs.papermc.io/paper/next-steps");
+                 LOGGER.info("*************************************************************************************");
+             }
+             // Paper end - Add onboarding message for initial server start
+@@ -1317,10 +1318,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             // Paper end - Improve outdated version checking
+ 
+             // Purpur start - config for startup commands
+-            if (!Boolean.getBoolean("Purpur.IReallyDontWantStartupCommands") && !org.purpurmc.purpur.PurpurConfig.startupCommands.isEmpty()) {
+-                LOGGER.info("Purpur: Running startup commands specified in purpur.yml.");
++            if (!Boolean.getBoolean("HonorMC.IReallyDontWantStartupCommands") && !Boolean.getBoolean("Purpur.IReallyDontWantStartupCommands") && !org.purpurmc.purpur.PurpurConfig.startupCommands.isEmpty()) {
++                LOGGER.info("HonorMC: Uyumluluk ayarindaki baslangic komutlari calistiriliyor.");
+                 for (final String startupCommand : org.purpurmc.purpur.PurpurConfig.startupCommands) {
+-                    LOGGER.info("Purpur: Running the following command: \"{}\"", startupCommand);
++                    LOGGER.info("HonorMC: Komut calistiriliyor: \"{}\"", startupCommand);
+                     ((net.minecraft.server.dedicated.DedicatedServer) this).handleConsoleInput(startupCommand, this.createCommandSourceStack());
+                 }
+             }
+@@ -1330,7 +1331,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 try {
+                     org.purpurmc.purpur.PurpurConfig.config.save((java.io.File) this.options.valueOf("purpur-settings"));
+                 } catch (IOException ex) {
+-                    org.bukkit.Bukkit.getLogger().log(java.util.logging.Level.SEVERE, "Could not save " + this.options.valueOf("purpur-settings"), ex);
++                    org.bukkit.Bukkit.getLogger().log(java.util.logging.Level.SEVERE, "Ayar dosyasi kaydedilemedi: " + this.options.valueOf("purpur-settings"), ex);
+                 }
+             }
+             // Purpur end - Migrate Setting to reintroduce end void rings
+@@ -1402,14 +1403,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 JvmProfiler.INSTANCE.onServerTick(this.smoothedTickTimeMillis);
+             }
+         } catch (Throwable t) {
+-            LOGGER.error("Encountered an unexpected exception", t);
++            LOGGER.error("Beklenmeyen bir hata olustu", t);
+             CrashReport report = constructOrExtractCrashReport(t);
+             this.fillSystemReport(report.getSystemReport());
+             Path file = this.getServerDirectory().resolve("crash-reports").resolve("crash-" + Util.getFilenameFormattedDateTime() + "-server.txt");
+             if (report.saveToFile(file, ReportType.CRASH)) {
+-                LOGGER.error("This crash report has been saved to: {}", file.toAbsolutePath());
++                LOGGER.error("Cokme raporu kaydedildi: {}", file.toAbsolutePath());
+             } else {
+-                LOGGER.error("We were unable to save this crash report to disk.");
++                LOGGER.error("Cokme raporu diske kaydedilemedi.");
+             }
+ 
+             this.onServerCrash(report);
+@@ -1418,7 +1419,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 this.stopped = true;
+                 this.stopServer();
+             } catch (Throwable t) {
+-                LOGGER.error("Exception stopping the server", t);
++                LOGGER.error("Sunucu durdurulurken hata olustu", t);
+             } finally {
+                 //this.onServerExit(); // Paper - Improved watchdog support; moved into stop
+             }
+@@ -1583,7 +1584,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                     throw new IllegalArgumentException("Invalid world icon size [" + pngInfo.width() + ", " + pngInfo.height() + "], but expected [64, 64]");
+                 }
+             } catch (Exception e) {
+-                LOGGER.error("Couldn't load server icon", e);
++                LOGGER.error("Sunucu ikonu yuklenemedi", e);
+                 return Optional.empty();
+             }
+         });
+@@ -1626,7 +1627,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             if (this.emptyTicks >= emptyTickThreshold) {
+                 this.server.spark.tickStart(); // Paper - spark
+                 if (this.emptyTicks == emptyTickThreshold) {
+-                    LOGGER.info("Server empty for {} seconds, pausing", this.pauseWhenEmptySeconds());
++                    LOGGER.info("Sunucu {} saniyedir bos, duraklatiliyor", this.pauseWhenEmptySeconds());
+                     this.autoSave();
+                 }
+ 
+@@ -2051,7 +2052,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+ 
+     protected void initializeKeyPair() {
+-        LOGGER.info("Generating keypair");
++        LOGGER.info("Anahtar cifti olusturuluyor");
+ 
+         try {
+             this.keyPair = Crypt.generateKeyPair();
+@@ -2406,7 +2407,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             if (packRepository.isAvailable(id)) {
+                 selected.add(id);
+             } else {
+-                LOGGER.warn("Missing data pack {}", id);
++                LOGGER.warn("Veri paketi eksik: {}", id);
+             }
+         }
+ 
+@@ -2417,11 +2418,11 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 boolean isSelected = selected.contains(packId);
+                 if (!isSelected && pack.getPackSource().shouldAddAutomatically()) {
+                     if (packFeatures.isSubsetOf(allowedFeatures)) {
+-                        LOGGER.info("Found new data pack {}, loading it automatically", packId);
++                        LOGGER.info("Yeni veri paketi bulundu: {}. Otomatik yukleniyor", packId);
+                         selected.add(packId);
+                     } else {
+                         LOGGER.info(
+-                            "Found new data pack {}, but can't load it due to missing features {}",
++                            "Yeni veri paketi bulundu: {}, fakat eksik ozellikler nedeniyle yuklenemiyor: {}",
+                             packId,
+                             FeatureFlags.printMissingFlags(allowedFeatures, packFeatures)
+                         );
+@@ -2430,7 +2431,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+                 if (isSelected && !packFeatures.isSubsetOf(allowedFeatures)) {
+                     LOGGER.warn(
+-                        "Pack {} requires features {} that are not enabled for this world, disabling pack.",
++                        "{} paketi bu dunya icin acik olmayan ozellikler istiyor: {}. Paket devre disi birakiliyor.",
+                         packId,
+                         FeatureFlags.printMissingFlags(allowedFeatures, packFeatures)
+                     );
+@@ -2440,7 +2441,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         }
+ 
+         if (selected.isEmpty()) {
+-            LOGGER.info("No datapacks selected, forcing vanilla");
++            LOGGER.info("Secili veri paketi yok, vanilla paketi zorunlu aciliyor");
+             selected.add("vanilla");
+         }
+ 
+@@ -2476,7 +2477,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                             throw new IllegalStateException("Tried to force '" + packId + "', but it was already enabled");
+                         }
+ 
+-                        LOGGER.info("Found feature pack ('{}') for requested feature, forcing to enabled", packId);
++                        LOGGER.info("Istenen ozellik icin paket bulundu ('{}'), zorunlu aciliyor", packId);
+                         missingFeatures = missingFeatures.subtract(packFeatures);
+                     }
+                 }
+@@ -2691,7 +2692,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             this.dumpServerProperties(output.resolve("server.properties.txt"));
+             this.dumpNativeModules(output.resolve("modules.txt"));
+         } catch (IOException e) {
+-            LOGGER.warn("Failed to save debug report", e);
++            LOGGER.warn("Hata ayiklama raporu kaydedilemedi", e);
+         }
+     }
+ 
+@@ -2751,7 +2752,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             try {
+                 modules = Lists.newArrayList(NativeModuleLister.listModules());
+             } catch (Throwable t) {
+-                LOGGER.warn("Failed to list native modules", t);
++                LOGGER.warn("Yerel moduller listelenemedi", t);
+                 return;
+             }
+ 
+@@ -2904,9 +2905,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         // Paper start
+         net.kyori.adventure.text.Component decoratedMessage = io.papermc.paper.adventure.PaperAdventure.asAdventure(chatType.decorate(message));
+         if (tag != null) {
+-            COMPONENT_LOGGER.info("[{}] {}", tag, decoratedMessage);
++            COMPONENT_LOGGER.info(HONORMC_CHAT_MARKER, "[{}] {}", tag, decoratedMessage);
+         } else {
+-            COMPONENT_LOGGER.info("{}", decoratedMessage);
++            COMPONENT_LOGGER.info(HONORMC_CHAT_MARKER, "{}", decoratedMessage);
+             // Paper end
+         }
+     }
+@@ -3021,7 +3022,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 FileStore fileStore = Files.getFileStore(debugDir);
+                 long remainingSpace = fileStore.getUsableSpace();
+                 if (remainingSpace < 8192L) {
+-                    LOGGER.warn("Not storing chunk IO report due to low space on drive {}", fileStore.name());
++                    LOGGER.warn("{} surucusunde alan az oldugu icin chunk G/C raporu saklanmiyor", fileStore.name());
+                     return;
+                 }
+ 
+@@ -3031,16 +3032,16 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 category.setDetail("Storage", storageInfo::type);
+                 category.setDetail("Position", pos::toString);
+                 report.saveToFile(reportFile, ReportType.CHUNK_IO_ERROR);
+-                LOGGER.info("Saved details to {}", report.getSaveFile());
++                LOGGER.info("Ayrintilar kaydedildi: {}", report.getSaveFile());
+             } catch (Exception e) {
+-                LOGGER.warn("Failed to store chunk IO exception", e);
++                LOGGER.warn("Chunk G/C hata raporu saklanamadi", e);
+             }
+         });
+     }
+ 
+     @Override
+     public void reportChunkLoadFailure(final Throwable throwable, final RegionStorageInfo storageInfo, final ChunkPos pos) {
+-        LOGGER.error("Failed to load chunk {},{}", pos.x(), pos.z(), throwable);
++        LOGGER.error("{},{} chunk verisi yuklenemedi", pos.x(), pos.z(), throwable);
+         this.suppressedExceptions.addEntry("chunk/load", throwable);
+         this.storeChunkIoError(CrashReport.forThrowable(throwable, "Chunk load failure"), pos, storageInfo);
+         this.warnOnLowDiskSpace();
+@@ -3048,7 +3049,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+     @Override
+     public void reportChunkSaveFailure(final Throwable throwable, final RegionStorageInfo storageInfo, final ChunkPos pos) {
+-        LOGGER.error("Failed to save chunk {},{}", pos.x(), pos.z(), throwable);
++        LOGGER.error("{},{} chunk verisi kaydedilemedi", pos.x(), pos.z(), throwable);
+         this.suppressedExceptions.addEntry("chunk/save", throwable);
+         this.storeChunkIoError(CrashReport.forThrowable(throwable, "Chunk save failure"), pos, storageInfo);
+         this.warnOnLowDiskSpace();
+@@ -3061,7 +3062,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+ 
+     public void sendLowDiskSpaceWarning() {
+-        LOGGER.warn("Low disk space! Might not be able to save the world.");
++        LOGGER.warn("Disk alani dusuk! Dunya kaydedilemeyebilir.");
+     }
+ 
+     public void reportPacketHandlingException(final Throwable throwable, final PacketType<?> packetType) {
+diff --git a/net/minecraft/server/ServerAdvancementManager.java b/net/minecraft/server/ServerAdvancementManager.java
+index c4737d3785a39f3d63639b1f7930ffe1d2e6246d..5ab55d7decb27e8e60d51cf605d1247ddbedd57b 100644
+--- a/net/minecraft/server/ServerAdvancementManager.java
++++ b/net/minecraft/server/ServerAdvancementManager.java
+@@ -46,7 +46,7 @@ public class ServerAdvancementManager extends SimpleJsonResourceReloadListener<A
+         this.advancements = builder.buildOrThrow();
+         AdvancementTree tree = new AdvancementTree();
+         tree.addAll(this.advancements.values());
+-        LOGGER.info("Loaded {} advancements", tree.nodes().size()); // Paper - Improve logging and errors; moved from AdvancementTree#addAll
++        LOGGER.info("{} ilerleme yuklendi", tree.nodes().size()); // Paper - Improve logging and errors; moved from AdvancementTree#addAll
+ 
+         for (AdvancementNode root : tree.roots()) {
+             if (root.holder().value().display().isPresent()) {
+@@ -61,7 +61,7 @@ public class ServerAdvancementManager extends SimpleJsonResourceReloadListener<A
+         ProblemReporter.Collector problemCollector = new ProblemReporter.Collector();
+         advancement.validate(problemCollector, this.registries);
+         if (!problemCollector.isEmpty()) {
+-            LOGGER.warn("Found validation problems in advancement {}: \n{}", id, problemCollector.getReport());
++            LOGGER.warn("{} ilerlemesinde dogrulama sorunlari bulundu: \n{}", id, problemCollector.getReport());
+         }
+     }
+ 
+diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
+index 9b198882584e7fd41b88e3a23c76f7230fc7db45..7be0fe92ef902cdd8f9bb995e798389046e54060 100644
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -183,7 +183,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+                         DedicatedServer.this.handleConsoleInput(line, DedicatedServer.this.createCommandSourceStack());
+                     }
+                 } catch (IOException e) {
+-                    DedicatedServer.LOGGER.error("Exception handling console input", e);
++            DedicatedServer.LOGGER.error("Exception handling console input", e);
+                 }
+                 */
+                 // Paper end - Use TerminalConsoleAppender
+@@ -205,22 +205,22 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         consoleThread.setDaemon(true);
+         consoleThread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+         // consoleThread.start(); // Paper - Enhance console tab completions for brigadier commands; moved down
+-        LOGGER.info("Starting minecraft server version {}", SharedConstants.getCurrentVersion().name());
++        LOGGER.info("Minecraft sunucu surumu baslatiliyor: {}", SharedConstants.getCurrentVersion().name());
+         if (Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
+-            LOGGER.warn("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
++            LOGGER.warn("Sunucuyu daha fazla RAM ile baslatmak icin \"java -Xmx1024M -Xms1024M -jar Honor-26.2.jar\" kullan.");
+         }
+ 
+         // Paper start - detect running as root
+         if (io.papermc.paper.util.ServerEnvironment.userIsRootOrAdmin()) {
+             LOGGER.warn("****************************");
+-            LOGGER.warn("YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.");
+-            LOGGER.warn("YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.");
+-            LOGGER.warn("FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/");
++            LOGGER.warn("Sunucuyu yonetici/root yetkisiyle calistiriyorsun. Bu onerilmez.");
++            LOGGER.warn("Bu sekilde calismak guvenlik risklerini artirir.");
++            LOGGER.warn("Detay: https://madelinemiller.dev/blog/root-minecraft-server/");
+             LOGGER.warn("****************************");
+         }
+         // Paper end - detect running as root
+ 
+-        LOGGER.info("Loading properties");
++        LOGGER.info("Sunucu ozellikleri yukleniyor");
+         DedicatedServerProperties properties = this.settings.getProperties();
+         if (this.isSingleplayer()) {
+             this.setLocalIp("127.0.0.1");
+@@ -239,7 +239,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         try {
+             org.purpurmc.purpur.PurpurConfig.init((java.io.File) options.valueOf("purpur-settings"));
+         } catch (Exception e) {
+-            DedicatedServer.LOGGER.error("Unable to load server configuration", e);
++            DedicatedServer.LOGGER.error("Sunucu ayarlari yuklenemedi", e);
+             return false;
+         }
+         org.purpurmc.purpur.PurpurConfig.registerCommands();
+@@ -272,17 +272,17 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
+ 
+         // this.worldData.setGameType(properties.gameMode.get()); // CraftBukkit - moved to world loading
+-        LOGGER.info("Default game type: {}", properties.gameMode.get());
++        LOGGER.info("Varsayilan oyun modu: {}", properties.gameMode.get());
+         // Paper start - Unix domain socket support
+         java.net.SocketAddress bindAddress;
+         if (this.getLocalIp().startsWith("unix:")) {
+             if (!io.netty.channel.epoll.Epoll.isAvailable()) {
+-                LOGGER.error("**** INVALID CONFIGURATION!");
+-                LOGGER.error("You are trying to use a Unix domain socket but you're not on a supported OS.");
++                LOGGER.error("**** GECERSIZ YAPILANDIRMA!");
++                LOGGER.error("Unix domain socket kullanmaya calisiyorsun; fakat isletim sistemi desteklenmiyor.");
+                 return false;
+             } else if (!io.papermc.paper.configuration.GlobalConfiguration.get().proxies.velocity.enabled && !org.spigotmc.SpigotConfig.bungee) {
+-                LOGGER.error("**** INVALID CONFIGURATION!");
+-                LOGGER.error("Unix domain sockets require IPs to be forwarded from a proxy.");
++                LOGGER.error("**** GECERSIZ YAPILANDIRMA!");
++                LOGGER.error("Unix domain socket icin IP bilgisinin proxy uzerinden iletilmesi gerekir.");
+                 return false;
+             }
+             bindAddress = new io.netty.channel.unix.DomainSocketAddress(this.getLocalIp().substring("unix:".length()));
+@@ -300,30 +300,30 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         // Paper end - Unix domain socket support
+ 
+         this.initializeKeyPair();
+-        LOGGER.info("Starting Minecraft server on {}:{}", this.getLocalIp().isEmpty() ? "*" : this.getLocalIp(), this.getPort());
++        LOGGER.info("Minecraft sunucusu {}:{} adresinde aciliyor", this.getLocalIp().isEmpty() ? "*" : this.getLocalIp(), this.getPort());
+ 
+         try {
+             this.getConnection().startTcpServerListener(bindAddress); // Paper - Unix domain socket support
+         } catch (IOException e) {
+-            LOGGER.warn("**** FAILED TO BIND TO PORT!");
+-            LOGGER.warn("The exception was: {}", e.toString());
+-            LOGGER.warn("Perhaps a server is already running on that port?");
++            LOGGER.warn("**** PORTA BAGLANILAMADI!");
++            LOGGER.warn("Hata: {}", e.toString());
++            LOGGER.warn("Bu portta zaten calisan bir sunucu olabilir.");
+             if (true) throw new IllegalStateException("Failed to bind to port", e); // Paper - Propagate failed to bind to port error
+             return false;
+         }
+         // Purpur start - UPnP Port Forwarding
+         if (org.purpurmc.purpur.PurpurConfig.useUPnP) {
+-            LOGGER.info("[UPnP] Attempting to start UPnP port forwarding service...");
++            LOGGER.info("[UPnP] Port yonlendirme servisi baslatiliyor...");
+             if (dev.omega24.upnp4j.UPnP4J.isUPnPAvailable()) {
+                 if (dev.omega24.upnp4j.UPnP4J.isOpen(this.getPort(), dev.omega24.upnp4j.util.Protocol.TCP)) {
+                     this.upnp = false;
+-                    LOGGER.info("[UPnP] Port {} is already open", this.getPort());
++                    LOGGER.info("[UPnP] Port {} zaten acik", this.getPort());
+                 } else if (dev.omega24.upnp4j.UPnP4J.open(this.getPort(), dev.omega24.upnp4j.util.Protocol.TCP)) {
+                     this.upnp = true;
+-                    LOGGER.info("[UPnP] Successfully opened port {}", this.getPort());
++                    LOGGER.info("[UPnP] Port {} acildi", this.getPort());
+                 } else {
+                     this.upnp = false;
+-                    LOGGER.info("[UPnP] Failed to open port {}", this.getPort());
++                    LOGGER.info("[UPnP] Port {} acilamadi", this.getPort());
+                 }
+ 
+                 if (upnp) {
+@@ -331,7 +331,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+                 }
+             } else {
+                 this.upnp = false;
+-                LOGGER.error("[UPnP] Service is unavailable");
++                LOGGER.error("[UPnP] Servis kullanilamiyor");
+             }
+         }
+         // Purpur end - UPnP Port Forwarding
+@@ -347,19 +347,19 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         String proxyLink = (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.velocity.enabled) ? "https://docs.papermc.io/velocity/security" : "http://www.spigotmc.org/wiki/firewall-guide/";
+         // Paper end - Add Velocity IP Forwarding Support
+         if (!this.usesAuthentication()) {
+-            LOGGER.warn("**** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!");
+-            LOGGER.warn("The server will make no attempt to authenticate usernames. Beware.");
++            LOGGER.warn("**** SUNUCU OFFLINE/GUVENSIZ MODDA CALISIYOR!");
++            LOGGER.warn("Sunucu kullanici adlarini Mojang uzerinden dogrulamayacak. Dikkatli ol.");
+             // Spigot start
+             // Paper start - Add Velocity IP Forwarding Support
+             if (usingProxy) {
+-                LOGGER.warn("Whilst this makes it possible to use {}, unless access to your server is properly restricted, it also opens up the ability for hackers to connect with any username they choose.", proxyFlavor);
+-                LOGGER.warn("Please see {} for further information.", proxyLink);
++                LOGGER.warn("{} kullanimi mumkun olur; fakat erisim dogru kisitlanmazsa kotu niyetli kisiler istedikleri adla baglanabilir.", proxyFlavor);
++                LOGGER.warn("Detay icin: {}", proxyLink);
+                 // Paper end - Add Velocity IP Forwarding Support
+             } else {
+-                LOGGER.warn("While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.");
++                LOGGER.warn("Internet olmadan oynamayi saglar; fakat kotu niyetli kisilere istedikleri adla baglanma imkani da verir.");
+             }
+             // Spigot end
+-            LOGGER.warn("To change this, set \"online-mode\" to \"true\" in the server.properties file.");
++            LOGGER.warn("Bunu degistirmek icin sunucu.properties icinde \"online-mode\" degerini \"true\" yap.");
+         }
+ 
+         // CraftBukkit start
+@@ -378,23 +378,23 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         this.tickTimeLogger = new RemoteSampleLogger(TpsDebugDimensions.values().length, this.debugSubscribers(), RemoteDebugSampleType.TICK_TIME);
+         long levelNanoTime = Util.getNanos();
+         this.services.nameToIdCache().resolveOfflineUsers(!this.usesAuthentication());
+-        LOGGER.info("Preparing level \"{}\"", this.getLevelIdName());
++        LOGGER.info("Dunya hazirlaniyor: \"{}\"", this.getLevelIdName());
+         this.loadLevel(this.storageSource.getLevelId()); // CraftBukkit
+         long elapsed = Util.getNanos() - levelNanoTime;
+         String time = String.format(Locale.ROOT, "%.3fs", elapsed / 1.0E9);
+-        LOGGER.info("Done preparing level \"{}\" ({})", this.getLevelIdName(), time); // Paper - Improve startup message, add total time
++        LOGGER.info("Dunya hazirlandi: \"{}\" ({})", this.getLevelIdName(), time); // Paper - Improve startup message, add total time
+         this.initPostWorld(); // Paper - don't include plugins in world preparation time
+         if (properties.announcePlayerAchievements != null) {
+             this.getAllLevels().forEach(l -> l.getGameRules().set(GameRules.SHOW_ADVANCEMENT_MESSAGES, properties.announcePlayerAchievements, this.overworld())); // Paper - per-world game rules
+         }
+ 
+         if (properties.enableQuery) {
+-            LOGGER.info("Starting GS4 status listener");
++            LOGGER.info("GS4 durum dinleyicisi baslatiliyor");
+             this.queryThreadGs4 = QueryThreadGs4.create(this);
+         }
+ 
+         if (properties.enableRcon) {
+-            LOGGER.info("Starting remote control listener");
++            LOGGER.info("Uzak konsol dinleyicisi baslatiliyor");
+             this.rconThread = RconThread.create(this);
+         }
+ 
+@@ -407,7 +407,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+ 
+         if (properties.enableJmxMonitoring) {
+             MinecraftServerStatistics.registerJmxMonitoring(this);
+-            LOGGER.info("JMX monitoring enabled");
++            LOGGER.info("JMX izleme acildi");
+         }
+ 
+         org.purpurmc.purpur.task.BossBarTask.startAll(); // Purpur - Implement TPSBar
+@@ -562,7 +562,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+             try {
+                 this.jsonRpcServer.stop(true);
+             } catch (InterruptedException e) {
+-                LOGGER.error("Interrupted while stopping the management server", e);
++                LOGGER.error("Yonetim sunucusu durdurulurken islem kesildi", e);
+             }
+         }
+ 
+@@ -581,19 +581,19 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+     public void handleConsoleInput(final String msg, final CommandSourceStack source) {
+         // Paper start - rewrite chunk system
+         if (msg.equalsIgnoreCase("paper debug chunks --async")) {
+-            LOGGER.info("Scheduling async debug chunks");
++            LOGGER.info("Async chunk hata ayiklama gorevi planlaniyor");
+             Runnable run = () -> {
+-                LOGGER.info("Async debug chunks executing");
++                LOGGER.info("Async chunk hata ayiklama gorevi calisiyor");
+                 ca.spottedleaf.moonrise.patches.chunk_system.scheduling.ChunkTaskScheduler.dumpAllChunkLoadInfo(this, false);
+                 org.bukkit.command.CommandSender sender = MinecraftServer.getServer().console;
+                 java.io.File file = ca.spottedleaf.moonrise.patches.chunk_system.scheduling.ChunkTaskScheduler.getChunkDebugFile();
+-                sender.sendMessage(net.kyori.adventure.text.Component.text("Writing chunk information dump to " + file, net.kyori.adventure.text.format.NamedTextColor.GREEN));
++                sender.sendMessage(net.kyori.adventure.text.Component.text("Chunk bilgi dokumu yaziliyor: " + file, net.kyori.adventure.text.format.NamedTextColor.GREEN));
+                 try {
+                     ca.spottedleaf.moonrise.common.util.JsonUtil.writeJson(ca.spottedleaf.moonrise.patches.chunk_system.scheduling.ChunkTaskScheduler.debugAllWorlds(this), file);
+-                    sender.sendMessage(net.kyori.adventure.text.Component.text("Successfully written chunk information!", net.kyori.adventure.text.format.NamedTextColor.GREEN));
++                    sender.sendMessage(net.kyori.adventure.text.Component.text("Chunk bilgisi basariyla yazildi!", net.kyori.adventure.text.format.NamedTextColor.GREEN));
+                 } catch (Throwable thr) {
+-                    MinecraftServer.LOGGER.warn("Failed to dump chunk information to file " + file.toString(), thr);
+-                    sender.sendMessage(net.kyori.adventure.text.Component.text("Failed to dump chunk information, see console", net.kyori.adventure.text.format.NamedTextColor.RED));
++                    MinecraftServer.LOGGER.warn("Chunk bilgisi dosyaya yazilamadi: " + file.toString(), thr);
++                    sender.sendMessage(net.kyori.adventure.text.Component.text("Chunk bilgisi yazilamadi, konsola bak", net.kyori.adventure.text.format.NamedTextColor.RED));
+                 }
+             };
+             Thread t = new Thread(run);
+@@ -828,7 +828,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+ 
+         for (int retries = 0; !userBanlistConverted && retries <= 2; retries++) {
+             if (retries > 0) {
+-                LOGGER.warn("Encountered a problem while converting the user banlist, retrying in a few seconds");
++                LOGGER.warn("Kullanici yasak listesi donusturulurken sorun olustu, birkac saniye sonra tekrar deneniyor");
+                 this.waitForRetry();
+             }
+ 
+@@ -839,7 +839,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+ 
+         for (int var7 = 0; !ipBanlistConverted && var7 <= 2; var7++) {
+             if (var7 > 0) {
+-                LOGGER.warn("Encountered a problem while converting the ip banlist, retrying in a few seconds");
++                LOGGER.warn("IP yasak listesi donusturulurken sorun olustu, birkac saniye sonra tekrar deneniyor");
+                 this.waitForRetry();
+             }
+ 
+@@ -850,7 +850,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+ 
+         for (int var8 = 0; !opListConverted && var8 <= 2; var8++) {
+             if (var8 > 0) {
+-                LOGGER.warn("Encountered a problem while converting the op list, retrying in a few seconds");
++                LOGGER.warn("Yetkili listesi donusturulurken sorun olustu, birkac saniye sonra tekrar deneniyor");
+                 this.waitForRetry();
+             }
+ 
+@@ -861,7 +861,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+ 
+         for (int var9 = 0; !whitelistConverted && var9 <= 2; var9++) {
+             if (var9 > 0) {
+-                LOGGER.warn("Encountered a problem while converting the whitelist, retrying in a few seconds");
++                LOGGER.warn("Beyaz liste donusturulurken sorun olustu, birkac saniye sonra tekrar deneniyor");
+                 this.waitForRetry();
+             }
+ 
+@@ -872,7 +872,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+ 
+         for (int var10 = 0; !playersConverted && var10 <= 2; var10++) {
+             if (var10 > 0) {
+-                LOGGER.warn("Encountered a problem while converting the player save files, retrying in a few seconds");
++                LOGGER.warn("Oyuncu kayit dosyalari donusturulurken sorun olustu, birkac saniye sonra tekrar deneniyor");
+                 this.waitForRetry();
+             }
+ 
+@@ -1072,7 +1072,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         try {
+             return Optional.of(Util.parseAndValidateUntrustedUri(bugReportLink));
+         } catch (Exception e) {
+-            LOGGER.warn("Failed to parse bug link {}", bugReportLink, e);
++            LOGGER.warn("Hata bildirim baglantisi okunamadi: {}", bugReportLink, e);
+             return Optional.empty();
+         }
+     }
+diff --git a/net/minecraft/server/level/progress/LoggingLevelLoadListener.java b/net/minecraft/server/level/progress/LoggingLevelLoadListener.java
+index abbd5a18ae10b3375de8abc0cbc644ba206c8c83..07e6b168a90203970879f3cf3ae86f93b6768f36 100644
+--- a/net/minecraft/server/level/progress/LoggingLevelLoadListener.java
++++ b/net/minecraft/server/level/progress/LoggingLevelLoadListener.java
+@@ -48,21 +48,21 @@ public class LoggingLevelLoadListener implements LevelLoadListener {
+                 case PREPARE_GLOBAL_SPAWN:
+                     // Paper start - log dimension
+                     if (this.level != null) {
+-                        LOGGER.info("Selecting spawn point for level '{}'...", this.level.dimension().identifier());
++                        LOGGER.info("Dunya icin dogma noktasi seciliyor: '{}'...", this.level.dimension().identifier());
+                     } else {
+-                    LOGGER.info("Selecting global world spawn...");
++                    LOGGER.info("Genel dunya dogma noktasi seciliyor...");
+                     }
+                     break;
+                 case LOAD_INITIAL_CHUNKS:
+                     if (this.level != null) {
+-                        LOGGER.info("Loading {} persistent chunks for level '{}'...", totalChunks, this.level.dimension().identifier());
++                        LOGGER.info("{} kalici chunk yukleniyor: '{}'...", totalChunks, this.level.dimension().identifier());
+                     } else {
+-                    LOGGER.info("Loading {} persistent chunks...", totalChunks);
++                    LOGGER.info("{} kalici chunk yukleniyor...", totalChunks);
+                     }
+                     // Paper end - log dimension
+                     break;
+                 case LOAD_PLAYER_CHUNKS:
+-                    LOGGER.info("Loading {} chunks for player spawn...", totalChunks);
++                    LOGGER.info("Oyuncu dogma alani icin {} chunk yukleniyor...", totalChunks);
+             }
+         }
+     }
+@@ -74,7 +74,7 @@ public class LoggingLevelLoadListener implements LevelLoadListener {
+             if (Util.getMillis() > this.nextLogTime) {
+                 this.nextLogTime += 500L;
+                 int percent = Mth.floor(this.progressTracker.get() * 100.0F);
+-                LOGGER.info(Component.translatable("menu.preparingSpawn", percent).getString());
++                LOGGER.info("Dogma alani hazirlaniyor: {}%", percent);
+             }
+         }
+     }
+@@ -87,7 +87,7 @@ public class LoggingLevelLoadListener implements LevelLoadListener {
+                 ? LevelLoadListener.Stage.LOAD_PLAYER_CHUNKS
+                 : LevelLoadListener.Stage.LOAD_INITIAL_CHUNKS;
+             if (stage == finalStage) {
+-                LOGGER.info("Prepared spawn area in {} ms", Util.getMillis() - this.startTime); // Paper
++                LOGGER.info("Dogma alani {} ms icinde hazirlandi", Util.getMillis() - this.startTime); // Paper
+                 this.nextLogTime = Long.MAX_VALUE;
+                 this.closed = true;
+             }
+diff --git a/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java b/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
+index f99c2b69ed8022914a18fd286274a67354ea82a2..6c02b2545dbfc20ae1ec5529dc186e2331f8af2e 100644
+--- a/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
+@@ -82,10 +82,10 @@ public class ServerConfigurationPacketListenerImpl extends ServerCommonPacketLis
+     public void onDisconnect(final DisconnectionDetails details) {
+         // Paper start - Debugging
+         if (this.server.isDebugging()) {
+-            ServerConfigurationPacketListenerImpl.LOGGER.info("{} ({}) lost connection: {}, while in configuration phase {}", this.gameProfile.name(), this.gameProfile.id(), details.reason().getString(), this.currentTask != null ? this.currentTask.type().id() : "null");
++            ServerConfigurationPacketListenerImpl.LOGGER.info("{} ({}) baglantiyi kaybetti: {}, ayarlama asamasi {}", this.gameProfile.name(), this.gameProfile.id(), details.reason().getString(), this.currentTask != null ? this.currentTask.type().id() : "null");
+         } else
+         // Paper end
+-        LOGGER.info("{} ({}) lost connection: {}", this.gameProfile.name(), this.gameProfile.id(), details.reason().getString());
++        LOGGER.info("{} ({}) baglantiyi kaybetti: {}", this.gameProfile.name(), this.gameProfile.id(), details.reason().getString());
+         if (this.prepareSpawnTask != null) {
+             this.prepareSpawnTask.close();
+             this.prepareSpawnTask = null;
+@@ -204,7 +204,7 @@ public class ServerConfigurationPacketListenerImpl extends ServerCommonPacketLis
+ 
+             Objects.requireNonNull(this.prepareSpawnTask).spawnPlayer(this.connection, this.createCookie(this.clientInformation));
+         } catch (Exception e) {
+-            LOGGER.error("Couldn't place player in world", e);
++            LOGGER.error("Oyuncu dunyaya yerlestirilemedi", e);
+             this.disconnect(DISCONNECT_REASON_INVALID_DATA);
+         }
+     }
+@@ -219,7 +219,7 @@ public class ServerConfigurationPacketListenerImpl extends ServerCommonPacketLis
+                     this.finishCurrentTask(task.type());
+                 }
+             } catch (Exception e) {
+-                LOGGER.error("Failed to tick configuration task {}", task.type(), e);
++                LOGGER.error("{} ayarlama gorevi islenemedi", task.type(), e);
+                 this.disconnect(DISCONNECT_REASON_CONFIGURATION_ERROR);
+             }
+         }
+@@ -242,7 +242,7 @@ public class ServerConfigurationPacketListenerImpl extends ServerCommonPacketLis
+                 try {
+                     task.start(this::send);
+                 } catch (Exception e) {
+-                    LOGGER.error("Failed to start configuration task {}", task.type(), e);
++                    LOGGER.error("{} ayarlama gorevi baslatilamadi", task.type(), e);
+                     this.disconnect(DISCONNECT_REASON_CONFIGURATION_ERROR);
+                 }
+             }
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 1840f3773c5aff928d440f6698efcce1b84d57e8..355e704600c220ca063345fe6d9f2762d124da16 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -445,7 +445,7 @@ public class ServerGamePacketListenerImpl
+ 
+         // Paper start - Prevent causing expired keys from impacting new joins
+         if (!this.hasLoggedExpiry && this.chatSession != null && this.chatSession.profilePublicKey().data().hasExpired()) {
+-            LOGGER.info("Player profile key for {} has expired!", this.player.getPlainTextName());
++            LOGGER.info("{} oyuncusunun profil anahtari suresini doldurdu!", this.player.getPlainTextName());
+             this.hasLoggedExpiry = true;
+         }
+         // Paper end - Prevent causing expired keys from impacting new joins
+@@ -640,7 +640,7 @@ public class ServerGamePacketListenerImpl
+                 if (movedDist - expectedDist > Math.max(100.0, Mth.square(org.spigotmc.SpigotConfig.movedTooQuicklyMultiplier * (float) i * speed)) && !this.isSingleplayerOwner()) {
+                     // CraftBukkit end
+                     LOGGER.warn(
+-                        "{} (vehicle of {}) moved too quickly! {},{},{}", vehicle.getPlainTextName(), this.player.getPlainTextName(), xDist, yDist, zDist
++                        "{} ({} oyuncusunun araci) cok hizli hareket etti! {},{},{}", vehicle.getPlainTextName(), this.player.getPlainTextName(), xDist, yDist, zDist
+                     );
+                     this.send(ClientboundMoveVehiclePacket.fromEntity(vehicle));
+                     return;
+@@ -669,7 +669,7 @@ public class ServerGamePacketListenerImpl
+                 boolean fail = false;
+                 if (movedDist > org.spigotmc.SpigotConfig.movedWronglyThreshold) { // Spigot
+                     fail = true;
+-                    LOGGER.warn("{} (vehicle of {}) moved wrongly! {}", vehicle.getPlainTextName(), this.player.getPlainTextName(), Math.sqrt(movedDist));
++                    LOGGER.warn("{} ({} oyuncusunun araci) hatali hareket etti! {}", vehicle.getPlainTextName(), this.player.getPlainTextName(), Math.sqrt(movedDist));
+                 }
+ 
+                 // Paper start - optimise out extra getCubes
+@@ -796,7 +796,7 @@ public class ServerGamePacketListenerImpl
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.level());
+         if (packet.getId() == this.awaitingTeleport) {
+             if (this.awaitingPositionFromClient == null) {
+-                ServerGamePacketListenerImpl.LOGGER.warn("Disconnected on accept teleport packet. Was not expecting position data from client at this time"); // Purpur - Add more logger output for invalid movement kicks
++                ServerGamePacketListenerImpl.LOGGER.warn("Isinlanma onay paketinde beklenmeyen konum verisi geldigi icin baglanti kesildi"); // Purpur - Add more logger output for invalid movement kicks
+                 this.disconnect(Component.translatable("multiplayer.disconnect.invalid_player_movement"), org.bukkit.event.player.PlayerKickEvent.Cause.INVALID_PLAYER_MOVEMENT); // Paper - kick event cause
+                 return;
+             }
+@@ -1156,7 +1156,7 @@ public class ServerGamePacketListenerImpl
+ 
+             if (!menu.updateEffects(packet.primary(), packet.secondary())) {
+                 this.disconnect(Component.translatable("multiplayer.disconnect.generic"), org.bukkit.event.player.PlayerKickEvent.Cause.ILLEGAL_ACTION); // Paper - kick event cause
+-                LOGGER.warn("Player {} tried to set invalid beacon effects", this.player);
++                LOGGER.warn("{} gecersiz fener etkileri ayarlamaya calisti", this.player);
+             }
+         }
+     }
+@@ -1165,7 +1165,7 @@ public class ServerGamePacketListenerImpl
+     public void handleSetGameRule(final ServerboundSetGameRulePacket packet) {
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.level());
+         if (!this.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) && !this.player.getBukkitEntity().hasPermission("minecraft.command.gamerule")) { // Paper - add permission check
+-            LOGGER.warn("Player {} tried to set game rule values without required permissions", this.player.getGameProfile().name());
++            LOGGER.warn("{} gerekli yetki olmadan oyun kurali degeri ayarlamaya calisti", this.player.getGameProfile().name());
+         } else {
+             GameRules gameRules = this.player.level().getGameRules();
+ 
+@@ -1174,7 +1174,7 @@ public class ServerGamePacketListenerImpl
+                 if (rule != null) {
+                     this.setGameRuleValue(gameRules, rule, entry.value());
+                 } else {
+-                    LOGGER.warn("Received request to set unknown game rule: {}", entry.gameRuleKey());
++                    LOGGER.warn("Bilinmeyen oyun kurali ayarlama istegi alindi: {}", entry.gameRuleKey());
+                 }
+             }
+         }
+@@ -1396,7 +1396,7 @@ public class ServerGamePacketListenerImpl
+             }
+ 
+             if (byteTotal > byteAllowed) {
+-                ServerGamePacketListenerImpl.LOGGER.warn("{} tried to send too large of a book. Book size: {} - Allowed: {} - Pages: {}", this.player.getScoreboardName(), byteTotal, byteAllowed, pageList.size());
++                ServerGamePacketListenerImpl.LOGGER.warn("{} cok buyuk kitap gondermeye calisti. Kitap boyutu: {} - Izin verilen: {} - Sayfa: {}", this.player.getScoreboardName(), byteTotal, byteAllowed, pageList.size());
+                 org.purpurmc.purpur.event.player.PlayerBookTooLargeEvent event = new org.purpurmc.purpur.event.player.PlayerBookTooLargeEvent(player.getBukkitEntity(), itemstack.asBukkitCopy()); if (event.shouldKickPlayer()) // Purpur - PlayerBookTooLargeEvent
+                 this.disconnectAsync(Component.literal("Book too large!"), org.bukkit.event.player.PlayerKickEvent.Cause.ILLEGAL_ACTION); // Paper - kick event cause // Paper - add proper async disconnect
+                 return;
+@@ -1523,7 +1523,7 @@ public class ServerGamePacketListenerImpl
+         boolean invalidYaw = !Floats.isFinite(packet.getYRot(0.0F));
+         boolean invalidPitch = !Floats.isFinite(packet.getXRot(0.0F));
+         if (invalidX || invalidY || invalidZ || invalidYaw || invalidPitch) {
+-            ServerGamePacketListenerImpl.LOGGER.warn(String.format("Disconnected on move player packet. Invalid data: x=%b, y=%b, z=%b, yaw=%b, pitch=%b", invalidX, invalidY, invalidZ, invalidYaw, invalidPitch));
++            ServerGamePacketListenerImpl.LOGGER.warn(String.format("Oyuncu hareket paketinde gecersiz veri nedeniyle baglanti kesildi: x=%b, y=%b, z=%b, yaw=%b, pitch=%b", invalidX, invalidY, invalidZ, invalidYaw, invalidPitch));
+         // Purpur end - Add more logger output for invalid movement kicks
+             this.disconnect(Component.translatable("multiplayer.disconnect.invalid_player_movement"), org.bukkit.event.player.PlayerKickEvent.Cause.INVALID_PLAYER_MOVEMENT); // Paper - kick event cause
+         } else {
+@@ -1626,7 +1626,7 @@ public class ServerGamePacketListenerImpl
+                                                     targetX, targetY, targetZ, targetYRot, targetXRot, true);
+                                             if (!event.isAllowed()) {
+                                                 if (event.getLogWarning()) {
+-                                            LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getPlainTextName(), xDist, yDist, zDist);
++                                            LOGGER.warn("{} cok hizli hareket etti! {},{},{}", this.player.getPlainTextName(), xDist, yDist, zDist);
+                                                 }
+                                                 this.teleport(
+                                                         this.player.getX(), this.player.getY(), this.player.getZ(), this.player.getYRot(), this.player.getXRot()
+@@ -1693,7 +1693,7 @@ public class ServerGamePacketListenerImpl
+                                         movedWrongly = true;
+                                         if (event.getLogWarning())
+                                      // Paper end
+-                                    LOGGER.warn("{} moved wrongly!, ({})", this.player.getPlainTextName(), oyDist); // Purpur - AFK API
++                                    LOGGER.warn("{} hatali hareket etti!, ({})", this.player.getPlainTextName(), oyDist); // Purpur - AFK API
+                                     } // Paper
+                                 }
+ 
+@@ -1976,7 +1976,7 @@ public class ServerGamePacketListenerImpl
+         org.spigotmc.AsyncCatcher.catchOp("teleport"); // Paper
+         // Paper start - Prevent teleporting dead entities
+         if (this.player.isRemoved()) {
+-            LOGGER.info("Attempt to teleport removed player {} restricted", this.player.getScoreboardName());
++            LOGGER.info("Kaldirilmis oyuncu {} isinlanmaya calisti, engellendi", this.player.getScoreboardName());
+             if (this.server.isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread("Attempt to teleport removed player");
+             return;
+         }
+@@ -2070,7 +2070,7 @@ public class ServerGamePacketListenerImpl
+                             // Else we increment the drop count and check the amount.
+                             this.dropCount++;
+                             if (this.dropCount >= 20) {
+-                                ServerGamePacketListenerImpl.LOGGER.warn(this.player.getScoreboardName() + " dropped their items too quickly!");
++                                ServerGamePacketListenerImpl.LOGGER.warn(this.player.getScoreboardName() + " esyalarini cok hizli atti!");
+                                 this.disconnect(Component.literal("You dropped your items too quickly (Hacking?)"), org.bukkit.event.player.PlayerKickEvent.Cause.ILLEGAL_ACTION); // Paper - kick event cause
+                                 return;
+                             }
+@@ -2343,7 +2343,7 @@ public class ServerGamePacketListenerImpl
+ 
+     @Override
+     public void onDisconnect(final DisconnectionDetails details) {
+-        LOGGER.info("{} lost connection: {}", this.player.getPlainTextName(), details.reason().getString());
++        LOGGER.info("{} baglantiyi kaybetti: {}", this.player.getPlainTextName(), details.reason().getString());
+         // Paper start - Fix kick event leave message not being sent
+         final net.kyori.adventure.text.Component quitMessage = details.quitMessage().map(io.papermc.paper.adventure.PaperAdventure::asAdventure).orElse(null);
+         this.removePlayerFromWorld(quitMessage);
+@@ -2408,7 +2408,7 @@ public class ServerGamePacketListenerImpl
+             this.player.resetLastActionTime();
+             if (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.updateEquipmentOnPlayerActions) this.player.detectEquipmentUpdates(); // Paper - Force update attributes.
+         } else {
+-            LOGGER.warn("{} tried to set an invalid carried item", this.player.getPlainTextName());
++            LOGGER.warn("{} gecersiz elde tasinan esya secmeye calisti", this.player.getPlainTextName());
+             this.disconnect(Component.literal("Invalid hotbar selection (Hacking?)"), org.bukkit.event.player.PlayerKickEvent.Cause.ILLEGAL_ACTION); // CraftBukkit // Paper - kick event cause
+         }
+     }
+@@ -2460,7 +2460,7 @@ public class ServerGamePacketListenerImpl
+     private void performUnsignedChatCommand(String command) {
+         String prefixedCommand = "/" + command;
+         if (org.spigotmc.SpigotConfig.logCommands) { // Paper - Add missing SpigotConfig logCommands check
+-            LOGGER.info("{} issued server command: {}", this.player.getScoreboardName(), prefixedCommand);
++            LOGGER.info("{} sunucu komutu kullandi: {}", this.player.getScoreboardName(), prefixedCommand);
+         }
+ 
+         PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(this.getCraftPlayer(), prefixedCommand, new org.bukkit.craftbukkit.util.LazyPlayerSet(this.server));
+@@ -2474,7 +2474,7 @@ public class ServerGamePacketListenerImpl
+         ParseResults<CommandSourceStack> parsed = this.parseCommand(command);
+         if (this.server.enforceSecureProfile() && SignableCommand.hasSignableArguments(parsed)) {
+             LOGGER.error(
+-                "Received unsigned command packet from {}, but the command requires signable arguments: {}", this.player.getGameProfile().name(), command
++                "{} imzasiz komut paketi gonderdi; fakat komut imzali arguman gerektiriyor: {}", this.player.getGameProfile().name(), command
+             );
+             this.player.sendSystemMessage(INVALID_COMMAND_SIGNATURE);
+         } else {
+@@ -2502,7 +2502,7 @@ public class ServerGamePacketListenerImpl
+         // CraftBukkit start
+         String commandString = "/" + packet.command();
+         if (org.spigotmc.SpigotConfig.logCommands) { // Paper - Add missing SpigotConfig logCommands check
+-            LOGGER.info("{} issued server command: {}", this.player.getScoreboardName(), commandString);
++            LOGGER.info("{} sunucu komutu kullandi: {}", this.player.getScoreboardName(), commandString);
+         } // Paper - Add missing SpigotConfig logCommands check
+ 
+         PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(this.getCraftPlayer(), commandString, new org.bukkit.craftbukkit.util.LazyPlayerSet(this.server));
+@@ -2539,7 +2539,7 @@ public class ServerGamePacketListenerImpl
+     }
+ 
+     private void handleMessageDecodeFailure(final SignedMessageChain.DecodeException e) {
+-        LOGGER.warn("Failed to update secure chat state for {}: '{}'", this.player.getGameProfile().name(), e.getComponent().getString());
++        LOGGER.warn("{} icin guvenli sohbet durumu guncellenemedi: '{}'", this.player.getGameProfile().name(), e.getComponent().getString());
+         this.player.sendSystemMessage(e.getComponent().copy().withStyle(ChatFormatting.RED));
+     }
+ 
+@@ -2590,7 +2590,7 @@ public class ServerGamePacketListenerImpl
+     ) {
+         String clientNames = clientArguments.stream().map(ArgumentSignatures.Entry::name).collect(Collectors.joining(", "));
+         String expectedNames = expectedArguments.stream().map(SignableCommand.Argument::name).collect(Collectors.joining(", "));
+-        LOGGER.error("Signed command mismatch between server and client ('{}'): got [{}] from client, but expected [{}]", command, clientNames, expectedNames);
++        LOGGER.error("Sunucu ile istemci arasinda imzali komut uyusmazligi ('{}'): istemciden [{}] geldi, beklenen [{}]", command, clientNames, expectedNames);
+         return new SignedMessageChain.DecodeException(INVALID_COMMAND_SIGNATURE);
+     }
+ 
+@@ -2623,7 +2623,7 @@ public class ServerGamePacketListenerImpl
+                 LastSeenMessages result = this.lastSeenMessages.applyUpdate(update);
+                 var10000 = Optional.of(result);
+             } catch (LastSeenMessagesValidator.ValidationException e) {
+-                LOGGER.error("Failed to validate message acknowledgements from {}: {}", this.player.getPlainTextName(), e.getMessage());
++                LOGGER.error("{} icin mesaj onaylari dogrulanamadi: {}", this.player.getPlainTextName(), e.getMessage());
+                 this.disconnectAsync(CHAT_VALIDATION_FAILED, org.bukkit.event.player.PlayerKickEvent.Cause.CHAT_VALIDATION_FAILED); // Paper - kick event causes & add proper async disconnect
+                 return Optional.empty();
+             }
+@@ -2686,7 +2686,7 @@ public class ServerGamePacketListenerImpl
+         // CraftBukkit start
+         String rawMessage = message.signedContent();
+         if (rawMessage.isEmpty()) {
+-            LOGGER.warn("{} tried to send an empty message", this.player.getScoreboardName());
++            LOGGER.warn("{} bos mesaj gondermeye calisti", this.player.getScoreboardName());
+         } else if (this.getCraftPlayer().isConversing()) {
+             final String conversationInput = rawMessage;
+             this.server.processQueue.add(() -> ServerGamePacketListenerImpl.this.getCraftPlayer().acceptConversationInput(conversationInput));
+@@ -2735,7 +2735,7 @@ public class ServerGamePacketListenerImpl
+             try {
+                 this.lastSeenMessages.applyOffset(packet.offset());
+             } catch (LastSeenMessagesValidator.ValidationException e) {
+-                LOGGER.error("Failed to validate message acknowledgement offset from {}: {}", this.player.getPlainTextName(), e.getMessage());
++                LOGGER.error("{} icin mesaj onay sira degeri dogrulanamadi: {}", this.player.getPlainTextName(), e.getMessage());
+                 this.disconnectAsync(ServerGamePacketListenerImpl.CHAT_VALIDATION_FAILED, org.bukkit.event.player.PlayerKickEvent.Cause.CHAT_VALIDATION_FAILED); // Paper - kick event causes & add proper async disconnect
+             }
+         }
+@@ -2931,7 +2931,7 @@ public class ServerGamePacketListenerImpl
+                             || target == this.player
+                             || target instanceof AbstractArrow abstractArrow && !abstractArrow.isAttackable()) {
+                             this.disconnect(Component.translatable("multiplayer.disconnect.invalid_entity_attacked"), org.bukkit.event.player.PlayerKickEvent.Cause.INVALID_ENTITY_ATTACKED); // Paper - add cause
+-                            LOGGER.warn("Player {} tried to attack an invalid entity", this.player.getPlainTextName());
++                            LOGGER.warn("{} gecersiz bir varliga saldirmaya calisti", this.player.getPlainTextName());
+                         } else if (mainHandItem.isItemEnabled(level.enabledFeatures())) {
+                             if (!this.player.cannotAttackWithItem(mainHandItem, 5)) {
+                                 this.player.attack(target);
+@@ -3098,7 +3098,7 @@ public class ServerGamePacketListenerImpl
+ 
+     private void sendGameRuleValues() {
+         if (!this.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) && !this.player.getBukkitEntity().hasPermission("minecraft.command.gamerule")) { // Paper - add permission check
+-            LOGGER.warn("Player {} tried to request game rule values without required permissions", this.player.getGameProfile().name());
++            LOGGER.warn("{} gerekli yetki olmadan oyun kurali degerlerini istemeye calisti", this.player.getGameProfile().name());
+         } else {
+             GameRules gameRules = this.player.level().getGameRules();
+             Map<ResourceKey<GameRule<?>>, String> values = new HashMap<>();
+@@ -3611,7 +3611,7 @@ public class ServerGamePacketListenerImpl
+                     this.dropSpamThrottler.increment();
+                     this.player.drop(itemStack, true);
+                 } else {
+-                    LOGGER.warn("Player {} was dropping items too fast in creative mode, ignoring.", this.player.getPlainTextName());
++                    LOGGER.warn("{} kreatif modda esyalari cok hizli atiyor, yok sayiliyor.", this.player.getPlainTextName());
+                 }
+             }
+         }
+@@ -3680,7 +3680,7 @@ public class ServerGamePacketListenerImpl
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.level());
+         // Paper start - do not accept invalid information
+         if (packet.information().viewDistance() < 0) {
+-            LOGGER.warn("Disconnecting {} for invalid view distance: {}", this.player.getScoreboardName(), packet.information().viewDistance());
++            LOGGER.warn("{} gecersiz gorus mesafesi nedeniyle atiliyor: {}", this.player.getScoreboardName(), packet.information().viewDistance());
+             this.disconnect(Component.literal("Invalid client settings"), org.bukkit.event.player.PlayerKickEvent.Cause.ILLEGAL_ACTION);
+             return;
+         }
+@@ -3698,7 +3698,7 @@ public class ServerGamePacketListenerImpl
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.level());
+         if (!this.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) && !this.isSingleplayerOwner()) {
+             LOGGER.warn(
+-                "Player {} tried to change difficulty to {} without required permissions",
++                "{} gerekli yetki olmadan zorlugu {} yapmaya calisti",
+                 this.player.getGameProfile().name(),
+                 packet.difficulty().getDisplayName()
+             );
+@@ -3712,7 +3712,7 @@ public class ServerGamePacketListenerImpl
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.level());
+         if (!GameModeCommand.PERMISSION_CHECK.check(this.player.permissions()) && !this.player.getBukkitEntity().hasPermission("minecraft.command.gamemode") && !player.getBukkitEntity().hasPermission("purpur.debug.f3n")) { // Paper - add permission check // Purpur - Add permission for F3+N debug
+             LOGGER.warn(
+-                "Player {} tried to change game mode to {} without required permissions",
++                "{} gerekli yetki olmadan oyun modunu {} yapmaya calisti",
+                 this.player.getGameProfile().name(),
+                 packet.mode().getShortDisplayName().getString()
+             );
+@@ -3742,7 +3742,7 @@ public class ServerGamePacketListenerImpl
+                 try {
+                     SignatureValidator profileKeySignatureValidator = this.server.services().profileKeySignatureValidator();
+                     if (profileKeySignatureValidator == null) {
+-                        LOGGER.warn("Ignoring chat session from {} due to missing Services public key", this.player.getGameProfile().name());
++                        LOGGER.warn("Servis acik anahtari eksik oldugu icin {} sohbet oturumu yok sayiliyor", this.player.getGameProfile().name());
+                         return;
+                     }
+ 
+diff --git a/net/minecraft/server/network/ServerLoginPacketListenerImpl.java b/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+index 818accc3d3f2303a4f9f3752ba5c4f6a89f25767..3c60a4a07ee27d43211b96a1347dd92fc4924a23 100644
+--- a/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+@@ -125,21 +125,21 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+     // Paper start
+     public void disconnectAsync(Component reason) {
+         try {
+-            LOGGER.info("Disconnecting {}: {}", this.getUserName(), reason.getString());
++            LOGGER.info("{} baglantisi kesiliyor: {}", this.getUserName(), reason.getString());
+             this.connection.send(new ClientboundLoginDisconnectPacket(reason), PacketSendListener.thenRun(() -> this.connection.disconnect(reason)));
+             this.connection.handleConnectionDisconnectOnNextTick = true;
+         } catch (Exception var3) {
+-            LOGGER.error("Error whilst disconnecting player", (Throwable)var3);
++            LOGGER.error("Oyuncu baglantisi kesilirken hata olustu", (Throwable)var3);
+         }
+     }
+     // Paper end
+     public void disconnect(final Component component) {
+         try {
+-            LOGGER.info("Disconnecting {}: {}", this.getUserName(), component.getString());
++            LOGGER.info("{} baglantisi kesiliyor: {}", this.getUserName(), component.getString());
+             this.connection.send(new ClientboundLoginDisconnectPacket(component));
+             this.connection.disconnect(component);
+         } catch (Exception e) {
+-            LOGGER.error("Error whilst disconnecting player", e);
++            LOGGER.error("Oyuncu baglantisi kesilirken hata olustu", e);
+         }
+     }
+ 
+@@ -149,7 +149,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+ 
+     @Override
+     public void onDisconnect(final DisconnectionDetails details) {
+-        LOGGER.info("{} lost connection: {}", this.getUserName(), details.reason().getString());
++        LOGGER.info("{} baglantiyi kaybetti: {}", this.getUserName(), details.reason().getString());
+     }
+ 
+     public String getUserName() {
+@@ -193,11 +193,11 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+                         GameProfile gameprofile = ServerLoginPacketListenerImpl.this.createOfflineProfile(ServerLoginPacketListenerImpl.this.requestedUsername); // Spigot
+ 
+                         gameprofile = ServerLoginPacketListenerImpl.this.callPlayerPreLoginEvents(gameprofile); // Paper - Add more fields to AsyncPlayerPreLoginEvent
+-                        ServerLoginPacketListenerImpl.LOGGER.info("UUID of player {} is {}", gameprofile.name(), gameprofile.id());
++                        ServerLoginPacketListenerImpl.LOGGER.info("Oyuncu UUID bilgisi: {} -> {}", gameprofile.name(), gameprofile.id());
+                         ServerLoginPacketListenerImpl.this.startClientVerification(gameprofile);
+                     } catch (Exception ex) {
+-                        ServerLoginPacketListenerImpl.this.disconnect("Failed to verify username!");
+-                        ServerLoginPacketListenerImpl.this.server.server.getLogger().log(java.util.logging.Level.WARNING, "Exception verifying " + ServerLoginPacketListenerImpl.this.requestedUsername, ex);
++                        ServerLoginPacketListenerImpl.this.disconnect("Kullanici adi dogrulanamadi!");
++                        ServerLoginPacketListenerImpl.this.server.server.getLogger().log(java.util.logging.Level.WARNING, "Oyuncu dogrulanirken hata olustu: " + ServerLoginPacketListenerImpl.this.requestedUsername, ex);
+                     }
+                 });
+                 // Paper end - Virtual authenticator threads
+@@ -279,28 +279,28 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+                         }
+                         profile = ServerLoginPacketListenerImpl.this.callPlayerPreLoginEvents(profile); // Paper - Add more fields to AsyncPlayerPreLoginEvent
+                         // CraftBukkit end
+-                        ServerLoginPacketListenerImpl.LOGGER.info("UUID of player {} is {}", profile.name(), profile.id());
++                        ServerLoginPacketListenerImpl.LOGGER.info("Oyuncu UUID bilgisi: {} -> {}", profile.name(), profile.id());
+                         ServerLoginPacketListenerImpl.this.serverActivityMonitor.reportLoginActivity();
+                         ServerLoginPacketListenerImpl.this.startClientVerification(profile);
+                     } else if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
+-                        ServerLoginPacketListenerImpl.LOGGER.warn("Failed to verify username but will let them in anyway!");
++                        ServerLoginPacketListenerImpl.LOGGER.warn("Kullanici adi dogrulanamadi; tek oyunculu mod nedeniyle girise izin veriliyor!");
+                         ServerLoginPacketListenerImpl.this.startClientVerification(ServerLoginPacketListenerImpl.this.createOfflineProfile(name)); // Spigot
+                     } else {
+                         ServerLoginPacketListenerImpl.this.disconnect(org.purpurmc.purpur.PurpurConfig.unverifiedUsername.equals("default") ? Component.translatable("multiplayer.disconnect.unverified_username") : io.papermc.paper.adventure.PaperAdventure.asVanilla(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(org.purpurmc.purpur.PurpurConfig.unverifiedUsername))); // Purpur - Config for unverified username message
+-                        ServerLoginPacketListenerImpl.LOGGER.error("Username '{}' tried to join with an invalid session", name);
++                        ServerLoginPacketListenerImpl.LOGGER.error("'{}' gecersiz oturumla girmeye calisti", name);
+                     }
+                 } catch (AuthenticationUnavailableException ignored) {
+                     if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
+-                        ServerLoginPacketListenerImpl.LOGGER.warn("Authentication servers are down but will let them in anyway!");
++                        ServerLoginPacketListenerImpl.LOGGER.warn("Kimlik dogrulama sunuculari kapali; tek oyunculu mod nedeniyle girise izin veriliyor!");
+                         ServerLoginPacketListenerImpl.this.startClientVerification(ServerLoginPacketListenerImpl.this.createOfflineProfile(name)); // Spigot
+                     } else {
+                         ServerLoginPacketListenerImpl.this.disconnect(io.papermc.paper.adventure.PaperAdventure.asVanilla(io.papermc.paper.configuration.GlobalConfiguration.get().messages.kick.authenticationServersDown)); // Paper - Configurable kick message
+-                        ServerLoginPacketListenerImpl.LOGGER.error("Couldn't verify username because servers are unavailable");
++                        ServerLoginPacketListenerImpl.LOGGER.error("Kimlik dogrulama sunucularina ulasilamadigi icin kullanici adi dogrulanamadi");
+                     }
+                     // CraftBukkit start - catch all exceptions
+                 } catch (Exception ex) {
+-                    ServerLoginPacketListenerImpl.this.disconnect("Failed to verify username!");
+-                    ServerLoginPacketListenerImpl.LOGGER.warn("Exception verifying {}", name, ex);
++                    ServerLoginPacketListenerImpl.this.disconnect("Kullanici adi dogrulanamadi!");
++                    ServerLoginPacketListenerImpl.LOGGER.warn("{} dogrulanirken hata olustu", name, ex);
+                     // CraftBukkit end
+                 }
+             }
+@@ -412,11 +412,11 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+             authenticatorPool.execute(() -> {
+                 try {
+                     final GameProfile gameprofile = this.callPlayerPreLoginEvents(this.authenticatedProfile);
+-                    ServerLoginPacketListenerImpl.LOGGER.info("UUID of player {} is {}", gameprofile.name(), gameprofile.id());
++                    ServerLoginPacketListenerImpl.LOGGER.info("Oyuncu UUID bilgisi: {} -> {}", gameprofile.name(), gameprofile.id());
+                     ServerLoginPacketListenerImpl.this.startClientVerification(gameprofile);
+                 } catch (Exception ex) {
+-                    disconnect("Failed to verify username!");
+-                    server.server.getLogger().log(java.util.logging.Level.WARNING, "Exception verifying " + this.authenticatedProfile.name(), ex);
++                    disconnect("Kullanici adi dogrulanamadi!");
++                    server.server.getLogger().log(java.util.logging.Level.WARNING, "Oyuncu dogrulanirken hata olustu: " + this.authenticatedProfile.name(), ex);
+                 }
+             });
+             return;
+diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
+index 331c7815552f2aa626eb5a1386d1769c4fad063f..269271e64f200091c540b0ce86e1f9bd12cbad10 100644
+--- a/net/minecraft/server/players/PlayerList.java
++++ b/net/minecraft/server/players/PlayerList.java
+@@ -316,7 +316,7 @@ public abstract class PlayerList {
+         org.purpurmc.purpur.task.BossBarTask.addToAll(player); // Purpur - Implement TPSBar
+         // CraftBukkit start - moved down
+         LOGGER.info(
+-            "{}[{}] logged in with entity id {} at ([{}]{}, {}, {})", // Paper - add world identifier
++            "{}[{}] oyuna girdi; varlik id {} konum ([{}]{}, {}, {})", // Paper - add world identifier
+             player.getPlainTextName(),
+             address,
+             player.getId(),
+@@ -1229,7 +1229,7 @@ public abstract class PlayerList {
+                 try {
+                     return Files.move(playerNameStatsPath, uuidStatsFile);
+                 } catch (IOException e) {
+-                    LOGGER.warn("Failed to copy file {} to {}", playerNameStatsFile, uuidStatsFile);
++                    LOGGER.warn("{} dosyasi {} hedefine kopyalanamadi", playerNameStatsFile, uuidStatsFile);
+                     return playerNameStatsPath;
+                 }
+             }
+diff --git a/net/minecraft/world/item/crafting/RecipeManager.java b/net/minecraft/world/item/crafting/RecipeManager.java
+index 6812ade4d9de26d507234b8357b109ec7e5cbb50..92108651463ec18c3157c13ae22e54ef70f5c276 100644
+--- a/net/minecraft/world/item/crafting/RecipeManager.java
++++ b/net/minecraft/world/item/crafting/RecipeManager.java
+@@ -84,7 +84,7 @@ public class RecipeManager extends SimplePreparableReloadListener<RecipeMap> imp
+     @Override
+     protected void apply(final RecipeMap recipes, final ResourceManager manager, final ProfilerFiller profiler) {
+         this.recipes = recipes;
+-        LOGGER.info("Loaded {} recipes", recipes.values().size());
++        LOGGER.info("{} tarif yuklendi", recipes.values().size());
+     }
+ 
+     // CraftBukkit start
+@@ -118,7 +118,7 @@ public class RecipeManager extends SimplePreparableReloadListener<RecipeMap> imp
+                 recipeHolder -> {
+                     Recipe<?> recipe = recipeHolder.value();
+                     if (!recipe.isSpecial() && recipe.placementInfo().isImpossibleToPlace()) {
+-                        LOGGER.warn("Recipe {} can't be placed due to empty ingredients and will be ignored", recipeHolder.id().identifier());
++                        LOGGER.warn("{} tarifi bos malzeme nedeniyle yerlestirilemiyor ve yok sayilacak", recipeHolder.id().identifier());
+                     } else {
+                         propertySetCollectors.forEach(c -> c.accept(recipe));
+                         if (recipe instanceof StonecutterRecipe stonecutterRecipe) {
+diff --git a/net/minecraft/world/level/block/entity/SignBlockEntity.java b/net/minecraft/world/level/block/entity/SignBlockEntity.java
+index 5d39f9032e1bb0737a8ea91fb56743eb4a988a10..2dcca8199415e4941ecc40c8f25a66495e9d0b19 100644
+--- a/net/minecraft/world/level/block/entity/SignBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/SignBlockEntity.java
+@@ -139,7 +139,7 @@ public class SignBlockEntity extends BlockEntity {
+             this.setAllowedPlayerEditor(null);
+             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
+         } else {
+-            LOGGER.warn("Player {} just tried to change non-editable sign", player.getPlainTextName());
++            LOGGER.warn("{} duzenlenemeyen tabelayi degistirmeye calisti", player.getPlainTextName());
+             if (player.distanceToSqr(this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ()) < Mth.square(32)) // Paper - Don't send far away sign update
+             ((net.minecraft.server.level.ServerPlayer) player).connection.send(this.getUpdatePacket()); // CraftBukkit
+         }
+@@ -243,7 +243,7 @@ public class SignBlockEntity extends BlockEntity {
+                     // Paper start - Fix commands from signs not firing command events
+                     String commandLine = command.command().startsWith("/") ? command.command() : "/" + command.command();
+                     if (org.spigotmc.SpigotConfig.logCommands) {
+-                        LOGGER.info("{} issued server command: {}", player.getScoreboardName(), commandLine);
++                        LOGGER.info("{} tabela uzerinden sunucu komutu kullandi: {}", player.getScoreboardName(), commandLine);
+                     }
+                     final io.papermc.paper.event.player.PlayerSignCommandPreprocessEvent bukkitEvent = new io.papermc.paper.event.player.PlayerSignCommandPreprocessEvent(
+                         (org.bukkit.entity.Player) player.getBukkitEntity(),

@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Wed, 1 Jul 2026 16:37:14 +0300
+Subject: [PATCH] HonorMC lock client brand
+
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index b09ff4306cf2f1f256a463f5d47ab2416cc5bcf0..2774c9e953daa7d3f5718f33a8a1c800f848c7ae 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -1985,7 +1985,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+ 
+     public String getServerModName() {
+-        return org.purpurmc.purpur.PurpurConfig.serverModName; // Paper // Purpur - Configurable server mod name
++        return io.papermc.paper.ServerBuildInfo.buildInfo().brandName(); // HonorMC - keep the client/debug brand locked to HonorMC
+     }
+ 
+     public ServerClockManager clockManager() {
+diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
+index 269271e64f200091c540b0ce86e1f9bd12cbad10..6520389d01f83fc303b68ba9f1a5c2c4270301dc 100644
+--- a/net/minecraft/server/players/PlayerList.java
++++ b/net/minecraft/server/players/PlayerList.java
+@@ -1171,7 +1171,7 @@ public abstract class PlayerList {
+     public void broadcastChatMessage(final PlayerChatMessage message, final Predicate<ServerPlayer> isFiltered, final @Nullable ServerPlayer senderPlayer, final ChatType.Bound chatType, final @Nullable Function<net.kyori.adventure.audience.Audience, Component> unsignedFunction) {
+         // Paper end
+         boolean trusted = this.verifyChatTrusted(message);
+-        this.server.logChatMessage((unsignedFunction == null ? message.decoratedContent() : unsignedFunction.apply(this.server.console)), chatType, trusted ? null : "Not Secure"); // Paper
++        this.server.logChatMessage((unsignedFunction == null ? message.decoratedContent() : unsignedFunction.apply(this.server.console)), chatType, trusted ? null : "Guvenli Degil"); // Paper
+         OutgoingChatMessage tracked = OutgoingChatMessage.create(message);
+         boolean wasFullyFiltered = false;
+ 

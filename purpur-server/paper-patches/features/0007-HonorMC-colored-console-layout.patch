@@ -1,0 +1,86 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Wed, 1 Jul 2026 01:11:51 +0300
+Subject: [PATCH] HonorMC colored console layout
+
+
+diff --git a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCLevelConverter.java b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCLevelConverter.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..7c524089b66cbf30ad615c5804a27af75c1f9059
+--- /dev/null
++++ b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCLevelConverter.java
+@@ -0,0 +1,38 @@
++package io.papermc.paper.console;
++
++import org.apache.logging.log4j.Level;
++import org.apache.logging.log4j.core.LogEvent;
++import org.apache.logging.log4j.core.config.plugins.Plugin;
++import org.apache.logging.log4j.core.pattern.ConverterKeys;
++import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
++import org.apache.logging.log4j.core.pattern.PatternConverter;
++
++@Plugin(name = "honormcLevel", category = PatternConverter.CATEGORY)
++@ConverterKeys({"honormcLevel"})
++public final class HonorMCLevelConverter extends LogEventPatternConverter {
++
++    private HonorMCLevelConverter() {
++        super("honormcLevel", null);
++    }
++
++    @Override
++    public void format(final LogEvent event, final StringBuilder toAppendTo) {
++        toAppendTo.append(toHonorMCLevel(event.getLevel()));
++    }
++
++    private static String toHonorMCLevel(final Level level) {
++        return switch (level.getStandardLevel()) {
++            case FATAL -> "KRITIK";
++            case ERROR -> "HATA";
++            case WARN -> "UYARI";
++            case INFO -> "BILGI";
++            case DEBUG -> "DEBUG";
++            case TRACE -> "TRACE";
++            default -> level.name();
++        };
++    }
++
++    public static HonorMCLevelConverter newInstance(final String[] options) {
++        return new HonorMCLevelConverter();
++    }
++}
+diff --git a/src/main/resources/log4j2.xml b/src/main/resources/log4j2.xml
+index 7441a667831a2f26c73bd03754846a9fd2a3353a..da1656240385338268035981230bd35ebf382138 100644
+--- a/src/main/resources/log4j2.xml
++++ b/src/main/resources/log4j2.xml
+@@ -2,24 +2,24 @@
+ <Configuration status="WARN" shutdownHook="disable">
+     <Appenders>
+         <Queue name="ServerGuiConsole">
+-            <!-- Purpur start - copied from TerminalConsole -->
++            <!-- HonorMC start - colored and localized console layout -->
+             <PatternLayout>
+-                <LoggerNamePatternSelector defaultPattern="%highlightGUIError{[%d{HH:mm:ss} %level]: [%logger] %stripAnsi{%msg}%n%xEx{full}}">
++                <LoggerNamePatternSelector defaultPattern="[%d{HH:mm:ss}] [%honormcLevel] [%logger]: %stripAnsi{%msg}%n%xEx{full}">
+                     <!-- Log root, Minecraft, Mojang and Bukkit loggers without prefix -->
+                     <!-- Disable prefix for various plugins that bypass the plugin logger -->
+                     <PatternMatch key=",net.minecraft.,Minecraft,com.mojang.,com.sk89q.,ru.tehkode.,Minecraft.AWE"
+-                                  pattern="%highlightGUIError{[%d{HH:mm:ss} %level]: %stripAnsi{%msg}%n%xEx{full}}" />
++                                  pattern="[%d{HH:mm:ss}] [%honormcLevel]: %stripAnsi{%msg}%n%xEx{full}" />
+                 </LoggerNamePatternSelector>
+             </PatternLayout>
+-            <!-- Purpur end -->
++            <!-- HonorMC end -->
+         </Queue>
+         <TerminalConsole name="TerminalConsole">
+-            <PatternLayout>
+-                <LoggerNamePatternSelector defaultPattern="%highlightError{[%d{HH:mm:ss} %level]: [%logger] %msg%n%xEx{full}}">
++            <PatternLayout disableAnsi="false" noConsoleNoAnsi="false">
++                <LoggerNamePatternSelector defaultPattern="%style{[%d{HH:mm:ss}]}{bright_black} %highlight{[%honormcLevel]}{FATAL=bright_red bold, ERROR=bright_red bold, WARN=yellow bold, INFO=green, DEBUG=cyan, TRACE=bright_black} %style{[%logger]}{blue}: %msg%n%xEx{full}">
+                     <!-- Log root, Minecraft, Mojang and Bukkit loggers without prefix -->
+                     <!-- Disable prefix for various plugins that bypass the plugin logger -->
+                     <PatternMatch key=",net.minecraft.,Minecraft,com.mojang.,com.sk89q.,ru.tehkode.,Minecraft.AWE"
+-                                  pattern="%highlightError{[%d{HH:mm:ss} %level]: %msg%n%xEx{full}}" />
++                                  pattern="%style{[%d{HH:mm:ss}]}{bright_black} %highlight{[%honormcLevel]}{FATAL=bright_red bold, ERROR=bright_red bold, WARN=yellow bold, INFO=green, DEBUG=cyan, TRACE=bright_black}: %msg%n%xEx{full}" />
+                 </LoggerNamePatternSelector>
+             </PatternLayout>
+         </TerminalConsole>

@@ -1,0 +1,310 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HonorMC <dev@honormc.local>
+Date: Wed, 1 Jul 2026 16:37:14 +0300
+Subject: [PATCH] HonorMC console runtime polish
+
+
+diff --git a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java
+index 7c7c8aa3a0426466dd0278928745d323addd5179..90ea8926306d206e426e9163d78fc5948d85ef39 100644
+--- a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java
++++ b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCConsoleStyles.java
+@@ -23,7 +23,7 @@ final class HonorMCConsoleStyles {
+     }
+ 
+     static String label(final LogEvent event) {
+-        if (isChat(event)) {
++        if (isPlayerLine(event)) {
+             return "OYUNCU";
+         }
+ 
+@@ -44,7 +44,7 @@ final class HonorMCConsoleStyles {
+     }
+ 
+     static String messageColor(final LogEvent event) {
+-        if (isChat(event)) {
++        if (isPlayerLine(event)) {
+             return CYAN;
+         }
+ 
+@@ -63,7 +63,7 @@ final class HonorMCConsoleStyles {
+     }
+ 
+     private static String labelColor(final LogEvent event) {
+-        if (isChat(event)) {
++        if (isPlayerLine(event)) {
+             return CYAN_BOLD;
+         }
+ 
+@@ -82,4 +82,22 @@ final class HonorMCConsoleStyles {
+         final Marker marker = event.getMarker();
+         return marker != null && (CHAT_MARKER.equals(marker.getName()) || marker.isInstanceOf(CHAT_MARKER));
+     }
++
++    private static boolean isPlayerLine(final LogEvent event) {
++        if (isChat(event)) {
++            return true;
++        }
++
++        if (event.getMessage() == null) {
++            return false;
++        }
++
++        final String message = event.getMessage().getFormattedMessage();
++        return message.startsWith("Oyuncu UUID bilgisi:")
++            || message.contains(" oyuna katildi")
++            || message.contains(" oyundan ayrildi")
++            || message.contains(" joined the game")
++            || message.contains(" left the game")
++            || message.contains(" logged in with entity id ");
++    }
+ }
+diff --git a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java
+index 2e7a3d9c2b4d4c2e23cd516540b2c76df7f35bfa..bc299a0c2d3d6a979d3e1cc6168f106d5a3ed486 100644
+--- a/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java
++++ b/src/log4jPlugins/java/io/papermc/paper/console/HonorMCMessageConverter.java
+@@ -28,7 +28,7 @@ public final class HonorMCMessageConverter extends LogEventPatternConverter {
+             formatter.format(event, toAppendTo);
+         }
+ 
+-        final String content = toAppendTo.substring(start);
++        final String content = translateContent(toAppendTo.substring(start));
+         toAppendTo.setLength(start);
+         toAppendTo
+             .append(HonorMCConsoleStyles.messageColor(event))
+@@ -45,4 +45,67 @@ public final class HonorMCMessageConverter extends LogEventPatternConverter {
+         final PatternParser parser = PatternLayout.createPatternParser(config);
+         return new HonorMCMessageConverter(parser.parse(options[0]));
+     }
++
++    private static String translateContent(final String content) {
++        String translated = content
++            .replace("Environment: Environment[", "Mojang ortam bilgisi: Environment[")
++            .replace("sessionHost=", "oturumSunucusu=")
++            .replace("servicesHost=", "servisSunucusu=")
++            .replace("profilesHost=", "profilSunucusu=")
++            .replace("name=", "ad=")
++            .replace("Loaded recipes", "Tarifler yuklendi")
++            .replace("Loading properties", "Ayarlar yukleniyor")
++            .replace("Generating keypair", "Sunucu anahtar cifti olusturuluyor")
++            .replace("YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.", "SUNUCU YONETICI/ROOT YETKISIYLE CALISIYOR. BU ONERILMEZ.")
++            .replace("YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.", "Bu sekilde calistirmak gereksiz guvenlik riski olusturur.")
++            .replace("FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/", "Detay: https://madelinemiller.dev/blog/root-minecraft-server/")
++            .replace("Paper: Using Java compression from Velocity.", "Paper: Velocity Java sikistirma katmani kullaniliyor.")
++            .replace("Paper: Using Java cipher from Velocity.", "Paper: Velocity Java sifreleme katmani kullaniliyor.")
++            .replace("Running delayed init tasks", "Gecikmeli baslangic gorevleri calistiriliyor")
++            .replace("For help, type \"help\"", "Yardim icin \"help\" yaz")
++            .replace("All chunks are saved", "Tum chunklar kaydedildi")
++            .replace("All dimensions are saved", "Tum boyutlar kaydedildi")
++            .replace("Not Secure", "Guvenli Degil")
++            .replace("Loading server plugin", "Sunucu eklentisi yukleniyor")
++            .replace("Enabling ", "Etkinlestiriliyor ")
++            .replace("Disabling ", "Devre disi birakiliyor ")
++            .replace("Successfully enabled!", "Basariyla etkinlestirildi!")
++            .replace("Metrics initialized", "Metrikler baslatildi")
++            .replace("SQLite connection established.", "SQLite baglantisi kuruldu.")
++            .replace("Storage type:", "Depolama turu:")
++            .replace("Access URL:", "Erisim adresi:")
++            .replace("Starting background profiler...", "Arka plan profiler baslatiliyor...")
++            .replace("This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling", "Bu sunucu spark profiler'i yerlesik olarak tasir. Bilgi: https://docs.papermc.io/paper/profiling")
++            .replace("The spark plugin will not be loaded as this server bundles the spark profiler.", "Spark profiler HonorMC icinde yerlesik oldugu icin spark eklentisi yuklenmeyecek.")
++            .replace("The spark plugin has been preferred but was not loaded. The bundled spark profiler will enabled instead.", "Spark eklentisi tercih edildi fakat yuklenmedi; yerlesik spark profiler acilacak.")
++            .replace("The spark profiler will not be enabled because it is currently disabled in the configuration.", "Spark profiler ayarlarda kapali oldugu icin acilmayacak.")
++            .replace("The spark profiler is currently disabled.", "Spark profiler su anda kapali.")
++            .replace("The async-profiler engine is not supported for your os/arch", "Async-profiler motoru isletim sistemi/mimari icin desteklenmiyor")
++            .replace("so the built-in Java engine will be used instead.", "bu yuzden yerlesik Java motoru kullanilacak.");
++
++        translated = translated
++            .replaceAll("Loaded (\\d+) recipes", "$1 tarif yuklendi")
++            .replaceAll("Loaded (\\d+) advancements", "$1 ilerleme yuklendi")
++            .replaceAll("Starting minecraft server version (.+)", "Minecraft sunucu surumu baslatiliyor: $1")
++            .replaceAll("Server Ping Player Sample Count: (\\d+)", "Sunucu ping oyuncu ornek sayisi: $1")
++            .replaceAll("Using (\\d+) threads for Netty based IO", "Netty tabanli I/O icin $1 is parcacigi kullaniliyor")
++            .replaceAll("Default game type: (.+)", "Varsayilan oyun modu: $1")
++            .replaceAll("Starting Minecraft server on (.+)", "Minecraft sunucusu $1 adresinde aciliyor")
++            .replaceAll("Preparing level \"([^\"]+)\"", "Dunya hazirlaniyor: \"$1\"")
++            .replaceAll("Done preparing level \"([^\"]+)\" \\(([^)]+)\\)", "Dunya hazirlandi: \"$1\" ($2)")
++            .replaceAll("Loading (\\d+) persistent chunks for level '([^']+)'\\.\\.\\.", "$2 icin $1 kalici chunk yukleniyor...")
++            .replaceAll("Loading (\\d+) persistent chunks\\.\\.\\.", "$1 kalici chunk yukleniyor...")
++            .replaceAll("Prepared spawn area in (\\d+) ms", "Dogma alani $1 ms icinde hazirlandi")
++            .replaceAll("Saving chunks for level '([^']+)'/([^\\r\\n]+)", "Dunya chunklari kaydediliyor: '$1'/$2")
++            .replaceAll("Done \\(([^)]+)\\)! Yardim icin \"help\" yaz", "Hazir ($1)! Yardim icin \"help\" yaz")
++            .replaceAll("UUID of player ([^\\s]+) is ([0-9a-fA-F-]+)", "Oyuncu UUID bilgisi: $1 -> $2")
++            .replaceAll("([^\\r\\n]+) joined the game", "$1 oyuna katildi")
++            .replaceAll("([^\\r\\n]+) left the game", "$1 oyundan ayrildi")
++            .replaceAll("([^\\r\\n]+) logged in with entity id (\\d+) at \\(\\[([^\\]]+)\\]([^\\r\\n]+)\\)", "$1 varlik kimligi $2 ile giris yapti: [$3]$4")
++            .replaceAll("Server permissions file ([^\\r\\n]+) is empty, ignoring it", "Sunucu izin dosyasi $1 bos; yok sayiliyor")
++            .replaceAll("This server is running ([^\\r\\n]+) version ([^\\r\\n]+) \\(Implementing API version ([^)]+)\\)", "Bu sunucu $1 $2 surumuyle calisiyor (API surumu $3)")
++            .replaceAll("Error occurred while enabling ([^\\r\\n]+) \\(Is it up to date\\?\\)", "$1 etkinlestirilirken hata olustu (guncel mi?)");
++
++        return translated;
++    }
+ }
+diff --git a/src/main/java/io/papermc/paper/SparksFly.java b/src/main/java/io/papermc/paper/SparksFly.java
+index 62e2d5704c348955bc8284dc2d54c933b7bcdd06..e5ff8cf584216f31a1c1b9c744f55afe105c9696 100644
+--- a/src/main/java/io/papermc/paper/SparksFly.java
++++ b/src/main/java/io/papermc/paper/SparksFly.java
+@@ -41,7 +41,7 @@ public final class SparksFly {
+     public SparksFly(final Server server) {
+         this.mainThreadTaskQueue = new ConcurrentLinkedQueue<>();
+         this.logger = Logger.getLogger(ID);
+-        this.logger.log(Level.INFO, "This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling");
++        this.logger.log(Level.INFO, "Bu sunucu spark profiler'i yerlesik olarak tasir. Bilgi: https://docs.papermc.io/paper/profiling");
+         this.spark = PaperSparkModule.create(Compatibility.VERSION_1_0, server, this.logger, new PaperScheduler() {
+             @Override
+             public void executeAsync(final Runnable runnable) {
+@@ -58,7 +58,7 @@ public final class SparksFly {
+                     try {
+                         runnable.run();
+                     } catch (final Throwable t) {
+-                        SparksFly.this.logger.log(Level.SEVERE, "An exception was encountered while executing a " + type + " spark task", t);
++                        SparksFly.this.logger.log(Level.SEVERE, type + " spark gorevi calistirilirken hata olustu", t);
+                     }
+                 };
+             }
+@@ -111,7 +111,7 @@ public final class SparksFly {
+         final boolean isPluginEnabled = isPluginEnabled(server);
+         if (!isPluginPreferred || !isPluginEnabled) {
+             if (isPluginPreferred && !this.enabled) {
+-                this.logger.log(Level.INFO, "The spark plugin has been preferred but was not loaded. The bundled spark profiler will enabled instead.");
++                this.logger.log(Level.INFO, "Spark eklentisi tercih edildi fakat yuklenmedi; yerlesik spark profiler acilacak.");
+             }
+             this.enable();
+         }
+@@ -124,7 +124,7 @@ public final class SparksFly {
+                 this.spark.enable();
+             } else {
+                 if (!this.disabledInConfigurationWarningLogged) {
+-                    this.logger.log(Level.INFO, "The spark profiler will not be enabled because it is currently disabled in the configuration.");
++                    this.logger.log(Level.INFO, "Spark profiler ayarlarda kapali oldugu icin acilmayacak.");
+                     this.disabledInConfigurationWarningLogged = true;
+                 }
+             }
+@@ -194,7 +194,7 @@ public final class SparksFly {
+             if (spark.enabled) {
+                 spark.executeCommand(sender, args);
+             } else {
+-                sender.sendMessage(Component.text("The spark profiler is currently disabled.", TextColor.color(SPARK_YELLOW)));
++                sender.sendMessage(Component.text("Spark profiler su anda kapali.", TextColor.color(SPARK_YELLOW)));
+             }
+             return true;
+         }
+diff --git a/src/main/java/io/papermc/paper/adventure/ChatProcessor.java b/src/main/java/io/papermc/paper/adventure/ChatProcessor.java
+index f1ef191a9ca388112021959402a4912c54e177f7..a15b003214c2aa34217df85958514e4a501735d7 100644
+--- a/src/main/java/io/papermc/paper/adventure/ChatProcessor.java
++++ b/src/main/java/io/papermc/paper/adventure/ChatProcessor.java
+@@ -317,7 +317,7 @@ public final class ChatProcessor {
+ 
+         private void sendToServer(final ChatType.Bound chatType, final @Nullable Function<Audience, net.minecraft.network.chat.Component> msgFunction) {
+             final PlayerChatMessage toConsoleMessage = msgFunction == null ? ChatProcessor.this.message : ChatProcessor.this.message.withUnsignedContent(msgFunction.apply(ChatProcessor.this.server.console));
+-            ChatProcessor.this.server.logChatMessage(toConsoleMessage.decoratedContent(), chatType, ChatProcessor.this.server.getPlayerList().verifyChatTrusted(toConsoleMessage) ? null : "Not Secure");
++            ChatProcessor.this.server.logChatMessage(toConsoleMessage.decoratedContent(), chatType, ChatProcessor.this.server.getPlayerList().verifyChatTrusted(toConsoleMessage) ? null : "Guvenli Degil");
+         }
+     }
+ 
+diff --git a/src/main/java/io/papermc/paper/connection/HorriblePlayerLoginEventHack.java b/src/main/java/io/papermc/paper/connection/HorriblePlayerLoginEventHack.java
+index e6511bddcdf1dc455d17d91d733aad055d2301dc..a69f7abc339f6f4c3925789426d5e39874f0f47d 100644
+--- a/src/main/java/io/papermc/paper/connection/HorriblePlayerLoginEventHack.java
++++ b/src/main/java/io/papermc/paper/connection/HorriblePlayerLoginEventHack.java
+@@ -36,12 +36,12 @@ public class HorriblePlayerLoginEventHack {
+         LOGGER.warn("""
+                 
+                 ============================================================
+-                WARNING: {} Attempted to use PlayerGameConnection#reenterConfiguration()
++                UYARI: {} PlayerGameConnection#reenterConfiguration() kullanmaya calisti.
+                 
+-                This method currently requires that all plugins installed on the server
+-                are not listening to the PlayerLoginEvent.
++                Bu yontemin calisabilmesi icin sunucudaki eklentilerin
++                PlayerLoginEvent dinlememesi gerekir.
+                 
+-                Please look in your logs for the Plugins listening to this event.
++                Bu olayi dinleyen eklentileri kayitlardan kontrol edin.
+                 ============================================================""", StackWalkerUtil.getFirstPluginCaller().getName());
+         return true;
+     }
+@@ -57,18 +57,18 @@ public class HorriblePlayerLoginEventHack {
+                 plugins.add(listener.getPlugin().getName());
+             }
+             if (true) {
+-                LOGGER.info("You have plugins listening to the PlayerLoginEvent, this will cause re-configuration APIs to be unavailable: {}", plugins);
++                LOGGER.info("PlayerLoginEvent dinleyen eklentiler var; bu yuzden yeniden-yapilandirma API'leri kullanilamayacak: {}", plugins);
+             } else {
+                 LOGGER.warn("""
+                     
+                     ============================================================
+-                    WARNING: Legacy PlayerLoginEvent usage detected!
++                    UYARI: Eski PlayerLoginEvent kullanimi algilandi!
+                     
+-                    This event forces an alternative player loading path that is
+-                    deprecated and will be removed in a future release.
+-                    For more information, see: https://go.papermc.io/announcement/1.21.7
++                    Bu olay, artik onerilmeyen ve ileride kaldirilacak
++                    alternatif oyuncu yukleme yolunu zorlar.
++                    Daha fazla bilgi: https://go.papermc.io/announcement/1.21.7
+                     
+-                    Please notify the following plugin developers: {}
++                    Lutfen su eklenti gelistiricilerine bildirin: {}
+                     ============================================================""", plugins);
+             }
+             nagged = true;
+diff --git a/src/main/java/io/papermc/paper/plugin/provider/source/FileProviderSource.java b/src/main/java/io/papermc/paper/plugin/provider/source/FileProviderSource.java
+index 9661f033bbb2c00073f1c891e1411c2a9943a37a..eb4183d9d7d941356909a658d8a8b1b90700bb13 100644
+--- a/src/main/java/io/papermc/paper/plugin/provider/source/FileProviderSource.java
++++ b/src/main/java/io/papermc/paper/plugin/provider/source/FileProviderSource.java
+@@ -77,7 +77,7 @@ public class FileProviderSource implements ProviderSource<Path, Path> {
+ 
+         final PluginMeta config = type.getConfig(file);
+         if ((config.getName().equals("spark") && config.getMainClass().equals("me.lucko.spark.bukkit.BukkitSparkPlugin")) && !SparksFly.isPluginPreferred()) {
+-            LOGGER.info("The spark plugin will not be loaded as this server bundles the spark profiler.");
++            LOGGER.info("Spark profiler HonorMC icinde yerlesik oldugu icin spark eklentisi yuklenmeyecek.");
+             return;
+         }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 495da134739f278e0bcd4d2f377fa8b353513d0b..f7bc2d8300dfe1681a4f92fb97e8eab51eac59ce 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1148,10 +1148,10 @@ public final class CraftServer implements Server {
+         try {
+             perms = this.yaml.load(stream);
+         } catch (MarkedYAMLException ex) {
+-            this.getLogger().log(Level.WARNING, "Server permissions file " + file + " is not valid YAML: " + ex.toString());
++            this.getLogger().log(Level.WARNING, "Sunucu izin dosyasi " + file + " gecerli YAML degil: " + ex.toString());
+             return;
+         } catch (Throwable ex) {
+-            this.getLogger().log(Level.WARNING, "Server permissions file " + file + " is not valid YAML.", ex);
++            this.getLogger().log(Level.WARNING, "Sunucu izin dosyasi " + file + " gecerli YAML degil.", ex);
+             return;
+         } finally {
+             try {
+@@ -1160,7 +1160,7 @@ public final class CraftServer implements Server {
+         }
+ 
+         if (perms == null) {
+-            this.getLogger().log(Level.INFO, "Server permissions file " + file + " is empty, ignoring it");
++            this.getLogger().log(Level.INFO, "Sunucu izin dosyasi " + file + " bos; yok sayiliyor");
+             return;
+         }
+ 
+diff --git a/src/main/java/org/spigotmc/SpigotConfig.java b/src/main/java/org/spigotmc/SpigotConfig.java
+index 025ec3f3e84a3367b4d709c8c3ecd98f6dfecab4..8c3890a5ac94955d7aa6423888f92167e882b074 100644
+--- a/src/main/java/org/spigotmc/SpigotConfig.java
++++ b/src/main/java/org/spigotmc/SpigotConfig.java
+@@ -198,7 +198,7 @@ public class SpigotConfig {
+     private static void nettyThreads() {
+         int count = SpigotConfig.getInt("settings.netty-threads", 4);
+         System.setProperty("io.netty.eventLoopThreads", Integer.toString(count));
+-        Bukkit.getLogger().log(Level.INFO, "Using {0} threads for Netty based IO", count);
++        Bukkit.getLogger().log(Level.INFO, "Netty tabanli I/O icin {0} is parcacigi kullaniliyor", count);
+     }
+ 
+     public static boolean disableStatSaving;
+@@ -235,7 +235,7 @@ public class SpigotConfig {
+     public static int playerSample;
+     private static void playerSample() {
+         SpigotConfig.playerSample = Math.max(SpigotConfig.getInt("settings.sample-count", 12), 0); // Paper - Avoid negative counts
+-        Bukkit.getLogger().log(Level.INFO, "Server Ping Player Sample Count: {0}", playerSample); // Paper - Use logger
++        Bukkit.getLogger().log(Level.INFO, "Sunucu ping oyuncu ornek sayisi: {0}", playerSample); // Paper - Use logger
+     }
+ 
+     public static int playerShuffle;

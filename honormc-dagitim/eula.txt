@@ -1,0 +1,4 @@
+# Mojang EULA kabul dosyasi.
+# Sunucuyu kullanmadan once EULA kosullarini okuyup kabul etmelisin.
+# Kabul ediyorsan alttaki degeri true yap.
+eula=true

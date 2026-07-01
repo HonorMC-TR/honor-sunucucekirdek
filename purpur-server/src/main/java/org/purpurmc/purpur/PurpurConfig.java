@@ -40,15 +40,13 @@ import org.purpurmc.purpur.task.TPSBarTask;
 
 @SuppressWarnings("unused")
 public class PurpurConfig {
-    private static final String HEADER = "This is the main configuration file for Purpur.\n"
-            + "As you can see, there's tons to configure. Some options may impact gameplay, so use\n"
-            + "with caution, and make sure you know what each option does before configuring.\n"
+    private static final String HEADER = "HonorMC uyumluluk ayar dosyasi.\n"
+            + "Bu dosya Paper/Purpur uyumluluk katmanindan gelen ayarlari tasir.\n"
+            + "Bazi anahtar adlari eklenti uyumlulugu icin upstream adlariyla korunur.\n"
             + "\n"
-            + "If you need help with the configuration or have any questions related to Purpur,\n"
-            + "join us in our Discord guild.\n"
+            + "Sunucu markasi, log yuzeyi ve dagitim dili HonorMC tarafindan yonetilir.\n"
             + "\n"
-            + "Website: https://purpurmc.org \n"
-            + "Docs: https://purpurmc.org/docs \n";
+            + "Proje: HonorMC\n";
     private static File CONFIG_FILE;
     public static YamlConfiguration config;
 
@@ -94,7 +92,7 @@ public class PurpurConfig {
 
     public static void registerCommands() {
         for (Map.Entry<String, Command> entry : commands.entrySet()) {
-            MinecraftServer.getServer().server.getCommandMap().register(entry.getKey(), "Purpur", entry.getValue());
+            MinecraftServer.getServer().server.getCommandMap().register(entry.getKey(), "HonorMC", entry.getValue());
         }
     }
 
@@ -233,6 +231,15 @@ public class PurpurConfig {
     public static String serverModName = io.papermc.paper.ServerBuildInfo.buildInfo().brandName();
     private static void serverModName() {
         serverModName = getString("settings.server-mod-name", serverModName);
+        if (serverModName == null
+            || serverModName.isBlank()
+            || "Purpur".equalsIgnoreCase(serverModName)
+            || "Paper".equalsIgnoreCase(serverModName)
+            || "Spigot".equalsIgnoreCase(serverModName)
+            || "Bukkit".equalsIgnoreCase(serverModName)) {
+            serverModName = io.papermc.paper.ServerBuildInfo.buildInfo().brandName();
+            set("settings.server-mod-name", serverModName);
+        }
     }
 
     public static double laggingThreshold = 19.0D;
