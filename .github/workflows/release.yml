@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Manuel yayında kullanılacak sürüm etiketi (ornek: Honor-26.2)"
+        description: "Manuel yayin etiketini yaz (ornek: Honor-26.2)"
         required: true
 
 permissions:
@@ -23,6 +23,8 @@ jobs:
       GIT_COMMITTER_EMAIL: builder@honormc.local
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
         with:
@@ -35,7 +37,7 @@ jobs:
       - name: Configure Git
         run: git config --global user.email "no-reply@github.com" && git config --global user.name "Github Actions"
 
-      - name: Yayın etiketini belirle
+      - name: Yayin etiketini belirle
         id: release_info
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -44,11 +46,11 @@ jobs:
             TAG_NAME="${GITHUB_REF_NAME}"
           fi
           if [[ "${TAG_NAME}" != Honor-* ]]; then
-            echo "Etiket formatı gecersiz. Beklenen: Honor-X.Y" >&2
+            echo "Etiket formati gecersiz. Beklenen: Honor-<surum>" >&2
             exit 1
           fi
           if [ -z "$TAG_NAME" ]; then
-            echo "release etiketi belirlenemedi." >&2
+            echo "Release etiketi belirlenemedi." >&2
             exit 1
           fi
           VERSION="${TAG_NAME#Honor-}"
@@ -64,30 +66,122 @@ jobs:
           TAG="${{ steps.release_info.outputs.tag_name }}"
           JAR_ASSET="Honor-${VERSION}.jar"
           ZIP_ASSET="Honor-${VERSION}-dagitim.zip"
+          BAT_ASSET="Honor-${VERSION}-baslat.bat"
           JAR_URL="https://github.com/${REPO}/releases/download/${TAG}/${JAR_ASSET}"
           ZIP_URL="https://github.com/${REPO}/releases/download/${TAG}/${ZIP_ASSET}"
-          cat <<EOF > release-notes.md
-          # HonorMC ${VERSION}
-          
-          ## Indirme seçenekleri
-          - [Sunucu çekirdeği JAR](${JAR_URL}) (`${JAR_ASSET}`)
-          - [Dağıtım paketi ZIP](${ZIP_URL}) (`${ZIP_ASSET}`)
-          
-          ## Yapilanlar
-          - Performans ve stabilite için temel başlangıç düzenlemeleri güncellendi.
-          - Türkçe sunucu başlangıç mesajları ve konsol uyarıları optimize edildi.
-          - Sürüm kontrol sistemi `HonorMC-TR/honor-sunucucekirdek` deposuna bağlı çalışacak şekilde güncellendi.
-          - Dağıtım paketi: `Honor-${VERSION}.jar` ve `Honor-${VERSION}-dagitim.zip`
+          BAT_URL="https://github.com/${REPO}/releases/download/${TAG}/${BAT_ASSET}"
 
-          ## Notlar
-          - Bu sürüm, eski `Purpur/Paper` temelli çekirdek üzerinde yeniden marka ve denetim uyarlaması içerir.
-          EOF
+          PREV_TAG=""
+          while IFS= read -r current; do
+            if [ "$current" = "$TAG" ]; then
+              break
+            fi
+            PREV_TAG="$current"
+          done < <(git tag --list "Honor-*" --sort=version:refname)
+
+          if [ -n "$PREV_TAG" ]; then
+            LOG_RANGE="${PREV_TAG}..${TAG}"
+            COMPARISON_TEXT="${PREV_TAG} .. ${TAG}"
+          else
+            LOG_RANGE="${TAG}"
+            COMPARISON_TEXT="ilk release"
+          fi
+
+          mapfile -t CHANGES < <(git log --no-color --oneline --no-decorate "${LOG_RANGE}")
+          if [ ${#CHANGES[@]} -eq 0 ]; then
+            CHANGES=("00000000 Baslangic notu")
+          fi
+
+          ADDED=()
+          REMOVED=()
+          CHANGED=()
+          for item in "${CHANGES[@]}"; do
+            HASH="${item%% *}"
+            MSG="${item#* }"
+            LOWERS="$(printf '%s' "$MSG" | tr '[:upper:]' '[:lower:]')"
+            LINK="https://github.com/${REPO}/commit/${HASH}"
+
+            if echo "$LOWERS" | grep -Eqi "(feat|feature|add(ed)?|yeni|add|ekle|eklendi|yenilik)"; then
+              ADDED+=("- + [\`$HASH\`]($LINK) ${MSG}")
+            elif echo "$LOWERS" | grep -Eqi "(remove|removed|delete(d)?|kaldir|sil|silme|temizle|drop|dropped|silindi|kaldirildi)"; then
+              REMOVED+=("- - [\`$HASH\`]($LINK) ${MSG}")
+            else
+              CHANGED+=("- ~ [\`$HASH\`]($LINK) ${MSG}")
+            fi
+          done
+
+          {
+            echo "# HonorMC ${VERSION}"
+            echo
+            echo "## Indirme Secenekleri (${COMPARISON_TEXT})"
+            echo
+            echo "### 1) Sadece jar ile baslatmak isteyenlere"
+            echo "- [Jar](${JAR_URL}) (`${JAR_ASSET}`)"
+            echo "- [Hafif baslatma bat](${BAT_URL}) (`${BAT_ASSET}`)"
+            echo
+            echo "### 2) Tum kurulum paketini isteyenlere"
+            echo "- [Tam dagitim ZIP](${ZIP_URL}) (`${ZIP_ASSET}`)"
+            echo
+            echo "## + Ne Geldi"
+            if [ ${#ADDED[@]} -gt 0 ]; then
+              printf '%s\n' "${ADDED[@]}"
+            else
+              echo "- Bu surumde yeni ozellik kaydi yok."
+            fi
+            echo
+            echo "## - Ne Gitti"
+            if [ ${#REMOVED[@]} -gt 0 ]; then
+              printf '%s\n' "${REMOVED[@]}"
+            else
+              echo "- Bu surumde cikarilan bir ozellik kaydi yok."
+            fi
+            echo
+            echo "## ~ Ne Duzenlendi"
+            if [ ${#CHANGED[@]} -gt 0 ]; then
+              printf '%s\n' "${CHANGED[@]}"
+            else
+              echo "- Bu surumde duzenlenen bir kod kaydi bulunamadi."
+            fi
+            echo
+            echo "## Paket Notu"
+            echo "- JAR dosyasi: ${JAR_ASSET}"
+            echo "- Baslatma bat'i: ${BAT_ASSET}"
+            echo "- Tam dagitim: ${ZIP_ASSET}"
+          } > release-notes.md
 
       - name: Apply Patches
         run: ./gradlew applyAllPatches --stacktrace
 
       - name: Package HonorMC
         run: ./gradlew packageHonorMCJar paketleHonorMCDagitim zipHonorMCDagitim --stacktrace
+
+      - name: Kolay baslatma BAT hazirla
+        run: |
+          VERSION="${{ steps.release_info.outputs.minecraft_version }}"
+          mkdir -p build/honormc
+          cat <<EOF > "build/honormc/Honor-${VERSION}-baslat.bat"
+          @echo off
+          chcp 65001 >nul
+          setlocal
+
+          set "HONOR_JAR=%~dp0\Honor-${VERSION}.jar"
+          if not exist "%HONOR_JAR%" (
+            echo HonorMC cekirdek jar dosyasi bulunamadi: %HONOR_JAR%
+            echo Bu dosyayi jar ile ayni klasore koyup tekrar deneyin.
+            pause
+            exit /b 1
+          )
+
+          if "%HONORMC_MIN_RAM%"=="" set "HONORMC_MIN_RAM=8G"
+          if "%HONORMC_MAX_RAM%"=="" set "HONORMC_MAX_RAM=16G"
+
+          echo HonorMC baslatiliyor...
+          echo RAM: %HONORMC_MIN_RAM% - %HONORMC_MAX_RAM%
+          java -Xms%HONORMC_MIN_RAM% -Xmx%HONORMC_MAX_RAM% -Dfile.encoding=UTF-8 -Duser.language=tr -Duser.country=TR -jar "%HONOR_JAR%" nogui
+          set "HONOR_EXIT=%ERRORLEVEL%"
+          pause
+          exit /b %HONOR_EXIT%
+          EOF
 
       - name: Publish HonorMC Release
         uses: softprops/action-gh-release@v2
@@ -96,5 +190,6 @@ jobs:
           tag_name: "${{ steps.release_info.outputs.tag_name }}"
           files: |
             build/honormc/Honor-*.jar
+            build/honormc/Honor-*.bat
             build/honormc/Honor-*-dagitim.zip
           body_path: release-notes.md

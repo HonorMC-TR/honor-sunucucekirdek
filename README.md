@@ -57,6 +57,7 @@ git push origin Honor-26.2
 
 Release workflow’u dosyalari otomatik olarak yukleyecek:
 - `build/honormc/Honor-26.2.jar`
+- `build/honormc/Honor-26.2-baslat.bat`
 - `build/honormc/Honor-26.2-dagitim.zip`
 
 Manuel çalıştırma icin:
@@ -89,21 +90,32 @@ git push origin Honor-26.2
 Release açıldığında başlık: `HonorMC Honor-26.2`  
 Dosyalar:  
 - `Honor-26.2.jar`  
+- `Honor-26.2-baslat.bat`  
 - `Honor-26.2-dagitim.zip`
 
 3) beklenen örnek release notu:
 
 ```text
 # HonorMC 26.2
-## Yapilanlar
-- Performans ve stabilite için temel başlangıç düzenlemeleri guncellendi.
-- Turkce sunucu başlangıç mesajları ve konsol uyarıları optimize edildi.
-- Surum kontrol sistemi `HonorMC-TR/honor-sunucucekirdek` deposuna bağlı çalışacak şekilde guncellendi.
-- Dagitim paketi: `Honor-26.2.jar` ve `Honor-26.2-dagitim.zip`
+## Indirme Secenekleri (Honor-26.1..Honor-26.2)
 
-## Notlar
-- Bu surum, eski `Purpur/Paper` temelli cekirdek üzerinde yeniden marka ve denetim uyarlamasi içerir.
-```
+### 1) Sadece jar + baslatma isteyenler
+- [Jar](https://github.com/HonorMC-TR/honor-sunucucekirdek/releases/download/Honor-26.2/Honor-26.2.jar) (`Honor-26.2.jar`)
+- [Baslatma BAT](https://github.com/HonorMC-TR/honor-sunucucekirdek/releases/download/Honor-26.2/Honor-26.2-baslat.bat) (`Honor-26.2-baslat.bat`)
+
+### 2) Tum kurulum paketini isteyenler
+- [ZIP](https://github.com/HonorMC-TR/honor-sunucucekirdek/releases/download/Honor-26.2/Honor-26.2-dagitim.zip) (`Honor-26.2-dagitim.zip`)
+
+## + Ne Geldi
+- + Yeni Turkce konsol mesajlari eklendi
+- + Paketleme dosya adi kurallari standartlastirildi
+
+## - Ne Gitti
+- - Eski gereksiz log hizalama satirlari temizlendi
+
+## ~ Ne Duzenlendi
+- ~ Surum notlari otomatik olarak + / - / ~ formatinda olusturuluyor
+``` 
 
 ### Sunucu içinde surum kontrolunu doğrulama
 

@@ -1,33 +1,40 @@
 # HonorMC Proje Sayfasi
 
-## HonorMC Nedir?
-
-HonorMC, Minecraft sunuculari icin Turkce odakli, buyuk parcada Turkce mesaj destege sahip performansli bir cevirik/ekosistem projesidir.
+HonorMC, Minecraft sunuculari icin tamamen Turkce odakli, performansli ve temiz bir cekirdek/ekosistem projesidir.
 
 - Kod adi: **HonorMC**
 - Dagitim dosyasi: **Honor-<surum>.jar**
 - Dagitim paketi: **Honor-<surum>-dagitim.zip**
-- Amaç: Sunucu yoneticileri icin daha temiz, daha guvenilir ve hizli bir deneyim
-
-## Ozelikler
-
-- Paketleme ismi: `Honor-<surum>.jar`
-- GitHub repo: [HonorMC-TR/honor-sunucucekirdek](https://github.com/HonorMC-TR/honor-sunucucekirdek)
-- Surum kontrolu: `/version` ve `/surum` komutlarinda proje kimligi ve repo bilgisi gosterir
-- Surum yayinlari: `Honor-*` etiketleri ile otomatik release
+- Dagitim ve kurulum aciklayicisi: https://github.com/HonorMC-TR/honor-sunucucekirdek/releases/latest
+- Komut kontrolu: `/version` ve `/surum` komutlarinda proje kimligi ve repo bilgisi gorulur.
 
 ## Indirme Secenekleri
 
-- Surum indirme sayfasi: https://github.com/HonorMC-TR/honor-sunucucekirdek/releases/latest
-- JAR indirme: `Honor-<surum>.jar`
-- Dagitim paketi (ZIP): `Honor-<surum>-dagitim.zip`
+- `Honor-<surum>.jar`  (sunucu jar'i)
+- `Honor-<surum>-baslat.bat` (hafif baslatma scripti)
+- `Honor-<surum>-dagitim.zip` (tam dagitim paketi: jar + ayar + baslatici)
 
-## Hızli Baslangic
+## Surum notu sayfa duzeni
 
-1. Dagitim zip'inden dosyalarinizi acin.
-2. `HONORMC-BASLATICI.bat` ile baslatin.
-3. `honormc.yml` dosyasindan RAM ve ayarlari duzenleyin.
+Release sayfasinda asagidaki bölümler kullanilir:
 
-## Iletisim
+- `## Indirme Secenekleri`
+- `## + Ne Geldi`
+- `## - Ne Gitti`
+- `## ~ Ne Duzenlendi`
+- `## Paket Notu`
 
-Ana README, surum yonergeleri ve komutlar proje dizininde bulunur.
+Detayli örnek: [docs/HONORMC-SURUM-SAYFA-TASARIMI.md](docs/HONORMC-SURUM-SAYFA-TASARIMI.md)
+
+## Yukleme Notu
+
+Yayimlama asamalari:
+
+1. `git tag Honor-26.2`
+2. `git push origin Honor-26.2`
+3. GitHub Action otomatik olarak su assetleri yayinlar:
+   - `Honor-26.2.jar`
+   - `Honor-26.2-baslat.bat`
+   - `Honor-26.2-dagitim.zip`
+
+Not: Bu format repo etiketleriyle birlikte `Honor-*` etiketi takibi icin hazirdir.
