@@ -161,6 +161,13 @@ jobs:
             echo "- JAR dosyasi: ${JAR_ASSET}"
             echo "- Baslatma bat'i: ${BAT_ASSET}"
             echo "- Tam dagitim: ${ZIP_ASSET}"
+            echo
+            echo "## Windows Akilli Uygulama Denetimi"
+            echo "- Windows yeni ve imzasiz bat dosyalarini engelleyebilir."
+            echo "- ZIP'i indirdiyseniz cikarmadan once dosyaya sag tiklayin, Ozellikler > Engellemeyi kaldir > Uygula secin."
+            echo "- Klasor zaten cikarildiysa PowerShell'i dagitim klasorunde acip su komutu calistirin: \`Get-ChildItem -Recurse | Unblock-File\`"
+            echo "- Bat yerine dogrudan su komutla baslatabilirsiniz: \`java -Xms8G -Xmx16G -Dfile.encoding=UTF-8 -Duser.language=tr -Duser.country=TR -jar Honor-${VERSION}.jar nogui\`"
+            echo "- Kalici dagitim cozumu icin ileride imzali HonorMC launcher/installer hazirlanacak."
           } > release-notes.md
 
       - name: Apply Patches
